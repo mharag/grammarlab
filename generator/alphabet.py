@@ -23,6 +23,10 @@ class NonTerminal(Symbol):
     pass
 
 
+class CommunicationSymbol(Symbol):
+    pass
+
+
 class Alphabet:
     def __init__(self, symbols: set[Symbol]):
         self.symbols = symbols
@@ -46,17 +50,27 @@ class String:
         self.symbols = symbols
 
     @property
-    def is_terminal(self):
+    def is_sentence(self):
         for symbol in self.symbols:
-            if type(symbol) == NonTerminal:
+            if type(symbol) != Terminal:
                 return False
         return True
+
+    @property
+    def is_communication(self):
+        for symbol in self.symbols:
+            if type(symbol) == CommunicationSymbol:
+                return True
+        return False
 
     def __repr__(self):
         return "".join([str(symbol) for symbol in self.symbols])
 
     def __eq__(self, other):
-        return self.symbols == other.symbols
+        return type(self) == type(other) and self.symbols == other.symbols
+
+    def __len__(self):
+        return len(self.symbols)
 
     def create_index(self, symbols=None):
         index = defaultdict(list)
@@ -79,4 +93,5 @@ class String:
 A = Alphabet
 N = NonTerminal
 T = Terminal
+C = CommunicationSymbol
 S = String

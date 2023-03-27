@@ -1,5 +1,5 @@
-from generator.scattered_context_grammar import ScatteredContextRule, Rule
-from generator.alphabet import N, S
+from generator.scattered_context_grammar import ScatteredContextRule, Rule, Grammar
+from generator.alphabet import N, S, T
 import pytest
 
 
@@ -67,3 +67,18 @@ def test_match_single(string, rule, expected):
 def test_apply(string, rule, expected):
     derived = [match for match in rule.apply(string)]
     assert derived == expected
+
+
+def test_derive():
+    rule1 = Rule([N("A")], [S([T("a")])])
+    rule2 = Rule([N("A")], [S([N("A"), T("a")])])
+
+    grammar = Grammar(
+        [N("A")],
+        [T("a")],
+        [rule1, rule2],
+        N("A")
+    )
+    language = [sentence for sentence in grammar.derive(10)]
+    control_language = [S([T("a")]*i) for i in range(1, 11)]
+    assert language == control_language

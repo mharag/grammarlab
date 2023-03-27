@@ -1,4 +1,5 @@
 from generator.alphabet import N, T, A, S
+from generator.grammar import Grammar
 
 
 class ScatteredContextRule:
@@ -11,6 +12,11 @@ class ScatteredContextRule:
 
         self.lhs = lhs
         self.rhs = rhs
+
+    def __repr__(self):
+        lhs = ", ".join(str(symbol) for symbol in self.lhs)
+        rhs = ", ".join(str(string) for string in self.rhs)
+        return f"({lhs}) -> ({rhs})"
 
     @property
     def order(self):
@@ -54,8 +60,20 @@ class ScatteredContextRule:
             yield derived
 
 
-class ScatteredContextGrammar:
-    pass
+class ScatteredContextGrammar(Grammar):
+    def __init__(self, non_terminals, terminals, rules: list[ScatteredContextRule], start_symbol):
+        self.non_terminal = non_terminals
+        self.terminals = terminals
+        self.rules = rules
+        self.start_symbol = start_symbol
+
+    @property
+    def axiom(self):
+        return S([self.start_symbol])
+
+    def direct_derive(self, string):
+        for rule in self.rules:
+            yield from rule.apply(string)
 
 
 Rule = ScatteredContextRule

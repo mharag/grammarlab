@@ -29,11 +29,11 @@ def test_alphabet_union():
     assert len(alph1.union(alph3)) == 4
 
 
-def test_string_is_terminal():
+def test_string_is_sentence():
     str1 = String([Terminal("S"), Terminal("X")])
     str2 = String([Terminal("S"), NonTerminal("X")])
-    assert str1.is_terminal
-    assert not str2.is_terminal
+    assert str1.is_sentence
+    assert not str2.is_sentence
 
 
 def test_string_create_index():
