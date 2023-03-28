@@ -53,5 +53,6 @@ def test_c_step():
     assert len(result) == 1
     assert result[0] == Configuration([S([N("A"), N("B"), N("A"), N("B")]), S([N("S2")])])
 
+    configuration = Configuration([S([C("1"), C("1")]), S([C("0"), N("B")])])
     result = [x for x in pcgs.c_step(configuration)]
     assert len(result) == 0

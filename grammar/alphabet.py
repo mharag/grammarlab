@@ -83,6 +83,12 @@ class String:
     def __len__(self):
         return len(self.symbols)
 
+    def __iter__(self):
+        return iter(self.symbols)
+
+    def __getitem__(self, item):
+        return self.symbols[item]
+
     def create_index(self, symbols=None):
         index = defaultdict(list)
         for idx, symbol in enumerate(self.symbols):
@@ -97,8 +103,8 @@ class String:
     def replace(self, index, symbol):
         self.symbols[index] = symbol
 
-    def expand(self, index, string):
-        self.symbols[index:index+1] = string.symbols
+    def expand(self, index, string, expand_symbols=1):
+        self.symbols[index:index+expand_symbols] = string.symbols
 
 
 A = Alphabet
