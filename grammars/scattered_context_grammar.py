@@ -1,6 +1,6 @@
-from grammar.alphabet import N, T, A, S
-from grammar.grammar import Grammar
-from grammar.constructors import construct_nonterminal_alphabet, construct_terminal_alphabet, construct_rules, construct_string
+from glab.alphabet import N, T, A, S
+from glab.grammar_base import GrammarBase
+from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
 
 
 class ScatteredContextRule:
@@ -19,7 +19,7 @@ class ScatteredContextRule:
     def construct(cls, alphabet, rule):
         lhs, rhs = rule
         lhs = [alphabet.lookup(symbol) for symbol in lhs]
-        rhs = [construct_string(alphabet, string) for string in rhs]
+        rhs = [compact_string(alphabet, string) for string in rhs]
         return cls(lhs, rhs)
 
     def __repr__(self):
@@ -71,7 +71,7 @@ class ScatteredContextRule:
             yield derived
 
 
-class ScatteredContextGrammar(Grammar):
+class ScatteredContextGrammar(GrammarBase):
     def __init__(self, non_terminals, terminals, rules: list[ScatteredContextRule], start_symbol):
         self.non_terminal = non_terminals
         self.terminals = terminals
@@ -89,8 +89,8 @@ Rules:
 
     @classmethod
     def construct(cls, non_terminals, terminals, rules, start_symbol):
-        non_terminals = construct_nonterminal_alphabet(non_terminals)
-        terminals = construct_terminal_alphabet(terminals)
+        non_terminals = compact_nonterminal_alphabet(non_terminals)
+        terminals = compact_terminal_alphabet(terminals)
         alphabet = non_terminals.union(terminals)
         rules = [ScatteredContextRule.construct(alphabet, rule) for rule in rules]
         start_symbol = N(start_symbol)

@@ -1,8 +1,8 @@
 import pytest
 
-from grammar.pc_grammar_system import PCGrammarSystem, Configuration
-from grammar.scattered_context_grammar import ScatteredContextGrammar, ScatteredContextRule
-from grammar.alphabet import N, T, C, S
+from grammars.pc_grammar_system import PCGrammarSystemBase, Configuration
+from grammars.scattered_context_grammar import ScatteredContextGrammar, ScatteredContextRule
+from glab.alphabet import N, T, C, S
 
 
 def test_g_step():
@@ -19,7 +19,7 @@ def test_g_step():
         N("B")
     )
 
-    pcgs = PCGrammarSystem(
+    pcgs = PCGrammarSystemBase(
         components=[grammar, grammar1]
     )
     configuration = Configuration([S([N("A"), N("A")]), S([N("B"), N("B")])])
@@ -41,7 +41,7 @@ def test_g_step():
 def test_c_step():
     grammar1 = ScatteredContextGrammar(None, None, None, N("S1"))
     grammar2 = ScatteredContextGrammar(None, None, None, N("S2"))
-    pcgs = PCGrammarSystem(components=[grammar1, grammar2])
+    pcgs = PCGrammarSystemBase(components=[grammar1, grammar2])
     configuration = Configuration([S([C("1")]), S([N("B"), N("B")])])
     result = [x for x in pcgs.c_step(configuration)]
     assert len(result) == 1

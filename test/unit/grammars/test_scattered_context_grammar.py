@@ -1,5 +1,5 @@
-from grammar.scattered_context_grammar import ScatteredContextRule, Rule, Grammar
-from grammar.alphabet import N, S, T
+from grammars.scattered_context_grammar import ScatteredContextRule, Rule, ScatteredContextGrammar as Grammar
+from glab.alphabet import N, S, T
 import pytest
 
 

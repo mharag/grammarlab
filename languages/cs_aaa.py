@@ -1,4 +1,5 @@
-from grammar.grammars import CS
+from grammars.grammars import CS
+from glab.cli import App
 
 N = {"S", "-", "A", "L", "R", "F"}
 T = {"a", "_"}
@@ -14,4 +15,7 @@ P = [
 ]
 S = "S"
 
-grammar = CS(N, T, P, S).run()
+grammar = CS(N, T, P, S)
+
+if __name__ == "__main__":
+    App(grammar).run()

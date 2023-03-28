@@ -1,5 +1,5 @@
-from grammar.alphabet import N, T, A, S, C
-from grammar.grammar import Grammar
+from glab.alphabet import N, T, A, S, C
+from glab.grammar_base import GrammarBase
 
 
 class Configuration:
@@ -33,7 +33,7 @@ class Configuration:
         return False
 
 
-class PCGrammarSystem(Grammar):
+class PCGrammarSystemBase(GrammarBase):
     def __init__(self, components, centralized=False, returning=True):
         self.components = components
         self.centralized = centralized

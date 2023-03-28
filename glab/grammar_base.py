@@ -1,4 +1,6 @@
-class Grammar:
+from functools import wraps
+
+class GrammarBase:
     def __init__(self):
         self.stack = []
         #self._derivation_sequence = []
@@ -33,3 +35,13 @@ class Grammar:
 
     def derivation_sequence(self):
         return self._derivation_sequence
+
+
+def restrictions(factory, *conditions):
+    @wraps(factory)
+    def wrapper(*args, **kwargs):
+        grammar = factory(*args, **kwargs)
+        for condition in conditions:
+            condition(grammar)
+        return grammar
+    return wrapper

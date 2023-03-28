@@ -1,24 +1,24 @@
-from grammar.alphabet import S, N, T, A
+from glab.alphabet import S, N, T, A
 
 
-def construct_nonterminal_alphabet(symbols):
+def compact_nonterminal_alphabet(symbols):
     symbols = {N(symbol) for symbol in symbols}
     return A(symbols)
 
 
-def construct_terminal_alphabet(symbols):
+def compact_terminal_alphabet(symbols):
     symbols = {T(symbol) for symbol in symbols}
     return A(symbols)
 
 
-def construct_string(alphabet, string):
+def compact_string(alphabet, string):
     result = []
     for symbol in string:
         result.append(alphabet.lookup(symbol))
     return S(result)
 
 
-def construct_rules(rule_class, rules):
+def compact_rules(rule_class, rules):
     parsed_rules = []
     for lhs, rhs in rules:
         if type(lhs) == str:

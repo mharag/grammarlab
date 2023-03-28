@@ -1,4 +1,4 @@
-from grammar.alphabet import Symbol, NonTerminal, Terminal, Alphabet, String, N
+from glab.alphabet import Symbol, NonTerminal, Terminal, Alphabet, String, N
 
 
 def test_symbol_eq():

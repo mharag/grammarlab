@@ -1,7 +1,8 @@
-from grammar.constructors import construct_string
+from glab.compact_definition import compact_string
 import argparse
 
-class Output:
+
+class App:
     def __init__(self, grammar):
         self.grammar = grammar
 
@@ -25,6 +26,9 @@ class Output:
 
     def run(self):
         args = self.parse_arguments()
+
+        print(self.grammar)
+
         if args.command == "generate":
             self.generate(
                 args.depth,
@@ -36,7 +40,6 @@ class Output:
             self.derivation_sequence(args.sentence)
 
     def generate(self, max_steps=None, min_steps=None, sential_forms=False, show_index=False):
-        print(self.grammar)
         index = 0
         for sentence in self.grammar.derive(max_steps, min_steps, sential_forms=sential_forms):
             index += 1
@@ -46,8 +49,7 @@ class Output:
                 print(sentence)
 
     def derivation_sequence(self, sentence=None):
-        print(self.grammar)
-        sentence = construct_string(self.grammar.terminals, sentence)
+        sentence = compact_string(self.grammar.terminals, sentence)
         depth = 1
         found = False
         while not found:

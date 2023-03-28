@@ -1,4 +1,5 @@
-from grammar.grammars import SCG
+from grammars.grammars import SCG
+from glab.cli import App
 
 N = {"S", "A", "B", "X"}
 T = {"a", "b"}
@@ -9,4 +10,8 @@ P = [
 ]
 S = "S"
 
-an_bn = SCG(N, T, P, S).run()
+
+grammar = SCG(N, T, P, S)
+
+if __name__ == "__main__":
+    App(grammar).run()

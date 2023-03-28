@@ -1,6 +1,6 @@
-from grammar.alphabet import N, T, A, S
-from grammar.grammar import Grammar
-from grammar.constructors import construct_nonterminal_alphabet, construct_terminal_alphabet, construct_rules, construct_string
+from glab.alphabet import N, T, A, S
+from glab.grammar_base import GrammarBase
+from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_rules, compact_string
 
 
 class PhraseGrammarRule:
@@ -15,8 +15,8 @@ class PhraseGrammarRule:
     @classmethod
     def construct(cls, alphabet, rule):
         lhs, rhs = rule
-        lhs = construct_string(alphabet, lhs)
-        rhs = construct_string(alphabet, rhs)
+        lhs = compact_string(alphabet, lhs)
+        rhs = compact_string(alphabet, rhs)
         return cls(lhs, rhs)
 
     def __repr__(self):
@@ -43,8 +43,9 @@ class PhraseGrammarRule:
             yield derived
 
 
-class PhraseGrammar(Grammar):
+class PhraseGrammar(GrammarBase):
     def __init__(self, non_terminals, terminals, rules: list[PhraseGrammarRule], start_symbol):
+        super().__init__()
         self.non_terminal = non_terminals
         self.terminals = terminals
         self.rules = rules
@@ -61,8 +62,8 @@ Rules:
 
     @classmethod
     def construct(cls, non_terminals, terminals, rules, start_symbol):
-        non_terminals = construct_nonterminal_alphabet(non_terminals)
-        terminals = construct_terminal_alphabet(terminals)
+        non_terminals = compact_nonterminal_alphabet(non_terminals)
+        terminals = compact_terminal_alphabet(terminals)
         alphabet = non_terminals.union(terminals)
         rules = [PhraseGrammarRule.construct(alphabet, rule) for rule in rules]
         start_symbol = N(start_symbol)
@@ -75,3 +76,15 @@ Rules:
     def direct_derive(self, string):
         for rule in self.rules:
             yield from rule.apply(string)
+
+
+def length_preserving(grammar):
+    for rule in grammar.rules:
+        if len(rule.lhs) < len(rule.rhs):
+            return ValueError("Grammar contains shortening!")
+
+
+def context_free(grammar):
+    for rule in grammar.rules:
+        if len(rule.lhs) > 1:
+            return ValueError("Grammar contains context-sensitive rules!")

@@ -1,6 +1,6 @@
-from grammar.alphabet import N, S, T
+from glab.alphabet import N, S, T, A
 import pytest
-from grammar.phrase_grammar import PhraseGrammarRule as Rule, PhraseGrammar as Grammar
+from grammars.phrase_grammar import PhraseGrammarRule as Rule, PhraseGrammar as Grammar
 
 
 @pytest.mark.parametrize(
@@ -56,3 +56,16 @@ def test_apply(string, lhs, rhs, expected):
     rule = Rule(lhs, rhs)
     result = [i for i in rule.apply(string)]
     assert result == expected
+
+
+def test_derive():
+    non_terminals = A({N("S"), N("A"), N("X"), N("B")})
+    terminals = A({T("a"), T("b"), T("x")})
+    rules = [
+        Rule(S([N("S")]), S([N("A"),  N("A"), N("X"), N("A")])),
+        Rule(S([N("A")]), S([T("b"), T("b")])),
+        Rule(S([N("A"), N("X"), N("A")]), S([T("x")])),
+    ]
+    grammar = Grammar(non_terminals, terminals, rules, N("S"))
+    result = [x for x in grammar.derive(100)]
+    assert result == [S([T("b"), T("b"), T("x")]), S([T("b"), T("b"), T("x")])]
