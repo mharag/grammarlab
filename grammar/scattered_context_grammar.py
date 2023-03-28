@@ -1,9 +1,11 @@
-from generator.alphabet import N, T, A, S
-from generator.grammar import Grammar
+from grammar.alphabet import N, T, A, S
+from grammar.grammar import Grammar
+from grammar.constructors import construct_nonterminal_alphabet, construct_terminal_alphabet, construct_rules, construct_string
 
 
 class ScatteredContextRule:
     def __init__(self, lhs: list[N], rhs: list[S]):
+        super().__init__()
         if len(lhs) != len(rhs):
             raise ValueError(f"Different order of right and left side!")
 
@@ -12,6 +14,13 @@ class ScatteredContextRule:
 
         self.lhs = lhs
         self.rhs = rhs
+
+    @classmethod
+    def construct(cls, alphabet, rule):
+        lhs, rhs = rule
+        lhs = [alphabet.lookup(symbol) for symbol in lhs]
+        rhs = [construct_string(alphabet, string) for string in rhs]
+        return cls(lhs, rhs)
 
     def __repr__(self):
         lhs = ", ".join(str(symbol) for symbol in self.lhs)
@@ -55,8 +64,10 @@ class ScatteredContextRule:
         matches = self.match(string)
         for match in matches:
             derived = string.copy()
+            offset = 0
             for cursor in range(self.order):
-                derived.expand(match[cursor], self.rhs[cursor])
+                derived.expand(match[cursor]+offset, self.rhs[cursor])
+                offset += len(self.rhs[cursor]) - 1
             yield derived
 
 
@@ -66,6 +77,24 @@ class ScatteredContextGrammar(Grammar):
         self.terminals = terminals
         self.rules = rules
         self.start_symbol = start_symbol
+
+    def __str__(self):
+        rules = "\n".join([f"- {rule}" for rule in self.rules])
+        return f"""Scattered contex grammar
+Non-terminals: {str(self.non_terminal)}
+Terminals: {str(self.terminals)}
+Rules: 
+{rules}
+        """
+
+    @classmethod
+    def construct(cls, non_terminals, terminals, rules, start_symbol):
+        non_terminals = construct_nonterminal_alphabet(non_terminals)
+        terminals = construct_terminal_alphabet(terminals)
+        alphabet = non_terminals.union(terminals)
+        rules = [ScatteredContextRule.construct(alphabet, rule) for rule in rules]
+        start_symbol = N(start_symbol)
+        return cls(non_terminals, terminals, rules, start_symbol)
 
     @property
     def axiom(self):

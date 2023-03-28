@@ -30,6 +30,9 @@ class CommunicationSymbol(Symbol):
 class Alphabet:
     def __init__(self, symbols: set[Symbol]):
         self.symbols = symbols
+        self._symbol_lookup = {
+            symbol.symbol: symbol for symbol in self.symbols
+        }
 
     def __contains__(self, item):
         return item in self.symbols
@@ -41,8 +44,16 @@ class Alphabet:
         return Alphabet(self.symbols | other.symbols)
 
     def __repr__(self):
-        symbols = ", ".join(str(symbol) for symbol in self.symbols)
-        return f"Alphabet({{{symbols}}})"
+        return f"Alphabet({{{str(self)}}})"
+
+    def __str__(self):
+        return ", ".join(str(symbol) for symbol in self.symbols)
+
+    def lookup(self, symbol):
+        if symbol not in self._symbol_lookup:
+            raise ValueError(f"Symbol {symbol} not in alphabet!")
+        return self._symbol_lookup[symbol]
+
 
 
 class String:

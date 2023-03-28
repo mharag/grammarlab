@@ -1,8 +1,8 @@
 import pytest
 
-from generator.pc_grammar_system import PCGrammarSystem, Configuration
-from generator.scattered_context_grammar import ScatteredContextGrammar, ScatteredContextRule
-from generator.alphabet import N, T, C, S
+from grammar.pc_grammar_system import PCGrammarSystem, Configuration
+from grammar.scattered_context_grammar import ScatteredContextGrammar, ScatteredContextRule
+from grammar.alphabet import N, T, C, S
 
 
 def test_g_step():
@@ -55,5 +55,3 @@ def test_c_step():
 
     result = [x for x in pcgs.c_step(configuration)]
     assert len(result) == 0
-
-

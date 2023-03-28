@@ -1,5 +1,5 @@
-from generator.alphabet import N, T, A, S, C
-from generator.grammar import Grammar
+from grammar.alphabet import N, T, A, S, C
+from grammar.grammar import Grammar
 
 
 class Configuration:
