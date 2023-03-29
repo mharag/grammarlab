@@ -14,6 +14,10 @@ class Symbol:
     def __repr__(self):
         return self.symbol
 
+    def __add__(self, other):
+        self_string = String([self])
+        return self_string + other
+
 
 class Terminal(Symbol):
     pass
@@ -40,6 +44,9 @@ class Alphabet:
     def __len__(self):
         return len(self.symbols)
 
+    def __iter__(self):
+        return iter(self.symbols)
+
     def union(self, other):
         return Alphabet(self.symbols | other.symbols)
 
@@ -51,7 +58,7 @@ class Alphabet:
 
     def lookup(self, symbol):
         if symbol not in self._symbol_lookup:
-            raise ValueError(f"Symbol {symbol} not in alphabet!")
+            raise ValueError(f"Symbol {symbol} ({type(symbol)}) not in alphabet!")
         return self._symbol_lookup[symbol]
 
 
@@ -89,6 +96,13 @@ class String:
     def __getitem__(self, item):
         return self.symbols[item]
 
+    def __add__(self, other):
+        if isinstance(other, Symbol):
+            other = String([other])
+        elif not isinstance(other, String):
+            raise TypeError(f"String cannot be concatenated with {type(other)}")
+        return String(self.symbols + other.symbols)
+
     def create_index(self, symbols=None):
         index = defaultdict(list)
         for idx, symbol in enumerate(self.symbols):
@@ -112,3 +126,4 @@ N = NonTerminal
 T = Terminal
 C = CommunicationSymbol
 S = String
+epsilon = T(None)
