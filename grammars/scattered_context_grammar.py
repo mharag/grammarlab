@@ -1,4 +1,4 @@
-from glab.alphabet import N, T, A, S
+from glab.alphabet import N, T, A, S, Symbol
 from glab.grammar_base import GrammarBase
 from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
 
@@ -13,7 +13,13 @@ class ScatteredContextRule:
             raise ValueError(f"Terminal symbol in left side of rule!")
 
         self.lhs = lhs
-        self.rhs = rhs
+
+        unified_rhs = []
+        for item in rhs:
+            if isinstance(item, Symbol):
+                item = S([item])
+            unified_rhs.append(item)
+        self.rhs = unified_rhs
 
     @classmethod
     def construct(cls, alphabet, rule):
@@ -73,6 +79,7 @@ class ScatteredContextRule:
 
 class ScatteredContextGrammar(GrammarBase):
     def __init__(self, non_terminals, terminals, rules: list[ScatteredContextRule], start_symbol):
+        super().__init__()
         self.non_terminal = non_terminals
         self.terminals = terminals
         self.rules = rules
@@ -102,7 +109,11 @@ Rules:
 
     def direct_derive(self, string):
         for rule in self.rules:
-            yield from rule.apply(string)
+            try:
+                yield from rule.apply(string)
+            except Exception as e:
+                print(f"Error while applying rule: {rule}")
+                raise e
 
 
 Rule = ScatteredContextRule

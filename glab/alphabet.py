@@ -12,7 +12,7 @@ class Symbol:
         return hash(self.symbol)
 
     def __repr__(self):
-        return self.symbol
+        return  self.symbol
 
     def __add__(self, other):
         self_string = String([self])
@@ -24,10 +24,6 @@ class Terminal(Symbol):
 
 
 class NonTerminal(Symbol):
-    pass
-
-
-class CommunicationSymbol(Symbol):
     pass
 
 
@@ -74,15 +70,11 @@ class String:
                 return False
         return True
 
-    @property
-    def is_communication(self):
-        for symbol in self.symbols:
-            if type(symbol) == CommunicationSymbol:
-                return True
-        return False
+    def __str__(self):
+        return "".join([str(symbol) for symbol in self.symbols])
 
     def __repr__(self):
-        return "".join([str(symbol) for symbol in self.symbols])
+        return f"String({', '.join([repr(symbol) for symbol in self.symbols])})"
 
     def __eq__(self, other):
         return type(self) == type(other) and self.symbols == other.symbols
@@ -124,6 +116,5 @@ class String:
 A = Alphabet
 N = NonTerminal
 T = Terminal
-C = CommunicationSymbol
 S = String
 epsilon = T(None)

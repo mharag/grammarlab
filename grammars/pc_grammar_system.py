@@ -1,5 +1,6 @@
-from glab.alphabet import N, T, A, S, C
+from glab.alphabet import N, T, A, S
 from glab.grammar_base import GrammarBase
+from glab.compact_definition import compact_communication_symbols
 
 
 class Configuration:
@@ -13,6 +14,8 @@ class Configuration:
         sential_forms = ", ".join(str(sential_form) for sential_form in self.configuration)
         return f"Configuration({sential_forms})"
 
+    def __str__(self):
+        return str(self.configuration[0])
     def __eq__(self, other):
         return type(self) == type(other) and self.configuration == other.configuration
 
@@ -24,22 +27,33 @@ class Configuration:
     def order(self):
         return len(self.configuration)
 
-    @property
-    def communication(self):
-        for sential_form in self.configuration:
-            for symbol in sential_form.symbols:
-                if type(symbol) == C:
-                    return True
-        return False
 
 
-class PCGrammarSystemBase(GrammarBase):
-    def __init__(self, components, centralized=False, returning=True):
+class PCGrammarSystem(GrammarBase):
+    def __init__(self, comumunication_symbols, components, centralized=False, returning=True):
+        super().__init__()
         self.components = components
         self.centralized = centralized
         self.returning = returning
 
-        self.communication_symbols = [C(str(i)) for i in range(self.order)]
+        self.communication_symbols = comumunication_symbols
+
+    @classmethod
+    def construct(cls, communication_symbols, *components,  returning=True):
+        communication_symbols = compact_communication_symbols(communication_symbols)
+        return cls(
+            comumunication_symbols=communication_symbols,
+            components=components,
+            returning=returning,
+        )
+
+    def communication(self, configuration):
+        for sential_form in configuration:
+            for symbol in sential_form.symbols:
+                if symbol in self.communication_symbols:
+                    return True
+        return False
+
 
     @property
     def axiom(self):
@@ -54,12 +68,13 @@ class PCGrammarSystemBase(GrammarBase):
             return sential_form, True
         if generator is None:
             generator = component.direct_derive(sential_form)
-            return next(generator), generator
-        try:
-            return next(generator), None
-        except StopIteration:
-            generator = component.direct_derive(sential_form)
-            return next(generator), generator
+            return next(generator, None), generator
+
+        next_sential_form, new_generator = next(generator, None), None
+        if next_sential_form is None:
+            new_generator = component.direct_derive(sential_form)
+            next_sential_form = next(new_generator)
+        return next_sential_form, new_generator
 
     def g_step(self, configuration):
         generators = [None] * self.order
@@ -70,6 +85,8 @@ class PCGrammarSystemBase(GrammarBase):
                 next_configuration[i], new_generator = self.get_next_sential_form(
                     generators[i], self.components[i], configuration[i]
                 )
+                if next_configuration[i] is None:
+                    return
                 if new_generator:
                     generators[i] = new_generator
                 else:
@@ -89,8 +106,8 @@ class PCGrammarSystemBase(GrammarBase):
             sential_form = new_configuration[i]
             index = sential_form.create_index(self.communication_symbols)
             for communication_symbol, positions in index.items():
-                referenced_component = int(communication_symbol.symbol)
-                if configuration[referenced_component].is_communication:
+                referenced_component = self.communication_symbols.index(communication_symbol)
+                if configuration[referenced_component].create_index(self.communication_symbols):
                     continue
                 copied[referenced_component] = True
                 offset = 0
@@ -109,10 +126,16 @@ class PCGrammarSystemBase(GrammarBase):
         yield Configuration(new_configuration)
 
     def direct_derive(self, configuration):
-        if configuration.communication:
-            yield from self.c_step(configuration)
+        if self.communication(configuration):
+            for sential_form in self.c_step(configuration):
+                yield sential_form
         else:
-            yield from self.g_step(configuration)
+            for sential_form in self.g_step(configuration):
+                yield sential_form
 
 
-
+def centralized(grammar):
+    for component in grammar[1:]:
+        for non_terminal in component.non_terminals:
+            if type(non_terminal) == C:
+                raise ValueError(f"In centralized grammar can only main component contain comunication symbols!")

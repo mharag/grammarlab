@@ -6,13 +6,19 @@ from glab.cli import App
 
 
 def f(symbol):
-    return symbol
+    txt = symbol.symbol
+    if txt[-2:] in ["_O", "_T", "_<", "_>"]:
+        return T(txt[:-2])
+    if txt[-2:] in ["^+"]:
+        return T(txt[:-4])
+    raise ValueError(f"Unknown symbol: {symbol}")
+
 
 
 def construct_grammar(G):
     print(G)
     N_G = G.non_terminals
-    T_G = G.non_terminals
+    T_G = G.terminals
     P_G = G.rules
     S_G = G.start_symbol
 
@@ -38,8 +44,8 @@ def construct_grammar(G):
 
     p_init = Rule([S_H], [Q_1 + PL + S_O + PR + NL + NR])
 
-    P_Q1 = []
-    for rule in G.rules:
+    P_Q1 = [Rule([Q_1], [Q_7])]
+    for rule in P_G:
         if len(rule.lhs) == 2 and len(rule.rhs) == 2:
             A, B = rule.lhs
             C, D = rule.rhs
@@ -56,7 +62,7 @@ def construct_grammar(G):
             A = rule.lhs[0]
             B = rule.rhs[0]
             lhs = [Q_1, PL, N(f"{A}_O"), PR]
-            rhs = [Q_4, PL, T(f"{B}_O"), PR]
+            rhs = [Q_4, PL, N(f"{B}_T"), PR]
             P_Q1.append(Rule(lhs, rhs))
         elif len(rule.lhs) == 1 and len(rule.rhs) == 0:
             A = rule.lhs[0]
@@ -125,10 +131,8 @@ def construct_grammar(G):
         rule = Rule([Q_7, PL, X, PR], [Q_7, PL, f(X), PR])
         P_Q7.append(rule)
 
-    P_H = [p_init] + P_Q1 + P_Q2 + P_Q3 + P_Q4 + P_Q5 + P_Q6
+    P_H = [p_init] + P_Q1 + P_Q2 + P_Q3 + P_Q4 + P_Q5 + P_Q6 + P_Q7
 
     H = Grammar(N_H, T_H, P_H, S_H)
-    print("New grammar")
-    print(H)
 
-App(H).run()
+    return H

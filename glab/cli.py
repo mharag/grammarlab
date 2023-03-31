@@ -5,12 +5,14 @@ import argparse
 class App:
     def __init__(self, grammar):
         self.grammar = grammar
+        self.verbose = False
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(
             prog="Grammar Simulator",
             description="Simulator for various types of grammars",
         )
+        parser.add_argument("-v", "--verbose", action="store_true")
         subparsers = parser.add_subparsers(dest="command")
         generate_parser = subparsers.add_parser("generate")
         generate_parser.add_argument("-d", "--depth", type=int)
@@ -26,8 +28,9 @@ class App:
 
     def run(self):
         args = self.parse_arguments()
-
-        print(self.grammar)
+        self.verbose = args.verbose
+        if self.verbose:
+            print(self.grammar)
 
         if args.command == "generate":
             self.generate(

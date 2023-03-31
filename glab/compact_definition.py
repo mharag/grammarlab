@@ -11,6 +11,11 @@ def compact_terminal_alphabet(symbols):
     return A(symbols)
 
 
+def compact_communication_symbols(symbols):
+    symbols = [N(symbol) for symbol in symbols]
+    return symbols
+
+
 def compact_string(alphabet, string):
     result = []
     for symbol in string:

@@ -3,7 +3,11 @@ from functools import wraps
 class GrammarBase:
     def __init__(self):
         self.stack = []
+        self.filters = []
         #self._derivation_sequence = []
+
+    def set_filter(self, func):
+        self.filters.append(func)
 
     @classmethod
     def construct(cls, *args):
@@ -16,22 +20,29 @@ class GrammarBase:
         self.stack = [self.direct_derive(self.axiom)]
         self._derivation_sequence = [self.axiom]
         while self.stack:
-            try:
-                next_sential_form = next(self.stack[-1])
-                if not next_sential_form.is_sentence and sential_forms:
-                    yield next_sential_form
-
-                if next_sential_form.is_sentence:
-                    if min_steps is None or len(self.stack) + 1 > min_steps:
-                        yield next_sential_form
-                elif len(self.stack) >= max_steps:
-                    continue
-                else:
-                    self._derivation_sequence.append(next_sential_form)
-                    self.stack.append(self.direct_derive(next_sential_form))
-            except StopIteration:
+            next_sential_form = next(self.stack[-1], None)
+            if next_sential_form is None:
                 self.stack.pop()
                 self._derivation_sequence.pop()
+                continue
+
+            valid = True
+            for func in self.filters:
+                if not func(next_sential_form):
+                    valid = False
+            if not valid:
+                continue
+            if not next_sential_form.is_sentence and sential_forms:
+                yield next_sential_form
+
+            if next_sential_form.is_sentence:
+                if min_steps is None or len(self.stack) + 1 > min_steps:
+                    yield next_sential_form
+            elif len(self.stack) >= max_steps:
+                continue
+            else:
+                self._derivation_sequence.append(next_sential_form)
+                self.stack.append(self.direct_derive(next_sential_form))
 
     def derivation_sequence(self):
         return self._derivation_sequence
