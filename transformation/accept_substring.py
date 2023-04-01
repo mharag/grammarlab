@@ -1,11 +1,36 @@
 from grammars.pc_grammar_system import PCGrammarSystem
-from glab.alphabet import N,T,Alphabet, String
+from glab.alphabet import N,T,Alphabet, String, Symbol, Terminal, NonTerminal, SymbolType
 from grammars.scattered_context_grammar import ScatteredContextGrammar as Grammar, ScatteredContextRule as Rule
 import itertools
 
 
 def color(text):
     return f"\033[32m{text}\033[0m"
+
+
+class ExtendedSymbol(Symbol):
+    variants = {
+        "communication": (SymbolType.NON_TERMINAL, "C"),
+        "end": (SymbolType.NON_TERMINAL, "E"),
+        "current": (SymbolType.NON_TERMINAL, "C"),
+        "terminal": (SymbolType.TERMINAL, "T"),
+        "non_terminal": (SymbolType.NON_TERMINAL, "N"),
+    }
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+        self.type = symbol.type
+        self.variant = "original"
+
+    @property
+    def id(self):
+        return self.symbol.id + "_" + self.variant
+
+    def __getattr__(self, name):
+        if name not in self.variants:
+            raise AttributeError
+        return self.__class__(self.symbol, self.variants[name])
+
 
 
 class Symbol:

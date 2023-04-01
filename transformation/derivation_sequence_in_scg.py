@@ -1,12 +1,13 @@
 from grammars.scattered_context_grammar import ScatteredContextRule as Rule, ScatteredContextGrammar as Grammar
-from glab.alphabet import S,N,T,Alphabet
+from glab.alphabet import S,N,T,Alphabet, SymbolType
 from glab.compact_definition import compact_string, compact_nonterminal_alphabet
+from glab.alphabet import ExtendedSymbol
 import itertools
 from glab.cli import App
 
 
 def f(symbol):
-    txt = symbol.symbol
+    txt = str(symbol)
     if txt[-2:] in ["_O", "_<", "_>"]:
         return T(txt[:-2]+"_N")
     if txt[-2:] in ["_O", "_T", "_<", "_>"]:
@@ -16,14 +17,29 @@ def f(symbol):
     raise ValueError(f"Unknown symbol: {symbol}")
 
 
+class SCGSymbol(ExtendedSymbol):
+    variants = {
+        "non_terminal": (SymbolType.NON_TERMINAL, "N"),
+        "cs_left": (SymbolType.NON_TERMINAL, "<"),
+        "cs_right": (SymbolType.NON_TERMINAL, ">"),
+        "pointer": (SymbolType.NON_TERMINAL, "*"),
+        "copied": (SymbolType.NON_TERMINAL, "+"),
+    }
+
+    @property
+    def terminal(self):
+        if self.type == SymbolType.TERMINAL:
+            return self.base
+        return SCGSymbol(self.base_symbol, SymbolType.TERMINAL, "T")
+
+
 def construct_grammar(G):
-    #print(G)
     N_G = G.non_terminals
     T_G = G.terminals
     P_G = G.rules
     S_G = G.start_symbol
 
-    S_O = N(f"{S_G.symbol}_O")
+    S_O = N(f"{S_G}_O")
     S_H = N("S_H")
     N_O = {N(f"{symbol}_O") for symbol in N_G}
     N_T = {N(f"{symbol}_T") for symbol in T_G}
