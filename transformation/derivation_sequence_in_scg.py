@@ -7,6 +7,8 @@ from glab.cli import App
 
 def f(symbol):
     txt = symbol.symbol
+    if txt[-2:] in ["_O", "_<", "_>"]:
+        return T(txt[:-2]+"_N")
     if txt[-2:] in ["_O", "_T", "_<", "_>"]:
         return T(txt[:-2])
     if txt[-2:] in ["^+"]:
@@ -14,9 +16,8 @@ def f(symbol):
     raise ValueError(f"Unknown symbol: {symbol}")
 
 
-
 def construct_grammar(G):
-    print(G)
+    #print(G)
     N_G = G.non_terminals
     T_G = G.terminals
     P_G = G.rules
@@ -36,10 +37,11 @@ def construct_grammar(G):
     N_copied = {N(f"{symbol}^+") for symbol in N_langle | N_rangle}
     N_H = Alphabet({S_H} | N_O | N_T | Q | K | N_langle | N_rangle | N_actual | N_copied)
 
-    T_O = {T(f"{symbol}_O") for symbol in T_G}
+    T_O = {T(f"{symbol}") for symbol in T_G}
     T_N = {T(f"{symbol}_N") for symbol in N_G}
     T_e = T("e")
     T_delim = T("*")
+    T_sep = T("#")
     T_H = Alphabet(T_O | T_N | {T_e, T_delim})
 
     p_init = Rule([S_H], [Q_1 + PL + S_O + PR + NL + NR])
@@ -125,7 +127,7 @@ def construct_grammar(G):
     P_Q6 = [Rule(lhs, rhs)]
 
     lhs = [Q_7, PL, PR, NL, NR]
-    rhs = [T_delim, T_delim, T_delim, T_delim, T_delim]
+    rhs = [T_delim, T_sep, T_delim, T_delim, T_delim]
     P_Q7 = [Rule(lhs, rhs)]
     for X in N_T:
         rule = Rule([Q_7, PL, X, PR], [Q_7, PL, f(X), PR])

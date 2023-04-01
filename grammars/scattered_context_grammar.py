@@ -80,7 +80,7 @@ class ScatteredContextRule:
 class ScatteredContextGrammar(GrammarBase):
     def __init__(self, non_terminals, terminals, rules: list[ScatteredContextRule], start_symbol):
         super().__init__()
-        self.non_terminal = non_terminals
+        self.non_terminals = non_terminals
         self.terminals = terminals
         self.rules = rules
         self.start_symbol = start_symbol
@@ -88,8 +88,9 @@ class ScatteredContextGrammar(GrammarBase):
     def __str__(self):
         rules = "\n".join([f"- {rule}" for rule in self.rules])
         return f"""Scattered contex grammar
-Non-terminals: {str(self.non_terminal)}
+Non-terminals: {str(self.non_terminals)}
 Terminals: {str(self.terminals)}
+Start symbol: {self.start_symbol}
 Rules: 
 {rules}
         """

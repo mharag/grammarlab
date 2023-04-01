@@ -15,7 +15,7 @@ class Configuration:
         return f"Configuration({sential_forms})"
 
     def __str__(self):
-        return str(self.configuration[0])
+        return "    ".join([str(component) for component in self.configuration])
     def __eq__(self, other):
         return type(self) == type(other) and self.configuration == other.configuration
 
@@ -46,6 +46,13 @@ class PCGrammarSystem(GrammarBase):
             components=components,
             returning=returning,
         )
+
+    def __str__(self):
+        components = "\n".join(f"Component {i+1}:\n{component}" for i, component in enumerate(self.components))
+        return f"""PC grammar system
+Comunication symbols: {self.communication_symbols}
+{components}
+"""
 
     def communication(self, configuration):
         for sential_form in configuration:

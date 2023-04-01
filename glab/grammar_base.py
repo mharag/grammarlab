@@ -1,5 +1,6 @@
 from functools import wraps
 import logging
+from glab.alphabet import N
 
 
 log = logging.getLogger("glab.GrammarBase")
@@ -34,7 +35,8 @@ class GrammarBase:
             next_sential_form = next(self.stack[-1], None)
             if next_sential_form is None:
                 self.stack.pop()
-                self._derivation_sequence.pop()
+                dead_sential_form = self._derivation_sequence.pop()
+                log.debug(f"Dead: {dead_sential_form}")
                 continue
 
             valid = True

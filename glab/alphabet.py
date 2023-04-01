@@ -75,7 +75,7 @@ class String:
         return True
 
     def __str__(self):
-        return "".join([str(symbol) for symbol in self.symbols])
+        return " ".join([str(symbol) for symbol in self.symbols])
 
     def __repr__(self):
         return f"String({', '.join([repr(symbol) for symbol in self.symbols])})"
