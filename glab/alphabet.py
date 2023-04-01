@@ -1,4 +1,8 @@
 from collections import defaultdict
+import logging
+
+
+log = logging.getLogger("glab.Alphabet")
 
 
 class Symbol:
@@ -96,6 +100,7 @@ class String:
         return String(self.symbols + other.symbols)
 
     def create_index(self, symbols=None):
+        log.debug(f"Creating index for string: {self}")
         index = defaultdict(list)
         for idx, symbol in enumerate(self.symbols):
             if symbols is None or symbol in symbols:

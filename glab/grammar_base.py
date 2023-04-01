@@ -1,22 +1,33 @@
 from functools import wraps
+import logging
+
+
+log = logging.getLogger("glab.GrammarBase")
+
 
 class GrammarBase:
     def __init__(self):
         self.stack = []
         self.filters = []
-        #self._derivation_sequence = []
+        self._derivation_sequence = []
 
     def set_filter(self, func):
+        log.info(f"Setting filter: {func.__name__}.")
         self.filters.append(func)
 
     @classmethod
     def construct(cls, *args):
-        pass
+        raise NotImplemented
 
     def direct_derive(self, sential_form):
-        pass
+        raise NotImplemented
 
     def derive(self, max_steps, min_steps=None, sential_forms=False):
+        log.info(
+            f"Derivation started. (max_steps={max_steps}, min_steps={min_steps}, sential_forms={sential_forms})"
+        )
+        log.info(f"Axiom: {self.axiom}")
+
         self.stack = [self.direct_derive(self.axiom)]
         self._derivation_sequence = [self.axiom]
         while self.stack:
@@ -32,6 +43,7 @@ class GrammarBase:
                     valid = False
             if not valid:
                 continue
+
             if not next_sential_form.is_sentence and sential_forms:
                 yield next_sential_form
 
@@ -53,6 +65,7 @@ def restrictions(factory, *conditions):
     def wrapper(*args, **kwargs):
         grammar = factory(*args, **kwargs)
         for condition in conditions:
+            log.debug(f"Imposing restriction: {condition.__name__}")
             condition(grammar)
         return grammar
     return wrapper

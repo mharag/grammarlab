@@ -1,10 +1,16 @@
+
 from glab.compact_definition import compact_string
 import argparse
+import logging
+
+
+log = logging.getLogger("glab.cli")
 
 
 class App:
     def __init__(self, grammar):
         self.grammar = grammar
+
         self.verbose = False
 
     def parse_arguments(self):
@@ -28,9 +34,12 @@ class App:
 
     def run(self):
         args = self.parse_arguments()
+        log.info(f"G-Lab started with args: {args}")
+
         self.verbose = args.verbose
+
         if self.verbose:
-            print(self.grammar)
+            log.info(f"Grammar: {self.grammar}")
 
         if args.command == "generate":
             self.generate(
