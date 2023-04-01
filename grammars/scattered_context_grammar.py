@@ -1,6 +1,7 @@
-from glab.alphabet import N, T, A, S, Symbol
+from glab.alphabet import N, T, A, S, Symbol, SymbolType
 from glab.grammar_base import GrammarBase
 from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
+
 
 
 class ScatteredContextRule:
@@ -9,7 +10,7 @@ class ScatteredContextRule:
         if len(lhs) != len(rhs):
             raise ValueError(f"Different order of right and left side!")
 
-        if not all([type(symbol) == N for symbol in lhs]):
+        if not all([symbol.type == SymbolType.NON_TERMINAL for symbol in lhs]):
             raise ValueError(f"Terminal symbol in left side of rule!")
 
         self.lhs = lhs

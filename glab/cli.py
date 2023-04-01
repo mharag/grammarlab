@@ -28,6 +28,8 @@ class App:
 
         derivation_sequence = subparsers.add_parser("derivation_sequence")
         derivation_sequence.add_argument("-s", "--sentence", type=str)
+        derivation_sequence.add_argument("-d", "--delimiter", type=str, default="")
+        derivation_sequence.add_argument("-m", "--matches", type=int, default=1)
         args = parser.parse_args()
 
         return args
@@ -49,7 +51,7 @@ class App:
                 show_index=args.enumerate,
             )
         elif args.command == "derivation_sequence":
-            self.derivation_sequence(args.sentence)
+            self.derivation_sequence(args.sentence, args.delimiter, args.matches)
 
     def generate(self, max_steps=None, min_steps=None, sential_forms=False, show_index=False):
         index = 0
@@ -60,11 +62,10 @@ class App:
             else:
                 print(sentence)
 
-    def derivation_sequence(self, sentence=None):
-        sentence = compact_string(self.grammar.terminals, sentence)
+    def derivation_sequence(self, sentence=None, delimiter="", matches=1):
+        sentence = compact_string(self.grammar.terminals, sentence, delimiter=delimiter)
         depth = 1
-        found = False
-        while not found:
+        while matches:
             index = 0
             for s in self.grammar.derive(depth, depth):
                 index += 1
@@ -73,7 +74,8 @@ class App:
                         print(sential_form)
                     print("Result sentence:")
                     print(s)
-                    found = True
-                    break
+                    matches -= 1
+                    if not matches:
+                        break
             depth += 1
 

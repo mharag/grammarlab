@@ -16,8 +16,10 @@ def compact_communication_symbols(symbols):
     return symbols
 
 
-def compact_string(alphabet, string):
+def compact_string(alphabet, string, delimiter=None):
     result = []
+    if delimiter:
+        string = string.split(delimiter)
     for symbol in string:
         result.append(alphabet.lookup(symbol))
     return S(result)

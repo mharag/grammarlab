@@ -1,14 +1,15 @@
 from collections import defaultdict
 import logging
 from enum import Enum, auto
+from glab.config import STRING_DELIMITER, COMPACT_REPR
 
 
 log = logging.getLogger("glab.Alphabet")
 
 
 class SymbolType(Enum):
-    TERMINAL = auto()
-    NON_TERMINAL = auto()
+    TERMINAL = "T"
+    NON_TERMINAL = "N"
 
 
 class Symbol:
@@ -28,7 +29,8 @@ class Symbol:
         return hash(self.id)
 
     def __repr__(self):
-        return  self.id
+        # return  f"{self.__class__.__name__}({self.id}, type={self.type})"
+        return self.id if COMPACT_REPR else f"{self.type.value}({self.id})"
 
     @property
     def id(self):
@@ -40,33 +42,12 @@ class Symbol:
 
 
 class Terminal(Symbol):
-    type = SymbolType.NON_TERMINAL
-
-
-class NonTerminal(Symbol):
     type = SymbolType.TERMINAL
 
 
-class ExtendedSymbol(Symbol):
-    base = (None, None)
-    variants = {}
+class NonTerminal(Symbol):
+    type = SymbolType.NON_TERMINAL
 
-    def __init__(self, base_symbol, symbol_type=None, variant_name=None):
-        self.symbol = base_symbol
-        self.type = symbol_type if symbol_type else base_symbol.type
-        self.variant_name = variant_name
-
-    @property
-    def id(self):
-        if self.variant_name is None:
-            return self.base_symbol.id
-        else:
-            return self.base_symbol.id + "_" + self.variants[self.variant][1]
-
-    def __getattr__(self, name):
-        if name not in self.variants:
-            raise AttributeError
-        return self.__class__(self.base_symbol, *self.variants[name])
 
 
 class Alphabet:
@@ -108,14 +89,16 @@ class String:
     @property
     def is_sentence(self):
         for symbol in self.symbols:
-            if type(symbol) != Terminal:
+            if symbol.type != SymbolType.TERMINAL:
                 return False
         return True
 
     def __str__(self):
-        return "".join([str(symbol) for symbol in self.symbols])
+        return STRING_DELIMITER.join([str(symbol) for symbol in self.symbols])
 
     def __repr__(self):
+        if COMPACT_REPR:
+            return str(self)
         return f"String({', '.join([repr(symbol) for symbol in self.symbols])})"
 
     def __eq__(self, other):
