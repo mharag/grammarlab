@@ -1,84 +1,48 @@
 from grammars.pc_grammar_system import PCGrammarSystem
-from glab.alphabet import N,T,Alphabet, String, Symbol, Terminal, NonTerminal, SymbolType
+from glab.alphabet import String, SymbolType
+from glab.extended_symbol import ExtendedSymbol, Terminal as T, NonTerminal as N
 from grammars.scattered_context_grammar import ScatteredContextGrammar as Grammar, ScatteredContextRule as Rule
 import itertools
+from glab.config import RED
+from glab.filter import grammar_filter
 
 
-def color(text):
-    return f"\033[32m{text}\033[0m"
-
-
-class ExtendedSymbol(Symbol):
+class PCSymbol(ExtendedSymbol):
+    color = RED
     variants = {
         "communication": (SymbolType.NON_TERMINAL, "C"),
         "end": (SymbolType.NON_TERMINAL, "E"),
-        "current": (SymbolType.NON_TERMINAL, "C"),
+        "pointer": (SymbolType.NON_TERMINAL, "C"),
         "terminal": (SymbolType.TERMINAL, "T"),
         "non_terminal": (SymbolType.NON_TERMINAL, "N"),
     }
 
-    def __init__(self, symbol):
-        self.symbol = symbol
-        self.type = symbol.type
-        self.variant = "original"
-
-    @property
-    def id(self):
-        return self.symbol.id + "_" + self.variant
-
-    def __getattr__(self, name):
-        if name not in self.variants:
-            raise AttributeError
-        return self.__class__(self.symbol, self.variants[name])
-
-
-
-class Symbol:
-    def __init__(self, original_symbol):
-        self.original_symbol = original_symbol
-
-    @property
-    def comm(self):
-        return N(f"{self.original_symbol}{color('_C')}")
-
-    @property
-    def end(self):
-        return N(f"{self.original_symbol}{color('_E')}'")
-
-    @property
-    def current(self):
-        return N(f"{self.original_symbol}{color('^*')}")
-
     @property
     def terminal(self):
-        if type(self.original_symbol) == T:
-            return self.original_symbol
-        raise ValueError("Traing to convert non terminal to terminal!")
-
-    @property
-    def non_terminal(self):
-        return N(f"{self.original_symbol}{color('_O')}") if type(self.original_symbol) == N else N(f"{self.original_symbol}{color('_T')}")
+        if self.type == SymbolType.TERMINAL:
+            return PCSymbol(self.base_symbol, "terminal", *self.base)
+        return PCSymbol(self.base_symbol, "terminal", SymbolType.TERMINAL, "T")
 
 
-def construct_grammar(G, separator):
+def construct_grammar(G, separator, apply_filters=True):
     N_G = G.non_terminals
     T_G = G.terminals
     P_G = G.rules
     S_G = G.start_symbol
-    n_alphabet = {Symbol(x) for x in N_G}
-    t_alphabet = {Symbol(x) for x in T_G}
-    alphabet = n_alphabet | t_alphabet
-    S_O = Symbol(S_G)
-    separator = Symbol(separator)
+    N_extended = {PCSymbol(x) for x in N_G}
+    T_extended = {PCSymbol(x) for x in T_G}
+    alphabet_extended = N_extended | T_extended
+    N_communication = {x.communication for x in T_extended}
+    N_end = {x.end for x in T_extended}
+    N_pointer = {x.pointer for x in T_extended}
+    T_original = {x.terminal for x in alphabet_extended}
+    N_original = {x.non_terminal for x in alphabet_extended}
+
+    S_O = PCSymbol(S_G)
+    separator = PCSymbol(T(separator))
 
     W = N("W")
     E = T("-")
-    N_comm = {x.comm for x in alphabet}
-    N_end = {x.end for x in alphabet}
-    N_current = {x.current for x in alphabet}
-    N_O = {x.non_terminal for x in n_alphabet}
-    N_T = {x.non_terminal for x in t_alphabet}
-    T_H = {x.terminal for x in t_alphabet}
 
     Q_A = N("Q_A")
     Q_B = N("Q_B")
@@ -89,29 +53,29 @@ def construct_grammar(G, separator):
     P_C = [
         Rule([S_C], [W])
     ]
-    for symbol in t_alphabet:
+    for symbol in T_extended:
         P_C.extend([
-            Rule([S_C], [symbol.comm]),
-            Rule([symbol.comm], [symbol.comm]),
+            Rule([S_C], [symbol.communication]),
+            Rule([symbol.communication], [symbol.communication]),
             Rule([S_C], [symbol.end]),
             Rule([symbol.end], [symbol.end]),
         ])
 
-    C = Grammar(N_comm | N_end | {S_C, W}, set(), P_C, S_C)
+    C = Grammar(N_communication | N_end | {S_C, W}, set(), P_C, S_C)
 
     S_A = N("S_A")
     P_A = [
         Rule([S_A], [Q_C]),
         Rule([W], [W]),
     ]
-    for symbol in t_alphabet:
+    for symbol in T_extended:
         P_A.extend([
-            Rule([symbol.comm], [symbol.terminal + Q_C]),
+            Rule([symbol.communication], [symbol.terminal + Q_C]),
             Rule([symbol.end], [symbol.non_terminal]),
             Rule([symbol.non_terminal], [symbol.terminal]),
         ])
 
-    A = Grammar(N_comm | N_end | {S_A, W} | N_T, T_H, P_A, S_A)
+    A = Grammar(N_communication | N_end | {S_A, W} | N_original, T_original, P_A, S_A)
 
     S_B = N("S_B")
     R_0, R_1, R_2, R_3 = N("R_0"), N("R_1"), N("R_2"), N("R_3")
@@ -126,11 +90,11 @@ def construct_grammar(G, separator):
     for rule in P_G:
         P_B.append(
             Rule(
-                [R_1] + [Symbol(x).non_terminal for x in rule.lhs],
+                [R_1] + [PCSymbol(x).non_terminal for x in rule.lhs],
                 [R_1] + [
                     String(
                         [
-                            Symbol(x).non_terminal if x not in ignore else Symbol(x).terminal
+                            PCSymbol(x).non_terminal if x not in ignore else PCSymbol(x).terminal
                             for x in string
                         ]
                     )
@@ -139,7 +103,7 @@ def construct_grammar(G, separator):
             )
         )
 
-    for symbol in t_alphabet:
+    for symbol in T_extended:
         P_B.extend([
             Rule(
                 [R_2, symbol.non_terminal, separator.non_terminal],
@@ -147,28 +111,66 @@ def construct_grammar(G, separator):
             ),
             Rule(
                 [R_3, W, separator.non_terminal, symbol.non_terminal],
-                [R_3, Q_C, separator.terminal, symbol.current],
+                [R_3, Q_C, separator.terminal, symbol.pointer],
             ),
             Rule(
-                [R_3, symbol.end, symbol.current],
+                [R_3, symbol.end, symbol.pointer],
                 [E, E, E]
             )
         ])
 
-    for X, Y in itertools.product(t_alphabet, t_alphabet):
+    for X, Y in itertools.product(T_extended, T_extended):
         P_B.append(
             Rule(
-                [R_3, X.comm, X.current, Y.non_terminal],
-                [R_3, Q_C, X.terminal, Y.current]
+                [R_3, X.communication, X.pointer, Y.non_terminal],
+                [R_3, Q_C, X.terminal, Y.pointer]
             )
         )
 
     B = Grammar(
-        N_comm | N_end | {S_B, W} | N_T | N_current | {Q_A, Q_C} | R,
-        T_H,
+        N_communication | N_end | N_pointer | N_original | {S_B, W} | set(K) | R,
+        T_original,
         P_B,
         S_B
     )
 
-    return PCGrammarSystem(K, [A, B, C])
+    grammar = PCGrammarSystem(K, [A, B, C])
+    if apply_filters:
+        grammar.set_filter(copy_after_finish)
+        grammar.set_filter(finish_part_before_separator)
+        for origin_filter in G.filters:
+            grammar.set_filter(translate_to_origin(origin_filter))
 
+    return grammar
+
+
+def translate_to_origin(origin_filter):
+    def wrapper(configuration):
+        sential_form = configuration[1]
+        if sential_form[0] != N("R_1"):
+            return True
+        transformed = [symbol.base_symbol for symbol in sential_form[1:]]
+        return origin_filter(transformed)
+    return wrapper
+
+
+@grammar_filter
+def copy_after_finish(configuration):
+    B = configuration[1]
+    if B[0] == N("R_2"):
+        for symbol in B[1:]:
+            if symbol.variant is not None and symbol.base_symbol.variant == "non_terminal":
+                return False
+    return True
+
+
+@grammar_filter
+def finish_part_before_separator(configuration):
+    B = configuration[1]
+    if B[0] == N("R_3") and B[1] == N("Q_A"):
+        for symbol in B[2:]:
+            if str(symbol.base_symbol) == "#":
+                return True
+            if symbol.variant == "non_terminal":
+                return False
+    return True

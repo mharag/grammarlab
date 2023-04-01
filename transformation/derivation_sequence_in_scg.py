@@ -3,6 +3,7 @@ from glab.alphabet import S,Alphabet, SymbolType
 from glab.extended_symbol import ExtendedSymbol, NonTerminal as N, Terminal as T
 import itertools
 from glab.config import GREEN
+from glab.filter import grammar_filter
 
 
 class SCGSymbol(ExtendedSymbol):
@@ -23,7 +24,7 @@ class SCGSymbol(ExtendedSymbol):
         return SCGSymbol(self.base_symbol, "terminal", SymbolType.TERMINAL, "T")
 
 
-def construct_grammar(G):
+def construct_grammar(G, apply_filters=True):
     N_G = G.non_terminals
     T_G = G.terminals
     P_G = G.rules
@@ -165,6 +166,65 @@ def construct_grammar(G):
 
     P_H = [p_init] + P_Q1 + P_Q2 + P_Q3 + P_Q4 + P_Q5 + P_Q6 + P_Q7
 
-    H = Grammar(N_H, T_H, P_H, S_H)
+    grammar = Grammar(N_H, T_H, P_H, S_H)
 
-    return H
+    if apply_filters:
+        grammar.set_filter(max_one_B)
+        grammar.set_filter(non_terminal_before_working_space)
+        grammar.set_filter(symbol_not_copied)
+        grammar.set_filter(finish_left_to_right)
+
+    return grammar
+
+
+@grammar_filter
+def max_one_B(sential_form):
+    count = 0
+    for symbol in sential_form:
+        if symbol.variant == "non_terminal" and symbol.base_symbol == N("B"):
+            count += 1
+    return count <= 1
+
+
+@grammar_filter
+def non_terminal_before_working_space(sential_form):
+    for symbol in sential_form:
+        if symbol.variant == "non_terminal":
+            return False
+        if symbol == N("["):
+            break
+    return True
+
+    self.log.debug(f"Filtered ")
+
+
+@grammar_filter
+def symbol_not_copied(sential_form):
+    if sential_form[0] not in [N("Q_3"), N("Q_5")]:
+        return True
+    not_copied = False
+    for symbol in sential_form:
+        if symbol.variant == "non_terminal":
+            not_copied = True
+        if symbol.variant == "pointer":
+            return not not_copied
+    return True
+
+
+@grammar_filter()
+def finish_left_to_right(sential_form):
+    if sential_form[0] != N("Q_7"):
+        return True
+
+    in_workspace = False
+    non_terminal = False
+    for symbol in sential_form:
+        if symbol == N("["):
+            in_workspace = True
+        if in_workspace:
+            if symbol.variant == "non_terminal":
+                non_terminal = True
+            if symbol.variant == "terminal":
+                if non_terminal:
+                    return False
+    return True
