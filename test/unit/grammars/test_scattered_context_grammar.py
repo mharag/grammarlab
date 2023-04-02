@@ -1,4 +1,4 @@
-from grammars.scattered_context_grammar import ScatteredContextRule, Rule, ScatteredContextGrammar as Grammar
+from grammars.scattered_context_grammar import ScatteredContextRule, Rule, ScatteredContextGrammar as Grammar, SCGConfiguration as C
 from glab.alphabet import N, S, T
 import pytest
 
@@ -47,19 +47,19 @@ def test_match_single(string, rule, expected):
     "string,rule,expected",
     [
         (
-            S([N("A"), N("A"), N("A")]),
+            C(S([N("A"), N("A"), N("A")])),
             Rule([N("A")], [S([N("B"), N("C")])]),
             [
-                S([N("B"), N("C"), N("A"), N("A")]),
-                S([N("A"), N("B"), N("C"), N("A")]),
-                S([N("A"), N("A"), N("B"), N("C")]),
+                C(S([N("B"), N("C"), N("A"), N("A")])),
+                C(S([N("A"), N("B"), N("C"), N("A")])),
+                C(S([N("A"), N("A"), N("B"), N("C")])),
             ]
         ),
         (
-            S([N("A"), N("B")]),
+            C(S([N("A"), N("B")])),
             Rule([N("A"), N("B")], [S([N("C")]), S([N("D")])]),
             [
-                S([N("C"), N("D")]),
+                C(S([N("C"), N("D")])),
             ]
         )
     ]
@@ -80,5 +80,5 @@ def test_derive():
         N("A")
     )
     language = [sentence for sentence in grammar.derive(10)]
-    control_language = [S([T("a")]*i) for i in range(1, 11)]
+    control_language = [C(S([T("a")]*i)) for i in range(1, 11)]
     assert language == control_language

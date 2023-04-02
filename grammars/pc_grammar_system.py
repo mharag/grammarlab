@@ -117,7 +117,8 @@ Comunication symbols: {self.communication_symbols}
                 else:
                     break
 
-            yield PCConfiguration(next_configuration)
+
+            yield PCConfiguration([x.copy() for x in next_configuration])
 
     def c_step(self, configuration):
         copied = [False] * configuration.order
