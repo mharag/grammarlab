@@ -1,5 +1,5 @@
 from grammars.pc_grammar_system import PCGrammarSystem
-from glab.alphabet import String, SymbolType
+from glab.alphabet import String, SymbolType, Alphabet
 from glab.extended_symbol import ExtendedSymbol, Terminal as T, NonTerminal as N
 from grammars.scattered_context_grammar import ScatteredContextGrammar as Grammar, ScatteredContextRule as Rule
 import itertools
@@ -61,7 +61,7 @@ def construct_grammar(G, separator, apply_filters=True):
             Rule([symbol.end], [symbol.end]),
         ])
 
-    C = Grammar(N_communication | N_end | {S_C, W}, set(), P_C, S_C)
+    C = Grammar(Alphabet(N_communication | N_end | {S_C, W}), Alphabet(set()), P_C, S_C)
 
     S_A = N("S_A")
     P_A = [
@@ -75,7 +75,7 @@ def construct_grammar(G, separator, apply_filters=True):
             Rule([symbol.non_terminal], [symbol.terminal]),
         ])
 
-    A = Grammar(N_communication | N_end | {S_A, W} | N_original, T_original, P_A, S_A)
+    A = Grammar(Alphabet(N_communication | N_end | {S_A, W} | N_original), Alphabet(T_original), P_A, S_A)
 
     S_B = N("S_B")
     R_0, R_1, R_2, R_3 = N("R_0"), N("R_1"), N("R_2"), N("R_3")
@@ -128,8 +128,8 @@ def construct_grammar(G, separator, apply_filters=True):
         )
 
     B = Grammar(
-        N_communication | N_end | N_pointer | N_original | {S_B, W} | set(K) | R,
-        T_original,
+        Alphabet(N_communication | N_end | N_pointer | N_original | {S_B, W, E} | set(K) | R),
+        Alphabet(T_original),
         P_B,
         S_B
     )
@@ -148,16 +148,17 @@ def construct_grammar(G, separator, apply_filters=True):
 def translate_to_origin(origin_filter):
     def wrapper(configuration):
         sential_form = configuration[1]
-        if sential_form[0] != N("R_1"):
+        if sential_form.sential_form[0] != N("R_1"):
             return True
-        transformed = [symbol.base_symbol for symbol in sential_form[1:]]
-        return origin_filter(transformed)
+        new_configuration = sential_form.copy()
+        new_configuration.data = [symbol.base_symbol for symbol in sential_form.sential_form[1:]]
+        return origin_filter(new_configuration)
     return wrapper
 
 
 @grammar_filter
 def copy_after_finish(configuration):
-    B = configuration[1]
+    B = configuration[1].sential_form
     if B[0] == N("R_2"):
         for symbol in B[1:]:
             if symbol.variant is not None and symbol.base_symbol.variant == "non_terminal":
@@ -167,7 +168,7 @@ def copy_after_finish(configuration):
 
 @grammar_filter
 def finish_from_left_to_right(configuration):
-    B = configuration[1]
+    B = configuration[1].sential_form
     if B[0] == N("R_2"):
         non_terminal = False
         for symbol in B[1:]:
@@ -181,7 +182,7 @@ def finish_from_left_to_right(configuration):
 
 @grammar_filter
 def finish_part_before_separator(configuration):
-    B = configuration[1]
+    B = configuration[1].sential_form
     if B[0] == N("R_3") and B[1] == N("Q_A"):
         for symbol in B[2:]:
             if str(symbol.base_symbol) == "#":

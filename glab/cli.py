@@ -64,7 +64,7 @@ class App:
                 print(sentence)
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
-        sentence = SCGConfiguration(compact_string(self.grammar.terminals, sentence, delimiter=delimiter))
+        sentence = self.grammar.parse_configuration(sentence, delimiter=delimiter)
         depth = 1
         while matches:
             index = 0
@@ -73,8 +73,9 @@ class App:
                 if sentence == s:
                     for sential_form in self.grammar.derivation_sequence():
                         print(sential_form)
-                    print("Result sentence:")
-                    print(visualize_ast(s.create_ast()))
+                    ast = s.create_ast()
+                    ast.print()
+                    visualize_ast(ast)
                     matches -= 1
                     if not matches:
                         break

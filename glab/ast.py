@@ -1,12 +1,12 @@
 class Tree:
     def __init__(self):
-        self.root = None
+        self.roots = []
         self.len = 0
         self.frontier = []
 
     def add_root(self, node):
         self.len = 1
-        self.root = node
+        self.roots.append(node)
         self.frontier = [node]
 
     def create_node(self, *args, **kwargs):
@@ -15,7 +15,14 @@ class Tree:
         return new_node
 
     def print(self):
-        self.root.print(0)
+        for root in self.roots:
+            root.print(0)
+
+    def merge(self, other):
+        self.roots = self.roots + other.roots
+        self.len = self.len + other.len
+        self.frontier = self.frontier + other.frontier
+        return self
 
 
 class TreeNode:
@@ -26,7 +33,7 @@ class TreeNode:
         self.index = index
         self.children = []
         self.is_frontier = True
-        self.parent = None
+        self.parents = []
 
     def add_children(self, children):
         if not self.is_frontier:
@@ -40,7 +47,20 @@ class TreeNode:
         else:
             raise ValueError("Node not in frontier even though it should be there!")
         for child in children:
-            child.parent = self
+            child.parents.append(self)
+
+    def add_parent(self, parent):
+        self.parents.append(parent)
+
+    def remove_from_frontier(self):
+        if not self.is_frontier:
+            return
+        for i, node in enumerate(self.tree.frontier):
+            if node is self:
+                self.tree.frontier = self.tree.frontier[:i] + self.tree.frontier[i+1:]
+                break
+        self.is_frontier = False
+
 
     def print(self, indent):
         print("  " * indent + str(self.data))

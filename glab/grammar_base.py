@@ -20,8 +20,13 @@ class ConfigurationBase:
     def is_sentence(self):
         return self.data.is_sentence
 
-    def create_ast(self):
-        pass
+    def copy(self):
+        return self.__class__(
+            self.data,
+            self.parent,
+            self.used_rule,
+            self.affected,
+        )
 
 
 class GrammarBase:

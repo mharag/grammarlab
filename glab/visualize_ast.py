@@ -4,27 +4,28 @@ import graphviz
 def visualize_ast(ast):
     u = graphviz.Digraph('unix', filename='unix.gv')
 
-    queue = [ast.root]
-    lines = {}
-    while queue:
-        node = queue.pop(0)
-        if node.depth not in lines:
-            lines[node.depth] = graphviz.Digraph(str(node.depth))
-            lines[node.depth].attr(rank="same")
-        line = lines[node.depth]
-        line.node(f"{node.index}|{node.data}", str(node.data))
-        for child in node.children:
-            queue.append(child)
+    for i, root in enumerate(ast.roots):
+        queue = [root]
+        lines = {}
+        while queue:
+            node = queue.pop(0)
+            if node.depth not in lines:
+                lines[node.depth] = graphviz.Digraph(str(node.depth))
+                lines[node.depth].attr(rank="same")
+            line = lines[node.depth]
+            line.node(f"{i}|{node.index}|{node.data}", str(node.data))
+            for child in node.children:
+                queue.append(child)
 
-    for line in lines.values():
-        u.subgraph(line)
+        for line in lines.values():
+            u.subgraph(line)
 
-    queue = [ast.root]
-    while queue:
-        node = queue.pop(0)
-        if node.parent:
-            u.edge(f"{node.parent.index}|{node.parent.data}", f"{node.index}|{node.data}")
-        for child in node.children:
-            queue.append(child)
+        queue = [root]
+        while queue:
+            node = queue.pop(0)
+            for parent in node.parents:
+                u.edge(f"{i}|{parent.index}|{parent.data}", f"{i}|{node.index}|{node.data}")
+            for child in node.children:
+                queue.append(child)
 
     u.view()

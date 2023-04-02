@@ -1,32 +1,38 @@
 from glab.alphabet import N, T, A, S
-from glab.grammar_base import GrammarBase
+from glab.grammar_base import GrammarBase, ConfigurationBase
 from glab.compact_definition import compact_communication_symbols
+import functools
 
 
-class Configuration:
-    def __init__(self, configuration: list[S]):
-        self.configuration = configuration
+class CommunicationRule(dict):
+    pass
 
+
+class PCConfiguration(ConfigurationBase):
     def __getitem__(self, item):
-        return self.configuration[item]
+        return self.data[item]
 
     def __repr__(self):
-        sential_forms = ", ".join(str(sential_form) for sential_form in self.configuration)
+        sential_forms = ", ".join(str(sential_form) for sential_form in self.data)
         return f"Configuration({sential_forms})"
 
     def __str__(self):
-        return "    ".join([str(component) for component in self.configuration])
+        return "  ".join([str(component) for component in self.data])
+
     def __eq__(self, other):
-        return type(self) == type(other) and self.configuration == other.configuration
+        return type(self) == type(other) and self.data == other.data
 
     @property
     def is_sentence(self):
-        return self.configuration[0].is_sentence
+        return self.data[0].is_sentence
 
     @property
     def order(self):
-        return len(self.configuration)
+        return len(self.data)
 
+    def create_ast(self, depth=0):
+        components_ast = [x.pc_create_ast() for x in self.data]
+        return functools.reduce(lambda a, b: a.merge(b), components_ast)
 
 
 class PCGrammarSystem(GrammarBase):
@@ -55,8 +61,8 @@ Comunication symbols: {self.communication_symbols}
 """
 
     def communication(self, configuration):
-        for sential_form in configuration:
-            for symbol in sential_form.symbols:
+        for sential_form in configuration.data:
+            for symbol in sential_form.data:
                 if symbol in self.communication_symbols:
                     return True
         return False
@@ -64,7 +70,14 @@ Comunication symbols: {self.communication_symbols}
 
     @property
     def axiom(self):
-        return Configuration([c.axiom for c in self.components])
+        return PCConfiguration([c.axiom for c in self.components])
+
+    def parse_configuration(self, representation, delimiter):
+        components = representation.split(delimiter * 2)
+        configurations = []
+        for i, component in enumerate(components):
+            configurations.append(self.components[i].parse_configuration(component, delimiter))
+        return PCConfiguration(configurations)
 
     @property
     def order(self):
@@ -104,23 +117,31 @@ Comunication symbols: {self.communication_symbols}
                 else:
                     break
 
-            yield Configuration([x.copy() for x in next_configuration])
+            yield PCConfiguration(next_configuration)
 
     def c_step(self, configuration):
         copied = [False] * configuration.order
         new_configuration = [sential_form.copy() for sential_form in configuration]
         for i in range(configuration.order):
-            sential_form = new_configuration[i]
+            communication_rule = CommunicationRule()
+            affected = []
+            sential_form = new_configuration[i].sential_form
             index = sential_form.create_index(self.communication_symbols)
             for communication_symbol, positions in index.items():
                 referenced_component = self.communication_symbols.index(communication_symbol)
-                if configuration[referenced_component].create_index(self.communication_symbols):
+                if configuration[referenced_component].sential_form.create_index(self.communication_symbols):
                     continue
+                communication_rule[communication_symbol] = configuration[referenced_component].sential_form
                 copied[referenced_component] = True
                 offset = 0
+                affected.extend(positions)
                 for position in positions:
-                    sential_form.expand(position+offset, configuration[referenced_component])
-                    offset += len(configuration[referenced_component]) - 1
+                    sential_form.expand(position+offset, configuration[referenced_component].sential_form)
+                    offset += len(configuration[referenced_component].sential_form) - 1
+            new_configuration[i].used_rule = communication_rule
+            new_configuration[i].affected = affected
+            new_configuration[i].parent = configuration[i]
+
 
         if True not in copied:
             return
@@ -128,9 +149,12 @@ Comunication symbols: {self.communication_symbols}
         if self.returning:
             for i in range(configuration.order):
                 if copied[i]:
-                    new_configuration[i] = S([self.components[i].start_symbol])
+                    new_configuration[i] = self.components[i].configuration(
+                        S([self.components[i].start_symbol]),
+                        parent=configuration[i]
+                    )
 
-        yield Configuration(new_configuration)
+        yield PCConfiguration(new_configuration)
 
     def direct_derive(self, configuration):
         if self.communication(configuration):
