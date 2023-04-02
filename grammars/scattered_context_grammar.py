@@ -1,7 +1,38 @@
 from glab.alphabet import N, T, A, S, Symbol, SymbolType
 from glab.grammar_base import GrammarBase
 from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
+from glab.grammar_base import ConfigurationBase
+from glab.ast import Tree, TreeNode
 
+
+class SCGConfiguration(ConfigurationBase):
+    @property
+    def sential_form(self):
+        return self.data
+
+    @property
+    def is_sentence(self):
+        return self.data.is_sentence
+
+    def create_ast(self, depth=0):
+        if not self.parent:
+            tree = Tree()
+            root_node = tree.create_node(self.data[0], depth=depth)
+            tree.add_root(root_node)
+            return tree
+
+        parent_ast = self.parent.create_ast(depth=depth+1)
+        lhs_nodes = []
+        for position in self.affected:
+            lhs_nodes.append(parent_ast.frontier[position])
+
+        for i, string in enumerate(self.used_rule.rhs):
+            children = [parent_ast.create_node(x, depth) for x in string]
+            lhs_nodes[i].add_children(children)
+        return parent_ast
+
+    def __str__(self):
+        return str(self.data)
 
 
 class ScatteredContextRule:
@@ -67,15 +98,17 @@ class ScatteredContextRule:
                 index_positions[cursor] = next_position
                 cursor += 1
 
-    def apply(self, string: S):
-        matches = self.match(string)
+    def apply(self, configration: SCGConfiguration):
+        sential_form = configration.sential_form
+        matches = self.match(sential_form)
         for match in matches:
-            derived = string.copy()
+            derived = sential_form.copy()
             offset = 0
             for cursor in range(self.order):
                 derived.expand(match[cursor]+offset, self.rhs[cursor])
                 offset += len(self.rhs[cursor]) - 1
-            yield derived
+            new_configuration = SCGConfiguration(derived, parent=configration, used_rule=self, affected=match)
+            yield new_configuration
 
 
 class ScatteredContextGrammar(GrammarBase):
@@ -107,12 +140,12 @@ Rules:
 
     @property
     def axiom(self):
-        return S([self.start_symbol])
+        return SCGConfiguration(S([self.start_symbol]))
 
-    def direct_derive(self, string):
+    def direct_derive(self, configuration):
         for rule in self.rules:
             try:
-                yield from rule.apply(string)
+                yield from rule.apply(configuration)
             except Exception as e:
                 print(f"Error while applying rule: {rule}")
                 raise e

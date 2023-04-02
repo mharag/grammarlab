@@ -178,17 +178,17 @@ def construct_grammar(G, apply_filters=True):
 
 
 @grammar_filter
-def max_one_B(sential_form):
+def max_one_B(configuration):
     count = 0
-    for symbol in sential_form:
+    for symbol in configuration.sential_form:
         if symbol.variant == "non_terminal" and symbol.base_symbol == N("B"):
             count += 1
     return count <= 1
 
 
 @grammar_filter
-def non_terminal_before_working_space(sential_form):
-    for symbol in sential_form:
+def non_terminal_before_working_space(configuration):
+    for symbol in configuration.sential_form:
         if symbol.variant == "non_terminal":
             return False
         if symbol == N("["):
@@ -199,7 +199,8 @@ def non_terminal_before_working_space(sential_form):
 
 
 @grammar_filter
-def symbol_not_copied(sential_form):
+def symbol_not_copied(configuration):
+    sential_form = configuration.sential_form
     if sential_form[0] not in [N("Q_3"), N("Q_5")]:
         return True
     not_copied = False
@@ -212,7 +213,8 @@ def symbol_not_copied(sential_form):
 
 
 @grammar_filter()
-def finish_left_to_right(sential_form):
+def finish_left_to_right(configuration):
+    sential_form = configuration.sential_form
     if sential_form[0] != N("Q_7"):
         return True
 

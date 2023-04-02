@@ -6,6 +6,24 @@ from glab.alphabet import N
 log = logging.getLogger("glab.GrammarBase")
 
 
+class ConfigurationBase:
+    def __init__(self, data, parent=None, used_rule=None, affected=None):
+        self.data = data
+        self.parent = parent
+        self.used_rule = used_rule
+        self.affected = affected
+
+    def __eq__(self, other):
+        return isinstance(other, ConfigurationBase) and self.data == other.data
+
+    @property
+    def is_sentence(self):
+        return self.data.is_sentence
+
+    def create_ast(self):
+        pass
+
+
 class GrammarBase:
     def __init__(self):
         self.stack = []

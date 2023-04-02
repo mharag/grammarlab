@@ -26,6 +26,11 @@ class ExtendedSymbol(SymbolBase):
     def __repr__(self):
         if self.variant_id is None:
             return str(self.base_symbol)
+        return f"{self.base_symbol}_{self.variant_id}"
+
+    def cli_out(self):
+        if self.variant_id is None:
+            return str(self.base_symbol)
         if self.color:
             variant_id = f"{self.color}_{self.variant_id}{RESET}"
         else:

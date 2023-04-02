@@ -2,7 +2,8 @@
 from glab.compact_definition import compact_string
 import argparse
 import logging
-
+from grammars.scattered_context_grammar import SCGConfiguration
+from glab.visualize_ast import visualize_ast
 
 log = logging.getLogger("glab.cli")
 
@@ -63,7 +64,7 @@ class App:
                 print(sentence)
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
-        sentence = compact_string(self.grammar.terminals, sentence, delimiter=delimiter)
+        sentence = SCGConfiguration(compact_string(self.grammar.terminals, sentence, delimiter=delimiter))
         depth = 1
         while matches:
             index = 0
@@ -73,7 +74,7 @@ class App:
                     for sential_form in self.grammar.derivation_sequence():
                         print(sential_form)
                     print("Result sentence:")
-                    print(s)
+                    print(visualize_ast(s.create_ast()))
                     matches -= 1
                     if not matches:
                         break
