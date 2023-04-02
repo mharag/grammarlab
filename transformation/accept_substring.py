@@ -83,7 +83,7 @@ def construct_grammar(G, separator, apply_filters=True):
     P_B = [
         Rule([S_B], [R_0 + Q_C]),
         Rule([R_0, W], [R_1, S_O.non_terminal]),
-        Rule([R_1], [R_2]),
+        Rule([R_1, separator.non_terminal], [R_2, separator.non_terminal]),
         Rule([R_2], [R_3 + Q_A])
     ]
     ignore = [T("*")]
@@ -138,6 +138,7 @@ def construct_grammar(G, separator, apply_filters=True):
     if apply_filters:
         grammar.set_filter(copy_after_finish)
         grammar.set_filter(finish_part_before_separator)
+        grammar.set_filter(finish_from_left_to_right)
         for origin_filter in G.filters:
             grammar.set_filter(translate_to_origin(origin_filter))
 
@@ -161,6 +162,20 @@ def copy_after_finish(configuration):
         for symbol in B[1:]:
             if symbol.variant is not None and symbol.base_symbol.variant == "non_terminal":
                 return False
+    return True
+
+
+@grammar_filter
+def finish_from_left_to_right(configuration):
+    B = configuration[1]
+    if B[0] == N("R_2"):
+        non_terminal = False
+        for symbol in B[1:]:
+            if symbol.type == SymbolType.NON_TERMINAL:
+                non_terminal = True
+            if symbol.variant == SymbolType.TERMINAL:
+                if non_terminal:
+                    return False
     return True
 
 
