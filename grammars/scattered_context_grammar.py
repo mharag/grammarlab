@@ -1,7 +1,8 @@
 from glab.alphabet import N, S, Symbol, SymbolType
 from glab.compact_definition import (compact_nonterminal_alphabet,
                                      compact_string, compact_terminal_alphabet)
-from grammars.phrase_grammar import PhraseConfiguration, PhraseGrammar
+from grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
+                                     PhraseGrammarRule)
 
 
 class SCGConfiguration(PhraseConfiguration):
@@ -21,7 +22,7 @@ class SCGConfiguration(PhraseConfiguration):
         for position in self.affected:
             lhs_nodes.append(parent_ast.frontier[position])
 
-        for i, string in enumerate(self.used_rule.rhs):
+        for i, string in enumerate(self.used_production.rhs):
             children = [parent_ast.create_node(x, depth) for x in string]
             lhs_nodes[i].add_children(children)
         return parent_ast
@@ -30,9 +31,10 @@ class SCGConfiguration(PhraseConfiguration):
         return str(self.data)
 
 
-class ScatteredContextRule:
+class ScatteredContextRule(PhraseGrammarRule):
+    index = 0
+
     def __init__(self, lhs: list[N], rhs: list[S]):
-        super().__init__()
         if len(lhs) != len(rhs):
             raise ValueError("Different order of right and left side!")
 
@@ -48,8 +50,11 @@ class ScatteredContextRule:
             unified_rhs.append(item)
         self.rhs = unified_rhs
 
+        ScatteredContextRule.index += 1
+        self.label = f"p{self.index}"
+
     @classmethod
-    def construct(cls, alphabet, rule):
+    def deserialize(cls, alphabet, rule):
         lhs, rhs = rule
         lhs = [alphabet.lookup(symbol) for symbol in lhs]
         rhs = [compact_string(alphabet, string) for string in rhs]
@@ -58,7 +63,7 @@ class ScatteredContextRule:
     def __repr__(self):
         lhs = ", ".join(str(symbol) for symbol in self.lhs)
         rhs = ", ".join(str(string) for string in self.rhs)
-        return f"({lhs}) -> ({rhs})"
+        return f"{self.label}: ({lhs}) -> ({rhs})"
 
     @property
     def order(self):
@@ -102,7 +107,7 @@ class ScatteredContextRule:
             for cursor in range(self.order):
                 derived.expand(match[cursor]+offset, self.rhs[cursor])
                 offset += len(self.rhs[cursor]) - 1
-            new_configuration = SCGConfiguration(derived, parent=configration, used_rule=self, affected=match)
+            new_configuration = SCGConfiguration(derived, parent=configration, used_production=self, affected=match)
             yield new_configuration
 
 
@@ -113,11 +118,11 @@ class ScatteredContextGrammar(PhraseGrammar):
         return SCGConfiguration(compact_string(self.terminals.union(self.non_terminals), representation, delimiter=delimiter))
 
     @classmethod
-    def construct(cls, non_terminals, terminals, rules, start_symbol):
+    def deserialize(cls, non_terminals, terminals, rules, start_symbol):
         non_terminals = compact_nonterminal_alphabet(non_terminals)
         terminals = compact_terminal_alphabet(terminals)
         alphabet = non_terminals.union(terminals)
-        rules = [ScatteredContextRule.construct(alphabet, rule) for rule in rules]
+        rules = [ScatteredContextRule.deserialize(alphabet, rule) for rule in rules]
         start_symbol = N(start_symbol)
         return cls(non_terminals, terminals, rules, start_symbol)
 

@@ -86,4 +86,6 @@ def test_derive():
     )
     language = list(grammar.derive(10))
     control_language = [C(S([T("a")]*i)) for i in range(1, 11)]
+    print(language)
+    print(control_language)
     assert language == control_language

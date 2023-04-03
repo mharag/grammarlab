@@ -16,9 +16,10 @@ class Representable:
         """Serialization into compact definition"""
         raise NotImplementedError(f"{self.__class__.__name__} does not support serialization!")
 
-    def deserialize(self, str_representation):
+    @classmethod
+    def deserialize(cls, str_representation):
         """Deserialization from compact definition"""
-        raise NotImplementedError(f"{self.__class__.__name__} does not support serialization!")
+        raise NotImplementedError(f"{cls.__name__} does not support serialization!")
 
     def cli_output(self):
         """Formation for command-line """

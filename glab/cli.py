@@ -2,6 +2,7 @@
 import argparse
 import logging
 
+from glab.table import create_table
 from glab.visualize_ast import visualize_ast
 
 log = logging.getLogger("glab.cli")
@@ -22,7 +23,7 @@ class App:
         subparsers = parser.add_subparsers(dest="command")
         generate_parser = subparsers.add_parser("generate")
         generate_parser.add_argument("-d", "--depth", type=int)
-        generate_parser.add_argument("-e", "--exact", action="store_true")
+        generate_parser.add_argument("-e", "--exact-depth", action="store_true")
         generate_parser.add_argument("-s", "--show-sential-forms", action="store_true")
         generate_parser.add_argument("--enumerate", action="store_true")
 
@@ -41,39 +42,33 @@ class App:
         self.verbose = args.verbose
 
         if self.verbose:
-            log.info("Grammar: %s", self.grammar)
+            log.info("Grammar: %s", self.grammar.cli_output())
 
         if args.command == "generate":
             self.generate(
                 args.depth,
-                min_steps=args.depth if args.exact else None,
-                sential_forms=args.show_sential_forms,
-                show_index=args.enumerate,
+                exact_depth=args.exact_depth,
+                only_sentences=not args.show_sential_forms,
             )
         elif args.command == "derivation_sequence":
             self.derivation_sequence(args.sentence, args.delimiter, args.matches)
 
-    def generate(self, max_steps=None, min_steps=None, sential_forms=False, show_index=False):
-        index = 0
-        for sentence in self.grammar.derive(max_steps, min_steps, sential_forms=sential_forms):
-            index += 1
-            if show_index:
-                print(f"{index}: {sentence}")
-            else:
-                print(sentence.cli_output())
+    def generate(self, max_steps=None, exact_depth=False, only_sentences=True):
+        sentences = []
+        for sentence in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences):
+            sentences.append(sentence)
+        print(create_table(sentences))
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
         sentence = self.grammar.parse_configuration(sentence, delimiter=delimiter)
         depth = 1
         while matches:
             index = 0
-            for s in self.grammar.derive(depth, depth):
+            for s in self.grammar.derive(depth, exact_depth=True):
                 index += 1
                 if sentence == s:
-                    for sential_form in self.grammar.derivation_sequence():
-                        print(sential_form)
+                    print(create_table(list(s.derivation_sequence())))
                     ast = s.create_ast()
-                    ast.print()
                     visualize_ast(ast)
                     matches -= 1
                     if not matches:

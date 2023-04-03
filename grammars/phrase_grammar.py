@@ -15,6 +15,9 @@ class PhraseConfiguration(ConfigurationBase):
     def is_sentence(self):
         return self.data.is_sentence
 
+    def __repr__(self):
+        return str(self.data)
+
     def create_ast(self, depth=0):
         if not self.parent:
             tree = Tree()
@@ -24,7 +27,7 @@ class PhraseConfiguration(ConfigurationBase):
 
         parent_ast = self.parent.create_ast(depth=depth+1)
 
-        if self.used_rule is None:
+        if self.used_production is None:
             new_node = parent_ast.create_node(self.data[0], depth)
             parent_ast.frontier[0].add_children([new_node])
             for parent in parent_ast.frontier[1:]:
@@ -32,11 +35,11 @@ class PhraseConfiguration(ConfigurationBase):
                 parent.remove_from_frontier()
             return parent_ast
 
-        if isinstance(self.used_rule, CommunicationRule):
+        if isinstance(self.used_production, CommunicationRule):
             parents = [parent_ast.frontier[x] for x in self.affected]
             for parent in parents:
                 symbol = parent.data
-                rhs = self.used_rule[symbol]
+                rhs = self.used_production[symbol]
                 children = [parent_ast.create_node(x, depth) for x in rhs]
                 parent.add_children(children)
             return parent_ast
@@ -45,8 +48,8 @@ class PhraseConfiguration(ConfigurationBase):
         return parent_ast
 
     def apply_rule_to_ast(self, parent_ast, depth):
-        parents = parent_ast.frontier[self.affected:self.affected + len(self.used_rule.lhs)]
-        children = [parent_ast.create_node(x, depth) for x in self.used_rule.rhs]
+        parents = parent_ast.frontier[self.affected:self.affected + len(self.used_production.lhs)]
+        children = [parent_ast.create_node(x, depth) for x in self.used_production.rhs]
         parents[0].add_children(children)
         for parent in parents[1:]:
             parent.remove_from_frontier()
@@ -57,7 +60,10 @@ class PhraseConfiguration(ConfigurationBase):
     def __str__(self):
         return str(self.data)
 
+
 class PhraseGrammarRule:
+    index = 0
+
     def __init__(self, lhs: S, rhs: S):
         super().__init__()
         if not all(isinstance(symbol, N) for symbol in lhs):
@@ -65,16 +71,18 @@ class PhraseGrammarRule:
 
         self.lhs = lhs
         self.rhs = rhs
+        PhraseGrammarRule.index += 1
+        self.label = f"p{self.index}"
 
     @classmethod
-    def construct(cls, alphabet, rule):
+    def deserialize(cls, alphabet, rule):
         lhs, rhs = rule
         lhs = compact_string(alphabet, lhs)
         rhs = compact_string(alphabet, rhs)
         return cls(lhs, rhs)
 
     def __repr__(self):
-        return f"{self.lhs} -> {self.rhs}"
+        return f"{self.label}: {self.lhs} -> {self.rhs}"
 
     def match(self, string: S):
         index = string.create_index()
@@ -95,7 +103,7 @@ class PhraseGrammarRule:
             offset = 0
             derived.expand(match+offset, self.rhs, expand_symbols=len(self.lhs))
             offset += len(self.rhs) - len(self.lhs)
-            new_configuration = PhraseConfiguration(derived, parent=configuration, used_rule=self, affected=match)
+            new_configuration = PhraseConfiguration(derived, parent=configuration, used_production=self, affected=match)
             yield new_configuration
 
 
@@ -121,11 +129,11 @@ Rules:
         return PhraseConfiguration(compact_string(self.terminals.union(self.non_terminals), representation, delimiter=delimiter))
 
     @classmethod
-    def construct(cls, non_terminals, terminals, rules, start_symbol):
+    def deserialize(cls, non_terminals, terminals, rules, start_symbol):
         non_terminals = compact_nonterminal_alphabet(non_terminals)
         terminals = compact_terminal_alphabet(terminals)
         alphabet = non_terminals.union(terminals)
-        rules = [PhraseGrammarRule.construct(alphabet, rule) for rule in rules]
+        rules = [PhraseGrammarRule.deserialize(alphabet, rule) for rule in rules]
         start_symbol = N(start_symbol)
         return cls(non_terminals, terminals, rules, start_symbol)
 

@@ -26,6 +26,12 @@ class PCConfiguration(ConfigurationBase):
     def __eq__(self, other):
         return isinstance(other, PCConfiguration) and self.data == other.data
 
+    def __getattr__(self, attr):
+        if attr.startswith("component_"):
+            index = int(attr.replace("component_", ""))
+            return self.data[index]
+        raise AttributeError
+
     @property
     def is_sentence(self):
         return self.data[0].is_sentence
@@ -49,7 +55,7 @@ class PCGrammarSystem(GrammarBase):
         self.communication_symbols = comumunication_symbols
 
     @classmethod
-    def construct(cls, communication_symbols, *components,  returning=True):
+    def deserialize(cls, communication_symbols, *components,  returning=True):
         communication_symbols = compact_communication_symbols(communication_symbols)
         return cls(
             comumunication_symbols=communication_symbols,
@@ -122,7 +128,7 @@ Comunication symbols: {self.communication_symbols}
                     break
 
 
-            yield PCConfiguration([x.copy() for x in next_configuration])
+            yield PCConfiguration([x.copy() for x in next_configuration], parent=configuration, depth=configuration.depth+1)
 
     def c_step(self, configuration):
         copied = [False] * configuration.order
@@ -143,10 +149,9 @@ Comunication symbols: {self.communication_symbols}
                 for position in positions:
                     sential_form.expand(position+offset, configuration[referenced_component].sential_form)
                     offset += len(configuration[referenced_component].sential_form) - 1
-            new_configuration[i].used_rule = communication_rule
+            new_configuration[i].used_production = communication_rule
             new_configuration[i].affected = affected
             new_configuration[i].parent = configuration[i]
-
 
         if True not in copied:
             return
@@ -159,7 +164,7 @@ Comunication symbols: {self.communication_symbols}
                         parent=configuration[i]
                     )
 
-        yield PCConfiguration(new_configuration)
+        yield PCConfiguration(new_configuration, parent=configuration, depth=configuration.depth+1)
 
     def direct_derive(self, configuration):
         if self.communication(configuration):
