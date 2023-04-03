@@ -1,6 +1,11 @@
-from grammars.scattered_context_grammar import ScatteredContextRule, Rule, ScatteredContextGrammar as Grammar, SCGConfiguration as C
-from glab.alphabet import N, S, T
 import pytest
+
+from glab.alphabet import N, S, T
+from grammars.scattered_context_grammar import Rule
+from grammars.scattered_context_grammar import \
+    ScatteredContextGrammar as Grammar
+from grammars.scattered_context_grammar import ScatteredContextRule
+from grammars.scattered_context_grammar import SCGConfiguration as C
 
 
 def test_find_next():
@@ -39,7 +44,7 @@ def test_find_next():
 )
 def test_match_single(string, rule, expected):
     rule = ScatteredContextRule(rule, [S([])]*len(rule))
-    matches = [match for match in rule.match(string)]
+    matches = list(rule.match(string))
 
     assert matches == expected
 
@@ -65,7 +70,7 @@ def test_match_single(string, rule, expected):
     ]
 )
 def test_apply(string, rule, expected):
-    derived = [match for match in rule.apply(string)]
+    derived = list(rule.apply(string))
     assert derived == expected
 
 
@@ -79,6 +84,6 @@ def test_derive():
         [rule1, rule2],
         N("A")
     )
-    language = [sentence for sentence in grammar.derive(10)]
+    language = list(grammar.derive(10))
     control_language = [C(S([T("a")]*i)) for i in range(1, 11)]
     assert language == control_language

@@ -1,17 +1,18 @@
-from grammars.phrase_grammar import context_free, PhraseGrammar
-from glab.alphabet import NonTerminal, Terminal
 from functools import partial
-from itertools import zip_longest, cycle
+from itertools import zip_longest
+
+from glab.alphabet import NonTerminal, Terminal
+from grammars.phrase_grammar import PhraseGrammar
 
 
 def match_rule(rule, templates):
     for template in templates:
         matched = True
         for expected_type, symbol in zip_longest(template[0], rule.lhs):
-            if type(symbol) != expected_type:
+            if not isinstance(symbol, expected_type):
                 matched = False
         for expected_type, symbol in zip_longest(template[1], rule.rhs):
-            if type(symbol) != expected_type:
+            if not isinstance(symbol, expected_type):
                 matched = False
         if matched:
             return True

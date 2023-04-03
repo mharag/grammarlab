@@ -1,0 +1,6 @@
+[tool.isort]
+profile = "black"
+known_first_party = "glab"
+
+[tool.black]
+line-length = 88

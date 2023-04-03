@@ -1,4 +1,4 @@
-from glab.alphabet import S, N, T, A
+from glab.alphabet import A, N, S, T
 
 
 def compact_nonterminal_alphabet(symbols):
@@ -28,12 +28,9 @@ def compact_string(alphabet, string, delimiter=None):
 def compact_rules(rule_class, rules):
     parsed_rules = []
     for lhs, rhs in rules:
-        if type(lhs) == str:
+        if isinstance(lhs, str):
             lhs = list(lhs)
-        if type(rhs) == str:
+        if isinstance(rhs, str):
             rhs = list(rhs)
         parsed_rules.append(rule_class(lhs, rhs))
     return parsed_rules
-
-
-

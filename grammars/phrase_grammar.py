@@ -1,8 +1,8 @@
-from glab.alphabet import N, T, A, S
-from glab.grammar_base import GrammarBase
-from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
-from glab.grammar_base import ConfigurationBase
+from glab.alphabet import N, S
 from glab.ast import Tree
+from glab.compact_definition import (compact_nonterminal_alphabet,
+                                     compact_string, compact_terminal_alphabet)
+from glab.grammar_base import ConfigurationBase, GrammarBase
 from grammars.pc_grammar_system import CommunicationRule
 
 
@@ -15,31 +15,6 @@ class PhraseConfiguration(ConfigurationBase):
     def is_sentence(self):
         return self.data.is_sentence
 
-    def pc_create_ast(self, depth=0):
-        if not self.parent:
-            tree = Tree()
-            root_node = tree.create_node(self.data[0], depth=depth)
-            tree.add_root(root_node)
-            return tree
-
-        parent_ast = self.parent.pc_create_ast(depth=depth + 1)
-        if type(self.used_rule) == CommunicationRule:
-            parents = [parent_ast.frontier[x] for x in self.affected]
-            for parent in parents:
-                symbol = parent.data
-                rhs = self.used_rule[symbol]
-                children = [parent_ast.create_node(x, depth) for x in rhs]
-                parent.add_children(children)
-            return parent_ast
-
-        parents = parent_ast.frontier[self.affected:self.affected + len(self.used_rule.lhs)]
-        children = [parent_ast.create_node(x, depth) for x in self.used_rule.rhs]
-        parents[0].add_children(children)
-        for parent in parents[1:]:
-            parent.remove_from_frontier()
-            for child in children:
-                child.add_parent(parent)
-        return parent_ast
     def create_ast(self, depth=0):
         if not self.parent:
             tree = Tree()
@@ -48,13 +23,30 @@ class PhraseConfiguration(ConfigurationBase):
             return tree
 
         parent_ast = self.parent.create_ast(depth=depth+1)
-        parent_ast.print()
-        parents = parent_ast.frontier[self.affected:self.affected+len(self.used_rule.lhs)]
+
+        if self.used_rule is None:
+            new_node = parent_ast.create_node(self.data[0], depth)
+            parent_ast.frontier[0].add_children([new_node])
+            for parent in parent_ast.frontier[1:]:
+                new_node.add_parent(parent)
+                parent.remove_from_frontier()
+            return parent_ast
+
+        if isinstance(self.used_rule, CommunicationRule):
+            parents = [parent_ast.frontier[x] for x in self.affected]
+            for parent in parents:
+                symbol = parent.data
+                rhs = self.used_rule[symbol]
+                children = [parent_ast.create_node(x, depth) for x in rhs]
+                parent.add_children(children)
+            return parent_ast
+
+        self.apply_rule_to_ast(parent_ast, depth)
+        return parent_ast
+
+    def apply_rule_to_ast(self, parent_ast, depth):
+        parents = parent_ast.frontier[self.affected:self.affected + len(self.used_rule.lhs)]
         children = [parent_ast.create_node(x, depth) for x in self.used_rule.rhs]
-        print(self.used_rule)
-        print(self.affected)
-        print(len(self.used_rule.lhs))
-        print(len(parent_ast.frontier))
         parents[0].add_children(children)
         for parent in parents[1:]:
             parent.remove_from_frontier()
@@ -68,8 +60,8 @@ class PhraseConfiguration(ConfigurationBase):
 class PhraseGrammarRule:
     def __init__(self, lhs: S, rhs: S):
         super().__init__()
-        if not all([type(symbol) == N for symbol in lhs]):
-            raise ValueError(f"Terminal symbol in left side of rule!")
+        if not all(isinstance(symbol, N) for symbol in lhs):
+            raise ValueError("Terminal symbol in left side of rule!")
 
         self.lhs = lhs
         self.rhs = rhs
@@ -117,10 +109,11 @@ class PhraseGrammar(GrammarBase):
 
     def __str__(self):
         rules = "\n".join([f"- {rule}" for rule in self.rules])
-        return f"""Phrase grammar
+        return f"""{self.__class__.__name__}
 Non-terminals: {str(self.non_terminals)}
 Terminals: {str(self.terminals)}
-Rules: 
+Start symbol: {self.start_symbol}
+Rules:
 {rules}
         """
 
@@ -147,11 +140,11 @@ Rules:
 
 def length_preserving(grammar):
     for rule in grammar.rules:
-        if len(rule.lhs) < len(rule.rhs):
-            return ValueError("Grammar contains shortening!")
+        if len(rule.lhs) > len(rule.rhs):
+            raise ValueError("Grammar contains shortening!")
 
 
 def context_free(grammar):
     for rule in grammar.rules:
         if len(rule.lhs) > 1:
-            return ValueError("Grammar contains context-sensitive rules!")
+            raise ValueError("Grammar contains context-sensitive rules!")

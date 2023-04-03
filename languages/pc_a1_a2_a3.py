@@ -1,5 +1,5 @@
-from grammars.grammars import NPC, CF
 from glab.cli import App
+from grammars.grammars import CF, NPC
 
 K = ["1", "2"]
 N_1 = {"A", "2"}

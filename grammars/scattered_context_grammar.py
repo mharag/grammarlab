@@ -1,12 +1,10 @@
-from glab.alphabet import N, T, A, S, Symbol, SymbolType
-from glab.grammar_base import GrammarBase
-from glab.compact_definition import compact_nonterminal_alphabet, compact_terminal_alphabet, compact_string
-from glab.grammar_base import ConfigurationBase
-from glab.ast import Tree
-from grammars.pc_grammar_system import CommunicationRule
+from glab.alphabet import N, S, Symbol, SymbolType
+from glab.compact_definition import (compact_nonterminal_alphabet,
+                                     compact_string, compact_terminal_alphabet)
+from grammars.phrase_grammar import PhraseConfiguration, PhraseGrammar
 
 
-class SCGConfiguration(ConfigurationBase):
+class SCGConfiguration(PhraseConfiguration):
     @property
     def sential_form(self):
         return self.data
@@ -15,49 +13,7 @@ class SCGConfiguration(ConfigurationBase):
     def is_sentence(self):
         return self.data.is_sentence
 
-    def pc_create_ast(self, depth=0):
-        if not self.parent:
-            tree = Tree()
-            root_node = tree.create_node(self.data[0], depth=depth)
-            tree.add_root(root_node)
-            return tree
-
-        parent_ast = self.parent.pc_create_ast(depth=depth+1)
-
-        if self.used_rule is None:
-            new_node = parent_ast.create_node(self.data[0], depth)
-            parent_ast.frontier[0].add_children([new_node])
-            for parent in parent_ast.frontier[1:]:
-                new_node.add_parent(parent)
-                parent.remove_from_frontier()
-            return parent_ast
-
-        if type(self.used_rule) == CommunicationRule:
-            parents = [parent_ast.frontier[x] for x in self.affected]
-            for parent in parents:
-                symbol = parent.data
-                rhs = self.used_rule[symbol]
-                children = [parent_ast.create_node(x, depth) for x in rhs]
-                parent.add_children(children)
-            return parent_ast
-
-        lhs_nodes = []
-        for position in self.affected:
-            lhs_nodes.append(parent_ast.frontier[position])
-
-        for i, string in enumerate(self.used_rule.rhs):
-            children = [parent_ast.create_node(x, depth) for x in string]
-            lhs_nodes[i].add_children(children)
-        return parent_ast
-
-    def create_ast(self, depth=0):
-        if not self.parent:
-            tree = Tree()
-            root_node = tree.create_node(self.data[0], depth=depth)
-            tree.add_root(root_node)
-            return tree
-
-        parent_ast = self.parent.create_ast(depth=depth+1)
+    def apply_rule_to_ast(self, parent_ast, depth=0):
         lhs_nodes = []
         for position in self.affected:
             lhs_nodes.append(parent_ast.frontier[position])
@@ -75,10 +31,10 @@ class ScatteredContextRule:
     def __init__(self, lhs: list[N], rhs: list[S]):
         super().__init__()
         if len(lhs) != len(rhs):
-            raise ValueError(f"Different order of right and left side!")
+            raise ValueError("Different order of right and left side!")
 
-        if not all([symbol.type == SymbolType.NON_TERMINAL for symbol in lhs]):
-            raise ValueError(f"Terminal symbol in left side of rule!")
+        if not all(symbol.type == SymbolType.NON_TERMINAL for symbol in lhs):
+            raise ValueError("Terminal symbol in left side of rule!")
 
         self.lhs = lhs
 
@@ -147,25 +103,8 @@ class ScatteredContextRule:
             yield new_configuration
 
 
-class ScatteredContextGrammar(GrammarBase):
+class ScatteredContextGrammar(PhraseGrammar):
     configuration = SCGConfiguration
-
-    def __init__(self, non_terminals, terminals, rules: list[ScatteredContextRule], start_symbol):
-        super().__init__()
-        self.non_terminals = non_terminals
-        self.terminals = terminals
-        self.rules = rules
-        self.start_symbol = start_symbol
-
-    def __str__(self):
-        rules = "\n".join([f"- {rule}" for rule in self.rules])
-        return f"""Scattered contex grammar
-Non-terminals: {str(self.non_terminals)}
-Terminals: {str(self.terminals)}
-Start symbol: {self.start_symbol}
-Rules: 
-{rules}
-        """
 
     def parse_configuration(self, representation, delimiter):
         return SCGConfiguration(compact_string(self.terminals.union(self.non_terminals), representation, delimiter=delimiter))

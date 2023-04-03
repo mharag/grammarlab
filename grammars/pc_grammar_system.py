@@ -1,7 +1,8 @@
-from glab.alphabet import N, T, A, S
-from glab.grammar_base import GrammarBase, ConfigurationBase
-from glab.compact_definition import compact_communication_symbols
 import functools
+
+from glab.alphabet import S
+from glab.compact_definition import compact_communication_symbols
+from glab.grammar_base import ConfigurationBase, GrammarBase
 
 
 class CommunicationRule(dict):
@@ -20,7 +21,7 @@ class PCConfiguration(ConfigurationBase):
         return "  ".join([str(component) for component in self.data])
 
     def __eq__(self, other):
-        return type(self) == type(other) and self.data == other.data
+        return isinstance(other, PCConfiguration) and self.data == other.data
 
     @property
     def is_sentence(self):
@@ -30,8 +31,8 @@ class PCConfiguration(ConfigurationBase):
     def order(self):
         return len(self.data)
 
-    def create_ast(self, depth=0):
-        components_ast = [x.pc_create_ast() for x in self.data]
+    def create_ast(self):
+        components_ast = [x.create_ast() for x in self.data]
         return functools.reduce(lambda a, b: a.merge(b), components_ast)
 
 
@@ -166,8 +167,8 @@ Comunication symbols: {self.communication_symbols}
                 yield sential_form
 
 
-def centralized(grammar):
+def centralized_pc(grammar):
     for component in grammar[1:]:
         for non_terminal in component.non_terminals:
-            if type(non_terminal) == C:
-                raise ValueError(f"In centralized grammar can only main component contain comunication symbols!")
+            if non_terminal in grammar.communication_symbols:
+                raise ValueError("In centralized grammar can only main component contain comunication symbols!")

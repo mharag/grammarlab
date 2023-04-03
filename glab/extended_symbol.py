@@ -1,4 +1,5 @@
-from glab.alphabet import Symbol as SymbolBase, SymbolType
+from glab.alphabet import Symbol as SymbolBase
+from glab.alphabet import SymbolType
 from glab.config import RESET
 
 
@@ -17,8 +18,7 @@ class ExtendedSymbol(SymbolBase):
     def id(self):
         if self.variant_id is None:
             return self.base_symbol.id
-        else:
-            return self.base_symbol.id + "_" + self.variant_id
+        return self.base_symbol.id + "_" + self.variant_id
 
     def __getattr__(self, name):
         return self.__class__(self.base_symbol, name, *self.variants[name])
@@ -47,4 +47,3 @@ class Terminal(SymbolBase):
 class NonTerminal(SymbolBase):
     type = SymbolType.NON_TERMINAL
     variant = "non_terminal_base"
-

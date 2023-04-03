@@ -1,6 +1,9 @@
-from glab.alphabet import N, S, T, A
 import pytest
-from grammars.phrase_grammar import PhraseGrammarRule as Rule, PhraseGrammar as Grammar, PhraseConfiguration as C
+
+from glab.alphabet import A, N, S, T
+from grammars.phrase_grammar import PhraseConfiguration as C
+from grammars.phrase_grammar import PhraseGrammar as Grammar
+from grammars.phrase_grammar import PhraseGrammarRule as Rule
 
 
 @pytest.mark.parametrize(
@@ -25,7 +28,7 @@ from grammars.phrase_grammar import PhraseGrammarRule as Rule, PhraseGrammar as 
 )
 def test_match(string, lhs, expected):
     rule = Rule(lhs, lhs)
-    result = [i for i in rule.match(string)]
+    result = list(rule.match(string))
     assert result == expected
 
 
@@ -54,7 +57,7 @@ def test_match(string, lhs, expected):
 )
 def test_apply(string, lhs, rhs, expected):
     rule = Rule(lhs, rhs)
-    result = [i for i in rule.apply(string)]
+    result = list(rule.apply(string))
     assert result == expected
 
 
@@ -67,5 +70,5 @@ def test_derive():
         Rule(S([N("A"), N("X"), N("A")]), S([T("x")])),
     ]
     grammar = Grammar(non_terminals, terminals, rules, N("S"))
-    result = [x for x in grammar.derive(100)]
+    result = list(grammar.derive(100))
     assert result == [C(S([T("b"), T("b"), T("x")])), C(S([T("b"), T("b"), T("x")]))]

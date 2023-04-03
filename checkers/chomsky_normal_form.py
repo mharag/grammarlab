@@ -1,5 +1,5 @@
-from grammars.phrase_grammar import context_free, PhraseGrammar
-from glab.alphabet import NonTerminal, Terminal
+from glab.alphabet import Terminal
+from grammars.phrase_grammar import PhraseGrammar, context_free
 
 
 def chomsky_normal_form(grammar):
@@ -12,10 +12,10 @@ def chomsky_normal_form(grammar):
 
     for rule in grammar.rules:
         if len(rule.rhs) == 1:
-            if type(rule.rhs[0]) != Terminal:
+            if not isinstance((rule.rhs[0]), Terminal):
                 return False
         elif len(rule.rhs) == 2:
-            if type(rule.rhs[0]) != Terminal or type(rule.rhs[1]) != Terminal:
+            if not isinstance(rule.rhs[0], Terminal) or not isinstance(rule.rhs[1], Terminal):
                 return False
         else:
             return False

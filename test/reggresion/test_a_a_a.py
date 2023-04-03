@@ -1,6 +1,7 @@
-from languages.cs_aaa import grammar
 from glab.cli import App
 from glab.config import STRING_DELIMITER
+from languages.cs_aaa import grammar
+
 
 def test_a_a_a(capsys):
     expected = ["a_a_a",

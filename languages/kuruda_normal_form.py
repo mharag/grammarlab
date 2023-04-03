@@ -1,7 +1,6 @@
-from grammars.grammars import CF
-from glab.cli import App
 from glab.alphabet import NonTerminal
-from checkers.phrase_grammar_normal_forms import kuruda_normal_form_type_1
+from glab.cli import App
+from grammars.grammars import CF
 
 N = {"A", "B", "C", "D"}
 T = {"a"}

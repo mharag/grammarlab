@@ -1,8 +1,10 @@
 import pytest
 
-from grammars.pc_grammar_system import PCGrammarSystem, PCConfiguration
-from grammars.scattered_context_grammar import ScatteredContextGrammar, ScatteredContextRule, SCGConfiguration as C
-from glab.alphabet import N, T, S
+from glab.alphabet import N, S, T
+from grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
+from grammars.scattered_context_grammar import (ScatteredContextGrammar,
+                                                ScatteredContextRule)
+from grammars.scattered_context_grammar import SCGConfiguration as C
 
 
 def test_g_step():
@@ -24,7 +26,7 @@ def test_g_step():
         components=[grammar, grammar1]
     )
     configuration = PCConfiguration([C(S([N("A"), N("A")])), C(S([N("B"), N("B")]))])
-    result = [x for x in pcgs.g_step(configuration)]
+    result = list(pcgs.g_step(configuration))
 
     expected = [
         PCConfiguration([C(S([T("a"), N("A")])), C(S([T("b"), N("B")]))]),
@@ -48,15 +50,15 @@ def test_c_step():
         components=[grammar1, grammar2]
     )
     configuration = PCConfiguration([C(S([N("2")])), C(S([N("B"), N("B")]))])
-    result = [x for x in pcgs.c_step(configuration)]
+    result = list(pcgs.c_step(configuration))
     assert len(result) == 1
     assert result[0] == PCConfiguration([C(S([N("B"), N("B")])), C(S([N("S2")]))])
 
     configuration = PCConfiguration([C(S([N("2"), N("2")])), C(S([N("A"), N("B")]))])
-    result = [x for x in pcgs.c_step(configuration)]
+    result = list(pcgs.c_step(configuration))
     assert len(result) == 1
     assert result[0] == PCConfiguration([C(S([N("A"), N("B"), N("A"), N("B")])), C(S([N("S2")]))])
 
     configuration = PCConfiguration([C(S([N("2"), N("2")])), C(S([N("1"), N("1")]))])
-    result = [x for x in pcgs.c_step(configuration)]
+    result = list(pcgs.c_step(configuration))
     assert len(result) == 0

@@ -1,9 +1,14 @@
-from grammars.scattered_context_grammar import ScatteredContextRule as Rule, ScatteredContextGrammar as Grammar
-from glab.alphabet import S,Alphabet, SymbolType
-from glab.extended_symbol import ExtendedSymbol, NonTerminal as N, Terminal as T
 import itertools
+
+from glab.alphabet import Alphabet, SymbolType
 from glab.config import GREEN
+from glab.extended_symbol import ExtendedSymbol
+from glab.extended_symbol import NonTerminal as N
+from glab.extended_symbol import Terminal as T
 from glab.filter import grammar_filter
+from grammars.scattered_context_grammar import \
+    ScatteredContextGrammar as Grammar
+from grammars.scattered_context_grammar import ScatteredContextRule as Rule
 
 
 class SCGSymbol(ExtendedSymbol):
@@ -194,8 +199,6 @@ def non_terminal_before_working_space(configuration):
         if symbol == N("["):
             break
     return True
-
-    self.log.debug(f"Filtered ")
 
 
 @grammar_filter

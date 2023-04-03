@@ -1,8 +1,8 @@
-from collections import defaultdict
 import logging
-from enum import Enum, auto
-from glab.config import STRING_DELIMITER, COMPACT_REPR
+from collections import defaultdict
+from enum import Enum
 
+from glab.config import COMPACT_REPR, STRING_DELIMITER
 
 log = logging.getLogger("glab.Alphabet")
 
@@ -102,7 +102,7 @@ class String:
         return f"String({', '.join([repr(symbol) for symbol in self.symbols])})"
 
     def __eq__(self, other):
-        return type(self) == type(other) and self.symbols == other.symbols
+        return isinstance(other, String) and self.symbols == other.symbols
 
     def __len__(self):
         return len(self.symbols)
@@ -121,7 +121,7 @@ class String:
         return String(self.symbols + other.symbols)
 
     def create_index(self, symbols=None):
-        log.debug(f"Creating index for string: {self}")
+        log.debug("Creating index for string: %s", self)
         index = defaultdict(list)
         for idx, symbol in enumerate(self.symbols):
             if symbols is None or symbol in symbols:

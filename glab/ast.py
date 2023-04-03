@@ -66,5 +66,3 @@ class TreeNode:
         print("  " * indent + str(self.data))
         for child in self.children:
             child.print(indent+1)
-
-

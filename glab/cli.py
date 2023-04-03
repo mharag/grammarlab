@@ -1,8 +1,7 @@
 
-from glab.compact_definition import compact_string
 import argparse
 import logging
-from grammars.scattered_context_grammar import SCGConfiguration
+
 from glab.visualize_ast import visualize_ast
 
 log = logging.getLogger("glab.cli")
@@ -37,12 +36,12 @@ class App:
 
     def run(self):
         args = self.parse_arguments()
-        log.info(f"G-Lab started with args: {args}")
+        log.info("G-Lab started with args: %s", args)
 
         self.verbose = args.verbose
 
         if self.verbose:
-            log.info(f"Grammar: {self.grammar}")
+            log.info("Grammar: %s", self.grammar)
 
         if args.command == "generate":
             self.generate(
@@ -80,4 +79,3 @@ class App:
                     if not matches:
                         break
             depth += 1
-

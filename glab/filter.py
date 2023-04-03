@@ -12,9 +12,7 @@ def grammar_filter(func=None, *, show_filtered=False):
         def wrapper(sential_form):
             result = func(sential_form)
             if not result:
-                LOG(f" {func.__name__} filtered {sential_form}")
+                LOG("%s filtered %s", func.__name__, sential_form)
             return result
         return wrapper
     return decorator(func) if func else decorator
-
-

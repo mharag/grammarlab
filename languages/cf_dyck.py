@@ -1,5 +1,5 @@
-from grammars.grammars import CF
 from glab.cli import App
+from grammars.grammars import CF
 
 N = {"S"}
 T = {"(", ")"}

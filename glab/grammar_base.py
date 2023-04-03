@@ -1,7 +1,5 @@
-from functools import wraps
 import logging
-from glab.alphabet import N
-
+from functools import wraps
 
 log = logging.getLogger("glab.GrammarBase")
 
@@ -36,21 +34,26 @@ class GrammarBase:
         self._derivation_sequence = []
 
     def set_filter(self, func):
-        log.info(f"Setting filter: {func.__name__}.")
+        log.info("Setting filter: %s.", func.__name__)
         self.filters.append(func)
+
+    @property
+    def axiom(self):
+        raise NotImplementedError
 
     @classmethod
     def construct(cls, *args):
-        raise NotImplemented
+        raise NotImplementedError
 
     def direct_derive(self, sential_form):
-        raise NotImplemented
+        raise NotImplementedError
 
     def derive(self, max_steps, min_steps=None, sential_forms=False):
         log.info(
-            f"Derivation started. (max_steps={max_steps}, min_steps={min_steps}, sential_forms={sential_forms})"
+            "Derivation started. (max_steps=%s, min_steps=%s, sential_forms=%s)",
+            max_steps, min_steps, sential_forms
         )
-        log.info(f"Axiom: {self.axiom}")
+        log.info("Axiom: %s", self.axiom)
 
         self.stack = [self.direct_derive(self.axiom)]
         self._derivation_sequence = [self.axiom]
@@ -59,7 +62,7 @@ class GrammarBase:
             if next_sential_form is None:
                 self.stack.pop()
                 dead_sential_form = self._derivation_sequence.pop()
-                log.debug(f"Dead: {dead_sential_form}")
+                log.debug("Dead: %s", dead_sential_form)
                 continue
 
             valid = True
@@ -90,7 +93,7 @@ def restrictions(factory, *conditions):
     def wrapper(*args, **kwargs):
         grammar = factory(*args, **kwargs)
         for condition in conditions:
-            log.debug(f"Imposing restriction: {condition.__name__}")
+            log.debug("Imposing restriction: %s", condition.__name__)
             condition(grammar)
         return grammar
     return wrapper

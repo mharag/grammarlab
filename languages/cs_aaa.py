@@ -1,5 +1,5 @@
-from grammars.grammars import CS
 from glab.cli import App
+from grammars.grammars import CS
 
 N = {"S", "-", "A", "L", "R", "F"}
 T = {"a", "_"}

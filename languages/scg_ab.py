@@ -1,5 +1,5 @@
-from grammars.grammars import SCG
 from glab.cli import App
+from grammars.grammars import SCG
 
 N = {"S", "A", "B", "X"}
 T = {"a", "b"}
