@@ -9,6 +9,9 @@ class SCGConfiguration(PhraseConfiguration):
     def sential_form(self):
         return self.data
 
+    def cli_output(self):
+        return self.data.cli_output()
+
     @property
     def is_sentence(self):
         return self.data.is_sentence

@@ -1,10 +1,12 @@
 import logging
 from functools import wraps
 
+from glab.representation import Representable
+
 log = logging.getLogger("glab.GrammarBase")
 
 
-class ConfigurationBase:
+class ConfigurationBase(Representable):
     def __init__(self, data, parent=None, used_rule=None, affected=None):
         self.data = data
         self.parent = parent
@@ -27,7 +29,32 @@ class ConfigurationBase:
         )
 
 
+class ProductionBase(Representable):
+    """Production of grammar
+
+    This class represent one production of grammar.
+    Every production is tried to be matched against current configuration and then applied.
+
+    """
+
+    def apply(self, configuration: ConfigurationBase):
+        pass
+
+
 class GrammarBase:
+    """Formal grammar
+
+    This class represents formal grammar. Grammar takes configuration and by using production generates
+    new configurations
+
+    Attributes:
+        configuration_class (ConfigurationBase): Class representing one configuration
+        production_class (ProductionBase): Class representing one production
+    """
+
+    configuration_class = ConfigurationBase
+    production_class = ProductionBase
+
     def __init__(self):
         self.stack = []
         self.filters = []

@@ -60,7 +60,7 @@ class App:
             if show_index:
                 print(f"{index}: {sentence}")
             else:
-                print(sentence)
+                print(sentence.cli_output())
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
         sentence = self.grammar.parse_configuration(sentence, delimiter=delimiter)

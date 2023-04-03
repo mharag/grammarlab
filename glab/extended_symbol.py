@@ -28,14 +28,14 @@ class ExtendedSymbol(SymbolBase):
             return str(self.base_symbol)
         return f"{self.base_symbol}_{self.variant_id}"
 
-    def cli_out(self):
+    def cli_output(self):
         if self.variant_id is None:
             return str(self.base_symbol)
         if self.color:
             variant_id = f"{self.color}_{self.variant_id}{RESET}"
         else:
             variant_id = self.variant_id
-        return str(self.base_symbol) + variant_id
+        return self.base_symbol.cli_output() + variant_id
 
 
 class Terminal(SymbolBase):

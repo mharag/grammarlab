@@ -20,6 +20,9 @@ class PCConfiguration(ConfigurationBase):
     def __str__(self):
         return "  ".join([str(component) for component in self.data])
 
+    def cli_output(self):
+        return "  ".join([component.cli_output() for component in self.data])
+
     def __eq__(self, other):
         return isinstance(other, PCConfiguration) and self.data == other.data
 

@@ -3,6 +3,7 @@ from collections import defaultdict
 from enum import Enum
 
 from glab.config import COMPACT_REPR, STRING_DELIMITER
+from glab.representation import Representable
 
 log = logging.getLogger("glab.Alphabet")
 
@@ -12,7 +13,7 @@ class SymbolType(Enum):
     NON_TERMINAL = "N"
 
 
-class Symbol:
+class Symbol(Representable):
     type = None
 
     def __init__(self, symbol):
@@ -82,7 +83,7 @@ class Alphabet:
 
 
 
-class String:
+class String(Representable):
     def __init__(self, symbols: list[Symbol]):
         self.symbols = symbols
 
@@ -95,6 +96,9 @@ class String:
 
     def __str__(self):
         return STRING_DELIMITER.join([str(symbol) for symbol in self.symbols])
+
+    def cli_output(self):
+        return STRING_DELIMITER.join([symbol.cli_output() for symbol in self.symbols])
 
     def __repr__(self):
         if COMPACT_REPR:
