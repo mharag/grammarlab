@@ -1,6 +1,6 @@
 import pytest
 
-from glab.alphabet import A, N, S, T
+from glab.alphabet import A, NonTerminal, S, T
 from grammars.phrase_grammar import PhraseConfiguration as C
 from grammars.phrase_grammar import PhraseGrammar as Grammar
 from grammars.phrase_grammar import PhraseGrammarRule as Rule
@@ -10,18 +10,18 @@ from grammars.phrase_grammar import PhraseGrammarRule as Rule
     "string,lhs,expected",
     [
         (
-            S([N("A"), N("B"), N("C")]),
-            S([N("A"), N("B"), N("C")]),
+            S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")]),
+            S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")]),
             [0]
         ),
         (
-            S([N("A"), N("A"), N("A")]),
-            S([N("A"), N("A")]),
+            S([NonTerminal("A"), NonTerminal("A"), NonTerminal("A")]),
+            S([NonTerminal("A"), NonTerminal("A")]),
             [0, 1]
         ),
         (
-            S([N("A"), N("A"), N("A")]),
-            S([N("X")]),
+            S([NonTerminal("A"), NonTerminal("A"), NonTerminal("A")]),
+            S([NonTerminal("X")]),
             []
         )
     ]
@@ -36,22 +36,22 @@ def test_match(string, lhs, expected):
     "string,lhs,rhs,expected",
     [
         (
-            C(S([N("A"), N("B"), N("C")])),
-            S([N("A")]),
-            S([N("X"), N("Y"), N("Z")]),
-            [C(S([N("X"), N("Y"), N("Z"), N("B"), N("C")]))],
+            C(S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])),
+            S([NonTerminal("A")]),
+            S([NonTerminal("X"), NonTerminal("Y"), NonTerminal("Z")]),
+            [C(S([NonTerminal("X"), NonTerminal("Y"), NonTerminal("Z"), NonTerminal("B"), NonTerminal("C")]))],
         ),
         (
-            C(S([N("A"), N("B"), N("C")])),
-            S([N("A"), N("B")]),
-            S([N("D"), N("E")]),
-            [C(S([N("D"), N("E"), N("C")]))],
+            C(S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])),
+            S([NonTerminal("A"), NonTerminal("B")]),
+            S([NonTerminal("D"), NonTerminal("E")]),
+            [C(S([NonTerminal("D"), NonTerminal("E"), NonTerminal("C")]))],
         ),
         (
-            C(S([N("A"), N("B"), N("A")])),
-            S([N("A")]),
-            S([N("X")]),
-            [C(S([N("X"), N("B"), N("A")])), C(S([N("A"), N("B"), N("X")]))],
+            C(S([NonTerminal("A"), NonTerminal("B"), NonTerminal("A")])),
+            S([NonTerminal("A")]),
+            S([NonTerminal("X")]),
+            [C(S([NonTerminal("X"), NonTerminal("B"), NonTerminal("A")])), C(S([NonTerminal("A"), NonTerminal("B"), NonTerminal("X")]))],
         )
     ]
 )
@@ -62,13 +62,13 @@ def test_apply(string, lhs, rhs, expected):
 
 
 def test_derive():
-    non_terminals = A({N("S"), N("A"), N("X"), N("B")})
+    non_terminals = A({NonTerminal("S"), NonTerminal("A"), NonTerminal("X"), NonTerminal("B")})
     terminals = A({T("a"), T("b"), T("x")})
     rules = [
-        Rule(S([N("S")]), S([N("A"),  N("A"), N("X"), N("A")])),
-        Rule(S([N("A")]), S([T("b"), T("b")])),
-        Rule(S([N("A"), N("X"), N("A")]), S([T("x")])),
+        Rule(S([NonTerminal("S")]), S([NonTerminal("A"), NonTerminal("A"), NonTerminal("X"), NonTerminal("A")])),
+        Rule(S([NonTerminal("A")]), S([T("b"), T("b")])),
+        Rule(S([NonTerminal("A"), NonTerminal("X"), NonTerminal("A")]), S([T("x")])),
     ]
-    grammar = Grammar(non_terminals, terminals, rules, N("S"))
+    grammar = Grammar(non_terminals, terminals, rules, NonTerminal("S"))
     result = list(grammar.derive(100))
     assert result == [C(S([T("b"), T("b"), T("x")])), C(S([T("b"), T("b"), T("x")]))]

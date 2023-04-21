@@ -54,13 +54,11 @@ class App:
             self.derivation_sequence(args.sentence, args.delimiter, args.matches)
 
     def generate(self, max_steps=None, exact_depth=False, only_sentences=True):
-        sentences = []
-        for sentence in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences):
-            sentences.append(sentence)
-        print(create_table(sentences))
+        for configuration in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences):
+            print(configuration.sential_form)
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
-        sentence = self.grammar.parse_configuration(sentence, delimiter=delimiter)
+        sentence = self.grammar.configuration_class.deserialize(self.grammar, sentence, delimiter=delimiter)
         depth = 1
         while matches:
             index = 0

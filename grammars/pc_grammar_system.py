@@ -1,6 +1,7 @@
 import functools
+from typing import List
 
-from glab.alphabet import S
+from glab.alphabet import String, Symbol
 from glab.compact_definition import compact_communication_symbols
 from glab.grammar_base import ConfigurationBase, GrammarBase
 
@@ -10,8 +11,21 @@ class CommunicationRule(dict):
 
 
 class PCConfiguration(ConfigurationBase):
-    def __getitem__(self, item):
+    """Configuration for PC grammar system.
+    """
+
+    def __getitem__(self, item: int) -> ConfigurationBase:
+        """Get component configuration by index."""
+        if item < 0 or item >= len(self.data):
+            raise IndexError
         return self.data[item]
+
+    def __getattr__(self, attr: str) -> ConfigurationBase:
+        """Get component configuration by name."""
+        if attr.startswith("component_"):
+            index = int(attr.replace("component_", ""))
+            return self.data[index]
+        raise AttributeError
 
     def __repr__(self):
         sential_forms = ", ".join(str(sential_form) for sential_form in self.data)
@@ -20,42 +34,83 @@ class PCConfiguration(ConfigurationBase):
     def __str__(self):
         return "  ".join([str(component) for component in self.data])
 
+    @classmethod
+    def deserialize(cls, grammar: "PCGrammarSystem", representation: str, delimiter: str):
+        """Deserialize configuration from string.
+
+        Configurations of components are separated by two delimiters.
+
+        Example of string representation:
+            A B C D  A B C D  A B C D
+
+        """
+
+        # split configurations of components
+        representations = representation.split(delimiter * 2)
+        configurations = []
+        for i, configuration in enumerate(representations):
+            component = grammar.components[i]
+            # deserialize component configurations
+            configurations.append(component.configuration_class.deserialize(component, configuration, delimiter))
+        return PCConfiguration(configurations)
+
+    @property
+    def sential_form(self) -> String:
+        """Sential form of configuration is sential form of first component."""
+        return self.data[0].sential_form
+
     def cli_output(self):
         return "  ".join([component.cli_output() for component in self.data])
 
-    def __eq__(self, other):
+    def __eq__(self, other: "PCConfiguration"):
         return isinstance(other, PCConfiguration) and self.data == other.data
-
-    def __getattr__(self, attr):
-        if attr.startswith("component_"):
-            index = int(attr.replace("component_", ""))
-            return self.data[index]
-        raise AttributeError
-
-    @property
-    def is_sentence(self):
-        return self.data[0].is_sentence
 
     @property
     def order(self):
+        """Order of configuration is number of components."""
         return len(self.data)
 
     def create_ast(self):
+        """Create AST from configuration."""
         components_ast = [x.create_ast() for x in self.data]
         return functools.reduce(lambda a, b: a.merge(b), components_ast)
 
 
 class PCGrammarSystem(GrammarBase):
-    def __init__(self, comumunication_symbols, components, centralized=False, returning=True):
+    """Parallel Comunicating Grammar System.
+    """
+    def __init__(self,
+        comumunication_symbols: List[Symbol],
+        components: List[GrammarBase],
+        returning: bool = True
+    ):
+        """Create PC grammar system.
+        Args:
+            comumunication_symbols: Symbols that are used for communication between components. i-th points to i-th component.
+            components: List of components.
+            centralized: If True, only fist component can initialize communication.
+            returning: If True, component is returned to its initial state after communication.
+        Returns:
+            PCGrammarSystem
+        """
         super().__init__()
         self.components = components
-        self.centralized = centralized
         self.returning = returning
-
         self.communication_symbols = comumunication_symbols
 
     @classmethod
-    def deserialize(cls, communication_symbols, *components,  returning=True):
+    def deserialize(cls, communication_symbols: List[Symbol], *components: List[GrammarBase],  returning: bool = True):
+        """Deserialize PC grammar system.
+
+        Args:
+            communication_symbols: List of communication symbols.
+            components: List of components.
+            returning: If True, component is returned to its initial state after communication.
+
+        Returns:
+            PCGrammarSystem
+
+        """
         communication_symbols = compact_communication_symbols(communication_symbols)
         return cls(
             comumunication_symbols=communication_symbols,
@@ -71,6 +126,7 @@ Comunication symbols: {self.communication_symbols}
 """
 
     def communication(self, configuration):
+        """Check if configuration contains communication symbol."""
         for sential_form in configuration.data:
             for symbol in sential_form.data:
                 if symbol in self.communication_symbols:
@@ -82,27 +138,21 @@ Comunication symbols: {self.communication_symbols}
     def axiom(self):
         return PCConfiguration([c.axiom for c in self.components])
 
-    def parse_configuration(self, representation, delimiter):
-        components = representation.split(delimiter * 2)
-        configurations = []
-        for i, component in enumerate(components):
-            configurations.append(self.components[i].parse_configuration(component, delimiter))
-        return PCConfiguration(configurations)
-
     @property
     def order(self):
+        """Order of grammar system is number of components."""
         return len(self.components)
 
-    def get_next_sential_form(self, generator, component, sential_form):
-        if sential_form.is_sentence:
-            return sential_form, True
+    def get_next_configuration(self, generator, component, configuration):
+        if configuration.sential_form.is_sentence:
+            return configuration, True
         if generator is None:
-            generator = component.direct_derive(sential_form)
+            generator = component.direct_derive(configuration)
             return next(generator, None), generator
 
         next_sential_form, new_generator = next(generator, None), None
         if next_sential_form is None:
-            new_generator = component.direct_derive(sential_form)
+            new_generator = component.direct_derive(configuration)
             next_sential_form = next(new_generator)
         return next_sential_form, new_generator
 
@@ -112,7 +162,7 @@ Comunication symbols: {self.communication_symbols}
         first_overflow = True
         while True:
             for i in range(self.order):
-                next_configuration[i], new_generator = self.get_next_sential_form(
+                next_configuration[i], new_generator = self.get_next_configuration(
                     generators[i], self.components[i], configuration[i]
                 )
                 if next_configuration[i] is None:
@@ -127,10 +177,10 @@ Comunication symbols: {self.communication_symbols}
                 else:
                     break
 
-
             yield PCConfiguration([x.copy() for x in next_configuration], parent=configuration, depth=configuration.depth+1)
 
     def c_step(self, configuration):
+        """Perform communication step."""
         copied = [False] * configuration.order
         new_configuration = [sential_form.copy() for sential_form in configuration]
         for i in range(configuration.order):
@@ -159,14 +209,16 @@ Comunication symbols: {self.communication_symbols}
         if self.returning:
             for i in range(configuration.order):
                 if copied[i]:
-                    new_configuration[i] = self.components[i].configuration(
-                        S([self.components[i].start_symbol]),
+                    new_configuration[i] = self.components[i].configuration_class(
+                        String([self.components[i].start_symbol]),
                         parent=configuration[i]
                     )
 
         yield PCConfiguration(new_configuration, parent=configuration, depth=configuration.depth+1)
 
     def direct_derive(self, configuration):
+        """Perform direct derivation on configuration."""
+        # if configuration contains communication symbol perform c_step else perform g_step
         if self.communication(configuration):
             for sential_form in self.c_step(configuration):
                 yield sential_form

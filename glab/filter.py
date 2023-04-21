@@ -4,7 +4,7 @@ from logging import getLogger
 logger = getLogger("glab.filter")
 
 
-def grammar_filter(func=None, *, show_filtered=False):
+def grammar_filter(func: bool = None, *, show_filtered: bool = False):
     LOG = logger.info if show_filtered else logger.debug
 
     def decorator(func):

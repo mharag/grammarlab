@@ -1,14 +1,44 @@
+from typing import Dict, Tuple
+
 from glab.alphabet import Symbol as SymbolBase
 from glab.alphabet import SymbolType
 from glab.config import RESET
 
 
 class ExtendedSymbol(SymbolBase):
+    """ ExtendedSymbol is Symbol with additional flags
+
+    For example if "S" is base symbol, extended symbol would be "S_current", "S_checked"...
+
+    Attributes:
+        variants: dictionary of all possible variants
+            where key is variant name and value is tuple (Type, Representation),
+            Type is either Terminal or NonTerminal
+            Representation is unique str that will be displayed in sential form.
+
+    Example:
+        class ESymbol(ExtendedSymbol):
+            variants = {
+                "checked": (SymbolType.NON_TERMINAL, "C"),
+            }
+
+        symbol = ESymbol(Symbol("S"))
+        symbol.id == "S"
+        symbol.checked.id == "S_C"
+
+    """
     base = (None, None)
-    variants = {}
+
+    variants: Dict[str, Tuple[SymbolType, str]] = {}
     color = None
 
-    def __init__(self, base_symbol, variant=None, symbol_type=None, variant_id=None):
+    def __init__(
+        self,
+        base_symbol: SymbolBase,
+        variant: str = None,
+        symbol_type: SymbolBase = None,
+        variant_id: str = None
+    ):
         self.base_symbol = base_symbol
         self.variant = variant
         self.type = symbol_type if symbol_type else base_symbol.type
@@ -20,7 +50,9 @@ class ExtendedSymbol(SymbolBase):
             return self.base_symbol.id
         return self.base_symbol.id + "_" + self.variant_id
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
+        if name not in self.variants:
+            raise AttributeError(f"Variant {name} not found")
         return self.__class__(self.base_symbol, name, *self.variants[name])
 
     def __repr__(self):

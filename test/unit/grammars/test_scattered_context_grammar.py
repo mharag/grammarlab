@@ -1,6 +1,6 @@
 import pytest
 
-from glab.alphabet import N, S, T
+from glab.alphabet import NonTerminal, S, T
 from grammars.scattered_context_grammar import Rule
 from grammars.scattered_context_grammar import \
     ScatteredContextGrammar as Grammar
@@ -21,23 +21,23 @@ def test_find_next():
     "string,rule,expected",
     [
         (
-            S([N("A"), N("A"), N("A")]),
-            [N("B")],
+            S([NonTerminal("A"), NonTerminal("A"), NonTerminal("A")]),
+            [NonTerminal("B")],
             []
         ),
         (
-            S([N("A"), N("A"), N("A")]),
-            [N("A")],
+            S([NonTerminal("A"), NonTerminal("A"), NonTerminal("A")]),
+            [NonTerminal("A")],
             [[0], [1], [2]]
         ),
         (
-            S([N("A"), N("B"), N("C")]),
-            [N("A"), N("B"), N("C")],
+            S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")]),
+            [NonTerminal("A"), NonTerminal("B"), NonTerminal("C")],
             [[0, 1, 2]]
         ),
         (
-            S([N("A"), N("A"), N("B"), N("C"), N("C")]),
-            [N("A"), N("B"), N("C")],
+            S([NonTerminal("A"), NonTerminal("A"), NonTerminal("B"), NonTerminal("C"), NonTerminal("C")]),
+            [NonTerminal("A"), NonTerminal("B"), NonTerminal("C")],
             [[0, 2, 3], [0, 2, 4], [1, 2, 3], [1, 2, 4]]
         )
     ]
@@ -52,19 +52,19 @@ def test_match_single(string, rule, expected):
     "string,rule,expected",
     [
         (
-            C(S([N("A"), N("A"), N("A")])),
-            Rule([N("A")], [S([N("B"), N("C")])]),
+            C(S([NonTerminal("A"), NonTerminal("A"), NonTerminal("A")])),
+            Rule([NonTerminal("A")], [S([NonTerminal("B"), NonTerminal("C")])]),
             [
-                C(S([N("B"), N("C"), N("A"), N("A")])),
-                C(S([N("A"), N("B"), N("C"), N("A")])),
-                C(S([N("A"), N("A"), N("B"), N("C")])),
+                C(S([NonTerminal("B"), NonTerminal("C"), NonTerminal("A"), NonTerminal("A")])),
+                C(S([NonTerminal("A"), NonTerminal("B"), NonTerminal("C"), NonTerminal("A")])),
+                C(S([NonTerminal("A"), NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])),
             ]
         ),
         (
-            C(S([N("A"), N("B")])),
-            Rule([N("A"), N("B")], [S([N("C")]), S([N("D")])]),
+            C(S([NonTerminal("A"), NonTerminal("B")])),
+            Rule([NonTerminal("A"), NonTerminal("B")], [S([NonTerminal("C")]), S([NonTerminal("D")])]),
             [
-                C(S([N("C"), N("D")])),
+                C(S([NonTerminal("C"), NonTerminal("D")])),
             ]
         )
     ]
@@ -75,14 +75,14 @@ def test_apply(string, rule, expected):
 
 
 def test_derive():
-    rule1 = Rule([N("A")], [S([T("a")])])
-    rule2 = Rule([N("A")], [S([N("A"), T("a")])])
+    rule1 = Rule([NonTerminal("A")], [S([T("a")])])
+    rule2 = Rule([NonTerminal("A")], [S([NonTerminal("A"), T("a")])])
 
     grammar = Grammar(
-        [N("A")],
+        [NonTerminal("A")],
         [T("a")],
         [rule1, rule2],
-        N("A")
+        NonTerminal("A")
     )
     language = list(grammar.derive(10))
     control_language = [C(S([T("a")]*i)) for i in range(1, 11)]

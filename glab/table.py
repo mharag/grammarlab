@@ -10,7 +10,7 @@ definitions = {
     ],
     PhraseConfiguration: [
         (lambda x: x.used_production, "Used Rule"),
-        (lambda x: x.sential_form.cli_output(), "Used Rule"),
+        (lambda x: x.sential_form.cli_output(), "Sential Form"),
     ],
 
     PhraseGrammarRule: [

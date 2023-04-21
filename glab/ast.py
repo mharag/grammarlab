@@ -1,10 +1,13 @@
+from typing import List
+
+
 class Tree:
     def __init__(self):
         self.roots = []
         self.len = 0
         self.frontier = []
 
-    def add_root(self, node):
+    def add_root(self, node: "TreeNode"):
         self.len = 1
         self.roots.append(node)
         self.frontier = [node]
@@ -18,7 +21,7 @@ class Tree:
         for root in self.roots:
             root.print(0)
 
-    def merge(self, other):
+    def merge(self, other: "Tree"):
         self.roots = self.roots + other.roots
         self.len = self.len + other.len
         self.frontier = self.frontier + other.frontier
@@ -26,7 +29,7 @@ class Tree:
 
 
 class TreeNode:
-    def __init__(self, tree, index, data, depth):
+    def __init__(self, tree: "Tree", index: int, data, depth: int):
         self.tree = tree
         self.data = data
         self.depth = depth
@@ -35,7 +38,7 @@ class TreeNode:
         self.is_frontier = True
         self.parents = []
 
-    def add_children(self, children):
+    def add_children(self, children: List["TreeNode"]):
         if not self.is_frontier:
             raise ValueError("Trying to add children to node that is not in frontier!")
         self.children = children
@@ -49,7 +52,7 @@ class TreeNode:
         for child in children:
             child.parents.append(self)
 
-    def add_parent(self, parent):
+    def add_parent(self, parent: "TreeNode"):
         self.parents.append(parent)
 
     def remove_from_frontier(self):
@@ -62,7 +65,7 @@ class TreeNode:
         self.is_frontier = False
 
 
-    def print(self, indent):
+    def print(self, indent: int):
         print("  " * indent + str(self.data))
         for child in self.children:
             child.print(indent+1)

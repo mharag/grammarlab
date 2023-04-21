@@ -1,4 +1,4 @@
-from glab.alphabet import Alphabet, N, NonTerminal, String, Symbol, Terminal
+from glab.alphabet import Alphabet, NonTerminal, String, Symbol, Terminal
 
 
 def test_symbol_eq():
@@ -38,34 +38,34 @@ def test_string_is_sentence():
 
 def test_string_create_index():
     str1 = String([
-        N("A"), N("B"), N("C"), N("D"), N("A")
+        NonTerminal("A"), NonTerminal("B"), NonTerminal("C"), NonTerminal("D"), NonTerminal("A")
     ])
     index = str1.create_index()
-    assert index[N("A")] == [0, 4]
-    assert index[N("B")] == [1]
-    assert index[N("C")] == [2]
+    assert index[NonTerminal("A")] == [0, 4]
+    assert index[NonTerminal("B")] == [1]
+    assert index[NonTerminal("C")] == [2]
 
-    selective_index = str1.create_index([N("A")])
+    selective_index = str1.create_index([NonTerminal("A")])
     assert len(selective_index) == 1
 
 
 def test_expand():
-    str1 = String([N("A"), N("B"), N("C")])
-    str2 = String([N("D"), N("E")])
+    str1 = String([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])
+    str2 = String([NonTerminal("D"), NonTerminal("E")])
     str1.expand(1, str2)
-    assert str1 == String([N("A"), N("D"), N("E"), N("C")])
+    assert str1 == String([NonTerminal("A"), NonTerminal("D"), NonTerminal("E"), NonTerminal("C")])
 
 
 def test_replace():
-    str1 = String([N("A"), N("B"), N("C")])
-    str1.replace(1, N("X"))
-    assert str1 == String([N("A"), N("X"), N("C")])
+    str1 = String([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])
+    str1.replace(1, NonTerminal("X"))
+    assert str1 == String([NonTerminal("A"), NonTerminal("X"), NonTerminal("C")])
 
 
 def test_copy():
-    str1 = String([N("A"), N("B"), N("C")])
+    str1 = String([NonTerminal("A"), NonTerminal("B"), NonTerminal("C")])
     copied = str1.copy()
 
     assert str1 == copied
-    str1.replace(0, N("D"))
+    str1.replace(0, NonTerminal("D"))
     assert not str1 == copied
