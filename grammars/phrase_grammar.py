@@ -44,19 +44,19 @@ class PhraseConfiguration(ConfigurationBase):
     def __repr__(self):
         return str(self.data)
 
-    def create_ast(self, depth: int = 0) -> Tree:
-        """Create AST from configuration.
-        """
+    def create_ast_root(self, depth) -> Tree:
+        # create root node
+        tree = Tree()
+        root_node = tree.create_node(self.data[0], depth=depth)
+        tree.add_root(root_node)
+        return tree
 
+    def create_ast_pc_grammar(self, depth: int = 0) -> Tree:
         if not self.parent:
-            # create root node
-            tree = Tree()
-            root_node = tree.create_node(self.data[0], depth=depth)
-            tree.add_root(root_node)
-            return tree
-
+            parent_ast = self.create_ast_root(depth)
+            return parent_ast
         # recursively create AST from parent
-        parent_ast = self.parent.create_ast(depth=depth+1)
+        parent_ast = self.parent.create_ast_pc_grammar(depth=depth+1)
 
         if self.used_production is None:
             # return grammar to start symbol - used by PC grammar systems
@@ -76,6 +76,20 @@ class PhraseConfiguration(ConfigurationBase):
                 children = [parent_ast.create_node(x, depth) for x in rhs]
                 parent.add_children(children)
             return parent_ast
+
+        # apply rule to parent AST
+        self.apply_rule_to_ast(parent_ast, depth)
+        return parent_ast
+
+    def create_ast(self, depth: int = 0) -> Tree:
+        """Create AST from configuration.
+        """
+
+        if not self.parent:
+            parent_ast = self.create_ast_root(depth)
+            return parent_ast
+        # recursively create AST from parent
+        parent_ast = self.parent.create_ast(depth=depth+1)
 
         # apply rule to parent AST
         self.apply_rule_to_ast(parent_ast, depth)
@@ -165,7 +179,7 @@ class PhraseGrammarRule:
             new_sential_form = sential_form.copy()
             # replace lhs with rhs
             new_sential_form.expand(match, self.rhs, expand_symbols=len(self.lhs))
-            new_configuration = PhraseConfiguration(new_sential_form, parent=configuration, used_production=self, affected=match)
+            new_configuration = PhraseConfiguration(new_sential_form, parent=configuration, used_production=self, affected=match, depth=configuration.depth+1)
             yield new_configuration
 
 
@@ -173,6 +187,8 @@ class PhraseGrammar(GrammarBase):
     """Phrase grammar.
 
     """
+    configuration_class = PhraseConfiguration
+
     def __init__(
         self,
         non_terminals: Alphabet,

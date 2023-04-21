@@ -192,10 +192,12 @@ class GrammarBase(Representable):
                     continue
                 queue.append(self.direct_derive(next_configuration))
 
-    def ids_derive(self, depth: int):
+    def ids_derive(self, depth: int = None):
         current_depth = 0
         while depth is None or current_depth < depth:
-            yield from self.dfs_derive(current_depth)
+            for configuration in self.dfs_derive(current_depth):
+                if configuration.depth == current_depth:
+                    yield configuration
             current_depth += 1
 
     def derive(
@@ -238,6 +240,14 @@ class GrammarBase(Representable):
             if only_sentences and not configuration.sential_form.is_sentence:
                 continue
             yield configuration
+
+    def parse(self, configuration: ConfigurationBase, matches: int = 1) -> ConfigurationBase:
+        for derived_configuration in self.derive(strategy=Strategy.IDS):
+            if derived_configuration.sential_form == configuration.sential_form:
+                yield derived_configuration
+                matches -= 1
+                if not matches:
+                    break
 
 
 grammar_restriction = Callable[[GrammarBase], None]

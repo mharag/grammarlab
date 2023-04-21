@@ -1,3 +1,5 @@
+# Context-Sensitive grammar that generates language L = {a^n_a^n_a^n | n>= 1}
+
 from glab.cli import App
 from grammars.grammars import CS
 

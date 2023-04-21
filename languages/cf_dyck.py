@@ -1,3 +1,5 @@
+# Context-free grammar that generates the language of Dyck words
+
 from glab.cli import App
 from grammars.grammars import CF
 

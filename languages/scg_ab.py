@@ -1,3 +1,5 @@
+# Scattered Context Grammar that generates language L = {a^nb^n | n>= 0}
+
 from glab.cli import App
 from grammars.grammars import SCG
 

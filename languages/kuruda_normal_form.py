@@ -1,6 +1,8 @@
+# Example of context-sensitive grammar in Kuruda normal form:
+
 from glab.alphabet import NonTerminal
 from glab.cli import App
-from grammars.grammars import CF
+from grammars.grammars import CS
 
 N = {"A", "B", "C", "D"}
 T = {"a"}
@@ -23,7 +25,7 @@ P = [
 ]
 S = "A"
 
-grammar = CF(N, T, P, S)
+grammar = CS(N, T, P, S)
 def max_one_B(sential_form):
     count = 0
     for symbol in sential_form:

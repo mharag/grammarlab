@@ -1,5 +1,5 @@
 import functools
-from typing import List
+from typing import Generator, List
 
 from glab.alphabet import String, Symbol
 from glab.compact_definition import compact_communication_symbols
@@ -7,7 +7,7 @@ from glab.grammar_base import ConfigurationBase, GrammarBase
 
 
 class CommunicationRule(dict):
-    pass
+    """Communication rule is dynamic rule that maps communication symbols to current content of component."""
 
 
 class PCConfiguration(ConfigurationBase):
@@ -72,13 +72,15 @@ class PCConfiguration(ConfigurationBase):
 
     def create_ast(self):
         """Create AST from configuration."""
-        components_ast = [x.create_ast() for x in self.data]
+        components_ast = [x.create_ast_pc_grammar() for x in self.data]
         return functools.reduce(lambda a, b: a.merge(b), components_ast)
 
 
 class PCGrammarSystem(GrammarBase):
     """Parallel Comunicating Grammar System.
     """
+    configuration_class = PCConfiguration
+
     def __init__(self,
         comumunication_symbols: List[Symbol],
         components: List[GrammarBase],
@@ -145,31 +147,53 @@ Comunication symbols: {self.communication_symbols}
 
     def get_next_configuration(self, generator, component, configuration):
         if configuration.sential_form.is_sentence:
+            # configuration is sentence, generation step is skipped
             return configuration, True
         if generator is None:
+            # initialize generator
             generator = component.direct_derive(configuration)
             return next(generator, None), generator
 
+        # get next configuration from generator
         next_sential_form, new_generator = next(generator, None), None
         if next_sential_form is None:
+            # generator is empty, initialize new generator
             new_generator = component.direct_derive(configuration)
             next_sential_form = next(new_generator)
         return next_sential_form, new_generator
 
-    def g_step(self, configuration):
+    def g_step(self, configuration: PCConfiguration) -> Generator[PCConfiguration, None, None]:
+        """Perform generation step.
+
+        All combinations of all possible derivations of all components are generated.
+        If component is not able to derive, None is returned.
+        For example if first component generate 3 configurations and second 2, 6 configurations are generated
+        by grammar system.
+
+        """
+        # generators for each component
         generators = [None] * self.order
         next_configuration = [None] * self.order
         first_overflow = True
         while True:
+            # generation works as odometer
+            # when generator doesn't generate any new configuration (overflow)
+            # it is reset, and generation continues with next component
+            # first overflow of rightmost component is ignored
+            # second overflow of rightmost component ends generation
             for i in range(self.order):
+                # get next configuration from i-th component
                 next_configuration[i], new_generator = self.get_next_configuration(
                     generators[i], self.components[i], configuration[i]
                 )
                 if next_configuration[i] is None:
+                    # component cannot generate any configuration
                     return
                 if new_generator:
+                    # component has new generator
                     generators[i] = new_generator
                 else:
+                    # generator didn't overflow, no need to change other components
                     break
             else:
                 if first_overflow:
@@ -189,8 +213,10 @@ Comunication symbols: {self.communication_symbols}
             sential_form = new_configuration[i].sential_form
             index = sential_form.create_index(self.communication_symbols)
             for communication_symbol, positions in index.items():
+                # source component
                 referenced_component = self.communication_symbols.index(communication_symbol)
                 if configuration[referenced_component].sential_form.create_index(self.communication_symbols):
+                    # source component contains communication symbols, communication is not possible
                     continue
                 communication_rule[communication_symbol] = configuration[referenced_component].sential_form
                 copied[referenced_component] = True
@@ -199,14 +225,17 @@ Comunication symbols: {self.communication_symbols}
                 for position in positions:
                     sential_form.expand(position+offset, configuration[referenced_component].sential_form)
                     offset += len(configuration[referenced_component].sential_form) - 1
+
             new_configuration[i].used_production = communication_rule
             new_configuration[i].affected = affected
             new_configuration[i].parent = configuration[i]
 
         if True not in copied:
+            # no component was copied, communication is not possible
             return
 
         if self.returning:
+            # return copied components to initial state
             for i in range(configuration.order):
                 if copied[i]:
                     new_configuration[i] = self.components[i].configuration_class(

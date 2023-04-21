@@ -1,3 +1,5 @@
+# Parallel Comunicating Grammar System that generates language L = {_a^1_a^2 .... a^n_ | n >= 0}
+
 from glab.cli import App
 from grammars.grammars import CF, NPC
 
