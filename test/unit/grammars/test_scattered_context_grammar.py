@@ -1,11 +1,11 @@
 import pytest
 
-from glab.alphabet import NonTerminal, S, T
-from grammars.scattered_context_grammar import Rule
-from grammars.scattered_context_grammar import \
+from glab.core.alphabet import NonTerminal, S, T
+from glab.grammars.scattered_context_grammar import Rule
+from glab.grammars.scattered_context_grammar import \
     ScatteredContextGrammar as Grammar
-from grammars.scattered_context_grammar import ScatteredContextRule
-from grammars.scattered_context_grammar import SCGConfiguration as C
+from glab.grammars.scattered_context_grammar import ScatteredContextRule
+from glab.grammars.scattered_context_grammar import SCGConfiguration as C
 
 
 def test_find_next():

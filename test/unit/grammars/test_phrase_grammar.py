@@ -1,9 +1,9 @@
 import pytest
 
-from glab.alphabet import A, NonTerminal, S, T
-from grammars.phrase_grammar import PhraseConfiguration as C
-from grammars.phrase_grammar import PhraseGrammar as Grammar
-from grammars.phrase_grammar import PhraseGrammarRule as Rule
+from glab.core.alphabet import A, NonTerminal, S, T
+from glab.grammars.phrase_grammar import PhraseConfiguration as C
+from glab.grammars.phrase_grammar import PhraseGrammar as Grammar
+from glab.grammars.phrase_grammar import PhraseGrammarRule as Rule
 
 
 @pytest.mark.parametrize(

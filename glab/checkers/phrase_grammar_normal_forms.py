@@ -1,8 +1,8 @@
 from functools import partial
 from itertools import zip_longest
 
-from glab.alphabet import NonTerminal, Terminal
-from grammars.phrase_grammar import PhraseGrammar
+from glab.core.alphabet import NonTerminal, Terminal
+from glab.grammars.phrase_grammar import PhraseGrammar
 
 
 def match_rule(rule, templates):

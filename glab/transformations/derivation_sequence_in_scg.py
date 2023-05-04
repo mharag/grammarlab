@@ -1,14 +1,15 @@
 import itertools
 
-from glab.alphabet import Alphabet, SymbolType
-from glab.config import GREEN
-from glab.extended_symbol import ExtendedSymbol
-from glab.extended_symbol import NonTerminal as N
-from glab.extended_symbol import Terminal as T
-from glab.filter import grammar_filter
-from grammars.scattered_context_grammar import \
+from glab.core.alphabet import Alphabet, SymbolType
+from glab.core.config import GREEN
+from glab.core.extended_symbol import ExtendedSymbol
+from glab.core.extended_symbol import NonTerminal as N
+from glab.core.extended_symbol import Terminal as T
+from glab.core.filter import grammar_filter
+from glab.grammars.scattered_context_grammar import \
     ScatteredContextGrammar as Grammar
-from grammars.scattered_context_grammar import ScatteredContextRule as Rule
+from glab.grammars.scattered_context_grammar import \
+    ScatteredContextRule as Rule
 
 
 class SCGSymbol(ExtendedSymbol):

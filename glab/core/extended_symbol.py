@@ -1,8 +1,8 @@
 from typing import Dict, Tuple
 
-from glab.alphabet import Symbol as SymbolBase
-from glab.alphabet import SymbolType
-from glab.config import RESET
+from glab.core.alphabet import Symbol as SymbolBase
+from glab.core.alphabet import SymbolType
+from glab.core.config import RESET
 
 
 class ExtendedSymbol(SymbolBase):

@@ -7,7 +7,7 @@ compact definitions ("AB") from this module can be used.
 
 from typing import Iterable, List, Optional
 
-from glab.alphabet import Alphabet, NonTerminal, String, Terminal
+from glab.core.alphabet import Alphabet, NonTerminal, String, Terminal
 
 
 def compact_nonterminal_alphabet(raw_alphabet: Iterable) -> Alphabet:

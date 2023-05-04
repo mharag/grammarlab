@@ -2,8 +2,8 @@
 import argparse
 import logging
 
-from glab.table import create_table
-from glab.visualize_ast import visualize_ast
+from glab.core.table import create_table
+from glab.core.visualize_ast import visualize_ast
 
 log = logging.getLogger("glab.cli")
 

@@ -1,11 +1,12 @@
 from typing import Dict, Iterable, List, Set, Tuple
 
-from glab.alphabet import NonTerminal, String, Symbol, SymbolType
-from glab.ast import Tree
-from glab.compact_definition import (compact_nonterminal_alphabet,
-                                     compact_string, compact_terminal_alphabet)
-from grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
-                                     PhraseGrammarRule)
+from glab.core.alphabet import NonTerminal, String, Symbol, SymbolType
+from glab.core.ast import Tree
+from glab.core.compact_definition import (compact_nonterminal_alphabet,
+                                          compact_string,
+                                          compact_terminal_alphabet)
+from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
+                                          PhraseGrammarRule)
 
 
 class SCGConfiguration(PhraseConfiguration):

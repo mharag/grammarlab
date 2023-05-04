@@ -1,11 +1,14 @@
 from typing import Generator, Iterable, List, Set, Tuple
 
-from glab.alphabet import Alphabet, NonTerminal, String, Symbol
-from glab.ast import Tree
-from glab.compact_definition import (compact_nonterminal_alphabet,
-                                     compact_string, compact_terminal_alphabet)
-from glab.grammar_base import ConfigurationBase, GrammarBase
-from grammars.pc_grammar_system import CommunicationRule
+from glab.core.alphabet import (Alphabet, NonTerminal, String, Symbol,
+                                SymbolType)
+from glab.core.ast import Tree
+from glab.core.compact_definition import (compact_nonterminal_alphabet,
+                                          compact_string,
+                                          compact_terminal_alphabet)
+from glab.core.grammar_base import (ConfigurationBase, GrammarBase,
+                                    ProductionBase)
+from glab.grammars.pc_grammar_system import CommunicationRule
 
 
 class PhraseConfiguration(ConfigurationBase):
@@ -111,13 +114,13 @@ class PhraseConfiguration(ConfigurationBase):
         return str(self.data)
 
 
-class PhraseGrammarRule:
+class PhraseGrammarRule(ProductionBase):
     index = 0
 
     def __init__(self, lhs: String, rhs: String):
         super().__init__()
-        if not all(isinstance(symbol, NonTerminal) for symbol in lhs):
-            raise ValueError("Terminal symbol in left side of rule!")
+        if not all(symbol.type == SymbolType.NON_TERMINAL for symbol in lhs):
+            raise ValueError(f"Terminal symbol in left side of rule! {lhs}")
 
         self.lhs = lhs
         self.rhs = rhs
@@ -140,7 +143,7 @@ class PhraseGrammarRule:
         return cls(lhs, rhs)
 
     def __repr__(self):
-        return f"{self.label}: {self.lhs} -> {self.rhs}"
+        return f"{self.lhs} -> {self.rhs}"
 
     def match(self, sential_form: String) -> Generator[int, None, None]:
         """Find all matches of rule in sential form

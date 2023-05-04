@@ -2,8 +2,8 @@ import logging
 from collections import defaultdict
 from enum import Enum
 
-from glab.config import COMPACT_REPR, STRING_DELIMITER
-from glab.representation import Representable
+from glab.core.config import COMPACT_REPR, STRING_DELIMITER
+from glab.core.representation import Representable
 
 log = logging.getLogger("glab.Alphabet")
 

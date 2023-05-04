@@ -1,8 +1,8 @@
 # Example of context-sensitive grammar in Kuruda normal form:
 
-from glab.alphabet import NonTerminal
-from glab.cli import App
-from grammars.grammars import CS
+from glab.core.alphabet import NonTerminal
+from glab.core.cli import App
+from glab.grammars.grammars import CS
 
 N = {"A", "B", "C", "D"}
 T = {"a"}

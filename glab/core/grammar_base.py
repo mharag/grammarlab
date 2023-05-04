@@ -3,9 +3,9 @@ from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Generator, List, Optional
 
-from glab.alphabet import String
-from glab.ast import Tree
-from glab.representation import Representable
+from glab.core.alphabet import String
+from glab.core.ast import Tree
+from glab.core.representation import Representable
 
 log = logging.getLogger("glab.GrammarBase")
 

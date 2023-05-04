@@ -1,7 +1,7 @@
 from tabulate import tabulate
 
-from grammars.pc_grammar_system import PCConfiguration
-from grammars.phrase_grammar import PhraseConfiguration, PhraseGrammarRule
+from glab.grammars.pc_grammar_system import PCConfiguration
+from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseGrammarRule
 
 definitions = {
     PCConfiguration: lambda obj: [

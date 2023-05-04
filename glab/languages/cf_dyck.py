@@ -1,7 +1,7 @@
 # Context-free grammar that generates the language of Dyck words
 
-from glab.cli import App
-from grammars.grammars import CF
+from glab.core.cli import App
+from glab.grammars.grammars import CF
 
 N = {"S"}
 T = {"(", ")"}

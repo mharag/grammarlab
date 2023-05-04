@@ -1,15 +1,16 @@
 import itertools
 
-from glab.alphabet import Alphabet, String, SymbolType
-from glab.config import RED
-from glab.extended_symbol import ExtendedSymbol
-from glab.extended_symbol import NonTerminal as N
-from glab.extended_symbol import Terminal as T
-from glab.filter import grammar_filter
-from grammars.pc_grammar_system import PCGrammarSystem
-from grammars.scattered_context_grammar import \
+from glab.core.alphabet import Alphabet, String, SymbolType
+from glab.core.config import RED
+from glab.core.extended_symbol import ExtendedSymbol
+from glab.core.extended_symbol import NonTerminal as N
+from glab.core.extended_symbol import Terminal as T
+from glab.core.filter import grammar_filter
+from glab.grammars.pc_grammar_system import PCGrammarSystem
+from glab.grammars.scattered_context_grammar import \
     ScatteredContextGrammar as Grammar
-from grammars.scattered_context_grammar import ScatteredContextRule as Rule
+from glab.grammars.scattered_context_grammar import \
+    ScatteredContextRule as Rule
 
 
 class PCSymbol(ExtendedSymbol):

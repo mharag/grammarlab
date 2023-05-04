@@ -1,5 +1,5 @@
-from glab.alphabet import Terminal
-from grammars.phrase_grammar import PhraseGrammar, context_free
+from glab.core.alphabet import Terminal
+from glab.grammars.phrase_grammar import PhraseGrammar, context_free
 
 
 def chomsky_normal_form(grammar):

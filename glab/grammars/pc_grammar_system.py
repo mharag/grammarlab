@@ -1,9 +1,9 @@
 import functools
 from typing import Generator, List
 
-from glab.alphabet import String, Symbol
-from glab.compact_definition import compact_communication_symbols
-from glab.grammar_base import ConfigurationBase, GrammarBase
+from glab.core.alphabet import String, Symbol
+from glab.core.compact_definition import compact_communication_symbols
+from glab.core.grammar_base import ConfigurationBase, GrammarBase
 
 
 class CommunicationRule(dict):

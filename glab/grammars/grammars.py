@@ -1,10 +1,10 @@
 from functools import partial
 
-from glab.grammar_base import restrictions
-from grammars.pc_grammar_system import PCGrammarSystem, centralized_pc
-from grammars.phrase_grammar import (PhraseGrammar, context_free,
-                                     length_preserving)
-from grammars.scattered_context_grammar import ScatteredContextGrammar
+from glab.core.grammar_base import restrictions
+from glab.grammars.pc_grammar_system import PCGrammarSystem, centralized_pc
+from glab.grammars.phrase_grammar import (PhraseGrammar, context_free,
+                                          length_preserving)
+from glab.grammars.scattered_context_grammar import ScatteredContextGrammar
 
 # Phrase grammars
 RE = PhraseGrammar.deserialize
