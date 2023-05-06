@@ -211,11 +211,14 @@ Comunication symbols: {self.communication_symbols}
             communication_rule = CommunicationRule()
             affected = []
             sential_form = new_configuration[i].sential_form
-            index = sential_form.create_index(self.communication_symbols)
-            for communication_symbol, positions in index.items():
+            index = sential_form.index
+            for communication_symbol in self.communication_symbols:
+                positions = index.get(communication_symbol, None)
+                if positions is None:
+                    continue
                 # source component
                 referenced_component = self.communication_symbols.index(communication_symbol)
-                if configuration[referenced_component].sential_form.create_index(self.communication_symbols):
+                if configuration[referenced_component].sential_form.index.keys() & self.communication_symbols:
                     # source component contains communication symbols, communication is not possible
                     continue
                 communication_rule[communication_symbol] = configuration[referenced_component].sential_form

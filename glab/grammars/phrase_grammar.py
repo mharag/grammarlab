@@ -155,7 +155,7 @@ class PhraseGrammarRule(ProductionBase):
             Generator of positions where rule matches.
 
         """
-        index = sential_form.create_index()
+        index = sential_form.index
         for pos in index[self.lhs[0]]:
             if len(sential_form) < pos + len(self.lhs):
                 continue

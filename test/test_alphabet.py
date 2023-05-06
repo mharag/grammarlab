@@ -2,11 +2,13 @@ from glab.core.alphabet import Alphabet, NonTerminal, String, Symbol, Terminal
 
 
 def test_symbol_eq():
-    s1 = Symbol("S")
-    s2 = Symbol("S")
-    s3 = Symbol("X")
+    s1 = NonTerminal("S")
+    s2 = NonTerminal("S")
+    s3 = NonTerminal("X")
     assert s1 == s2
     assert not s2 == s3
+    assert s1 is s2
+    assert s2 is not s3
 
 
 def test_symbol_type():
@@ -40,13 +42,10 @@ def test_string_create_index():
     str1 = String([
         NonTerminal("A"), NonTerminal("B"), NonTerminal("C"), NonTerminal("D"), NonTerminal("A")
     ])
-    index = str1.create_index()
+    index = str1.index
     assert index[NonTerminal("A")] == [0, 4]
     assert index[NonTerminal("B")] == [1]
     assert index[NonTerminal("C")] == [2]
-
-    selective_index = str1.create_index([NonTerminal("A")])
-    assert len(selective_index) == 1
 
 
 def test_expand():

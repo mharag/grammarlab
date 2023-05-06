@@ -109,7 +109,7 @@ class ScatteredContextRule(PhraseGrammarRule):
     def match(self, string: String):
         """Find all matches of rule in string."""
 
-        index = string.create_index(self.lhs)
+        index = string.index
         index_positions = [-1] * self.order
 
         # cursor is index of symbol on left side which is currently processed

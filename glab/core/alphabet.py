@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from enum import Enum
+from functools import partial
 
 from glab.core.config import COMPACT_REPR, STRING_DELIMITER
 from glab.core.representation import Representable
@@ -14,17 +15,20 @@ class SymbolType(Enum):
 
 
 class Symbol(Representable):
-    type = None
+    _symbols = {}
 
-    def __init__(self, symbol):
-        self._id = symbol
+    def __new__(cls, symbol, type):
+        if (symbol, type) not in cls._symbols:
+
+            cls._symbols[(symbol, type)] = super().__new__(cls)
+        return cls._symbols[(symbol, type)]
+
+    def __init__(self, symbol, type):
+        self.id = symbol
+        self.type = type
 
     def __eq__(self, other):
-        return (
-            isinstance(other, Symbol)
-            and self.type == other.type
-            and self.id == other.id
-        )
+        return self is other
 
     def __hash__(self):
         return hash(self.id)
@@ -33,22 +37,25 @@ class Symbol(Representable):
         # return  f"{self.__class__.__name__}({self.id}, type={self.type})"
         return self.id if COMPACT_REPR else f"{self.type.value}({self.id})"
 
-    @property
-    def id(self):
-        return self._id
-
     def __add__(self, other):
         self_string = String([self])
         return self_string + other
 
 
 class Terminal(Symbol):
-    type = SymbolType.TERMINAL
+    def __new__(cls, type):
+        return super().__new__(cls, type, SymbolType.TERMINAL)
+
+    def __init__(self, symbol):
+        super().__init__(symbol, SymbolType.TERMINAL)
 
 
 class NonTerminal(Symbol):
-    type = SymbolType.NON_TERMINAL
+    def __new__(cls, type):
+        return super().__new__(cls, type, SymbolType.NON_TERMINAL)
 
+    def __init__(self, symbol):
+        super().__init__(symbol, SymbolType.NON_TERMINAL)
 
 
 class Alphabet:
@@ -86,6 +93,8 @@ class Alphabet:
 class String(Representable):
     def __init__(self, symbols: list[Symbol]):
         self.symbols = symbols
+        self.index = None
+        self.create_index()
 
     @property
     def is_sentence(self):
@@ -125,22 +134,23 @@ class String(Representable):
         return String(self.symbols + other.symbols)
 
     def create_index(self, symbols=None):
-        log.debug("Creating index for string: %s", self)
         index = defaultdict(list)
         for idx, symbol in enumerate(self.symbols):
             if symbols is None or symbol in symbols:
                 index[symbol].append(idx)
 
-        return index
+        self.index = index
 
     def copy(self):
         return String(self.symbols.copy())
 
     def replace(self, index, symbol):
         self.symbols[index] = symbol
+        self.create_index()
 
     def expand(self, index, string, expand_symbols=1):
         self.symbols[index:index+expand_symbols] = string.symbols
+        self.create_index()
 
 
 A = Alphabet
