@@ -1,8 +1,8 @@
 from typing import Dict, Tuple
 
-from glab.core.alphabet import Symbol, Terminal as TerminalBase, NonTerminal as NonTerminalBase
-from glab.core.alphabet import SymbolType
-from glab.core.config import RESET, enabled
+from glab.core.alphabet import NonTerminal as NonTerminalBase
+from glab.core.alphabet import Symbol, SymbolType
+from glab.core.alphabet import Terminal as TerminalBase
 
 
 class ExtendedSymbol(Symbol):
@@ -27,56 +27,56 @@ class ExtendedSymbol(Symbol):
         symbol.checked.id == "S_C"
 
     """
-    symbols = {}
-
-    base = (None, None)
+    _symbols = {}
 
     variants: Dict[str, Tuple[SymbolType, str]] = {}
     color = None
 
-    def __new__(
-        cls,
-        base_symbol: Symbol,
-        variant: str = None,
-        symbol_type: SymbolType = None,
-        variant_id: str = None
-    ):
-        key = (cls, base_symbol, variant, symbol_type, variant_id)
-        if key not in cls.symbols:
-            cls.symbols[key] = object.__new__(cls)
-            cls.symbols[key].__init__(base_symbol, variant, symbol_type, variant_id)
-        return cls.symbols[key]
+    def __new__(cls, base_symbol, symbol_id=None, symbol_type=None, variant=None):
+        symbol_id = symbol_id or base_symbol.id
+        symbol_type = symbol_type or base_symbol.type
 
-    def __init__(
-        self,
-        base_symbol: Symbol,
-        variant: str = None,
-        symbol_type: SymbolType = None,
-        variant_id: str = None
-    ):
+        key = (cls, symbol_id, symbol_type, base_symbol, variant)
+        if key not in cls._symbols:
+            cls._symbols[key] = object.__new__(cls)
+
+        return cls._symbols[key]
+
+    def __init__(self, base_symbol, symbol_id=None, symbol_type=None, variant=None):
         self.base_symbol = base_symbol
-        self.variant = variant
-        self.type = symbol_type if symbol_type else base_symbol.type
-        self.variant_id = variant_id
+        self.id = symbol_id or base_symbol.id
+        self.type = symbol_type or base_symbol.type
 
-        if self.variant_id is None:
-            self.id = self.base_symbol.id
-        else:
-            self.id = self.base_symbol.id + "_" + self.variant_id
+        self.variant = variant
 
     def __getattr__(self, name: str):
         if name not in self.variants:
             raise AttributeError(f"Variant {name} not found")
-        return self.__class__(self.base_symbol, name, *self.variants[name])
+        symbol_type, suffix = self.variants[name]
+        symbol_id = self.base_symbol.id + "_" + suffix if suffix else None
+        return self.__class__(
+            symbol_id=symbol_id,
+            symbol_type=symbol_type,
+            base_symbol=self.base_symbol,
+            variant=name,
+        )
+
+    @property
+    def base(self):
+        return self.__class__(self.base_symbol)
 
     def __repr__(self):
-        if self.variant_id is None:
-            return str(self.base_symbol)
-        if self.color and enabled:
-            variant_id = f"{self.color}{self.variant_id}{RESET}"
-        else:
-            variant_id = self.variant_id
-        return self.base_symbol.cli_output() + "_" + variant_id
+        return f"{self.__class__.__name__}(id={self.id}, type={self.type}, base_symbol={self.base_symbol})"
+
+
+def get_symbol_factories(extended_symbol_class):
+    def non_terminal(symbol_id):
+        return extended_symbol_class(NonTerminal(symbol_id))
+
+    def terminal(symbol_id):
+        return extended_symbol_class(Terminal(symbol_id))
+
+    return non_terminal, terminal
 
 
 class Terminal(TerminalBase):

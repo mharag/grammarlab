@@ -80,7 +80,7 @@ class App:
         if start:
             start = self.grammar.configuration_class.deserialize(self.grammar, start, delimiter=delimiter)
         for configuration in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences, start=start):
-            print(configuration.sential_form if only_sentences else configuration)
+            print(self.cli_export.export(configuration.sential_form if only_sentences else configuration))
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
         configuration = self.grammar.configuration_class.deserialize(self.grammar, sentence, delimiter=delimiter)

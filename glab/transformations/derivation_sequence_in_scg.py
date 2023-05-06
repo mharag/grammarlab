@@ -2,9 +2,7 @@ import itertools
 
 from glab.core.alphabet import Alphabet, SymbolType
 from glab.core.config import GREEN
-from glab.core.extended_symbol import ExtendedSymbol
-from glab.core.extended_symbol import NonTerminal as N
-from glab.core.extended_symbol import Terminal as T
+from glab.core.extended_symbol import ExtendedSymbol, get_symbol_factories
 from glab.core.filter import grammar_filter
 from glab.grammars.scattered_context_grammar import \
     ScatteredContextGrammar as Grammar
@@ -16,6 +14,7 @@ class SCGSymbol(ExtendedSymbol):
     color = GREEN
     variants = {
         "non_terminal": (SymbolType.NON_TERMINAL, "N"),
+        "_terminal": (SymbolType.TERMINAL, "T"),
         "cs_left": (SymbolType.NON_TERMINAL, "<"),
         "cs_right": (SymbolType.NON_TERMINAL, ">"),
         "pointer": (SymbolType.NON_TERMINAL, "*"),
@@ -26,8 +25,14 @@ class SCGSymbol(ExtendedSymbol):
     @property
     def terminal(self):
         if self.type == SymbolType.TERMINAL:
-            return SCGSymbol(self.base_symbol, "terminal", *self.base)
-        return SCGSymbol(self.base_symbol, "terminal", SymbolType.TERMINAL, "T")
+            symbol = self.base
+        else:
+            symbol = self._terminal
+        symbol.variant = "terminal"
+        return symbol
+
+
+N, T = get_symbol_factories(SCGSymbol)
 
 
 def construct_grammar(G, apply_filters=True):
@@ -185,7 +190,7 @@ def construct_grammar(G, apply_filters=True):
 def max_one_B(configuration):
     count = 0
     for symbol in configuration.sential_form:
-        if symbol.variant == "non_terminal" and symbol.base_symbol == N("B"):
+        if symbol.variant == "non_terminal" and symbol.base_symbol.id == "B":
             count += 1
     return count <= 1
 
@@ -195,7 +200,7 @@ def non_terminal_before_working_space(configuration):
     for symbol in configuration.sential_form:
         if symbol.variant == "non_terminal":
             return False
-        if symbol == N("["):
+        if symbol.id == "[":
             break
     return True
 
@@ -203,7 +208,7 @@ def non_terminal_before_working_space(configuration):
 @grammar_filter
 def symbol_not_copied(configuration):
     sential_form = configuration.sential_form
-    if sential_form[0] not in [N("Q_3"), N("Q_5")]:
+    if sential_form[0].id not in ["Q_3", "Q_5"]:
         return True
     not_copied = False
     for symbol in sential_form:
@@ -217,13 +222,13 @@ def symbol_not_copied(configuration):
 @grammar_filter()
 def finish_left_to_right(configuration):
     sential_form = configuration.sential_form
-    if sential_form[0] != N("Q_7"):
+    if sential_form[0].id != "Q_7":
         return True
 
     in_workspace = False
     non_terminal = False
     for symbol in sential_form:
-        if symbol == N("["):
+        if symbol.id == "[":
             in_workspace = True
         if in_workspace:
             if symbol.variant == "non_terminal":

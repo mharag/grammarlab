@@ -1,9 +1,7 @@
 import logging
 from collections import defaultdict
 from enum import Enum
-from functools import partial
 
-from glab.core.config import COMPACT_REPR, STRING_DELIMITER
 from glab.core.representation import Representable
 
 log = logging.getLogger("glab.Alphabet")
@@ -14,18 +12,18 @@ class SymbolType(Enum):
     NON_TERMINAL = "N"
 
 
-class Symbol(Representable):
+class Symbol:
     _symbols = {}
 
-    def __new__(cls, symbol, type):
-        if (symbol, type) not in cls._symbols:
+    def __new__(cls, symbol_id, symbol_type):
+        key = (cls, symbol_id, symbol_type)
+        if key not in cls._symbols:
+            cls._symbols[key] = super().__new__(cls)
+        return cls._symbols[key]
 
-            cls._symbols[(symbol, type)] = super().__new__(cls)
-        return cls._symbols[(symbol, type)]
-
-    def __init__(self, symbol, type):
-        self.id = symbol
-        self.type = type
+    def __init__(self, symbol_id, symbol_type):
+        self.id = symbol_id
+        self.type = symbol_type
 
     def __eq__(self, other):
         return self is other
@@ -34,8 +32,7 @@ class Symbol(Representable):
         return hash(self.id)
 
     def __repr__(self):
-        # return  f"{self.__class__.__name__}({self.id}, type={self.type})"
-        return self.id if COMPACT_REPR else f"{self.type.value}({self.id})"
+        return f"{self.__class__.__name__}(id={self.id}, type={self.type})"
 
     def __add__(self, other):
         self_string = String([self])
@@ -43,19 +40,14 @@ class Symbol(Representable):
 
 
 class Terminal(Symbol):
-    def __new__(cls, type):
-        return super().__new__(cls, type, SymbolType.TERMINAL)
-
-    def __init__(self, symbol):
-        super().__init__(symbol, SymbolType.TERMINAL)
+    def __new__(cls, symbol_id):
+        return Symbol(symbol_id, SymbolType.TERMINAL)
 
 
 class NonTerminal(Symbol):
-    def __new__(cls, type):
-        return super().__new__(cls, type, SymbolType.NON_TERMINAL)
+    def __new__(cls, symbol_id):
+        return Symbol(symbol_id, SymbolType.NON_TERMINAL)
 
-    def __init__(self, symbol):
-        super().__init__(symbol, SymbolType.NON_TERMINAL)
 
 
 class Alphabet:
@@ -89,7 +81,6 @@ class Alphabet:
         return self._symbol_lookup[symbol]
 
 
-
 class String(Representable):
     def __init__(self, symbols: list[Symbol]):
         self.symbols = symbols
@@ -103,16 +94,12 @@ class String(Representable):
                 return False
         return True
 
-    def __str__(self):
-        return STRING_DELIMITER.join([str(symbol) for symbol in self.symbols])
-
-    def cli_output(self):
-        return STRING_DELIMITER.join([symbol.cli_output() for symbol in self.symbols])
-
     def __repr__(self):
-        if COMPACT_REPR:
-            return str(self)
-        return f"String({', '.join([repr(symbol) for symbol in self.symbols])})"
+        symbols = ", ".join(repr(symbol) for symbol in self.symbols[:2])
+        if len(self.symbols) > 2:
+            symbols += ", ..."
+
+        return f"{self.__class__.__name__}({symbols})"
 
     def __eq__(self, other):
         return isinstance(other, String) and self.symbols == other.symbols

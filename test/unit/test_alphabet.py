@@ -1,4 +1,4 @@
-from glab.core.alphabet import Alphabet, NonTerminal, String, Symbol, Terminal
+from glab.core.alphabet import Alphabet, NonTerminal, String, Terminal
 
 
 def test_symbol_eq():

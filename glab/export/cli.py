@@ -1,5 +1,9 @@
 from tabulate import tabulate
 
+from glab.core.alphabet import String, Symbol
+from glab.core.config import RESET, STRING_DELIMITER
+from glab.core.extended_symbol import ExtendedSymbol
+from glab.core.grammar_base import DerivationSequence
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
 from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
@@ -17,6 +21,24 @@ class CliExport(Export):
     """Export object to command line
     """
 
+    @formatter(Symbol)
+    def symbol(self, symbol):
+        return symbol.id
+
+    @formatter(ExtendedSymbol)
+    def extended_symbol(self, symbol):
+        if symbol.color:
+            base_len = len(symbol.base_symbol.id)
+            base_part = symbol.id[:base_len]
+            extended_part = symbol.id[base_len:]
+            if extended_part:
+                return f"{base_part}{symbol.color}{extended_part}{RESET}"
+        return symbol.base_symbol.id
+
+    @formatter(String)
+    def string(self, string):
+        return STRING_DELIMITER.join(self.export(symbol) for symbol in string)
+
     # Phrase grammars
     @formatter(PhraseGrammar)
     def phrase_grammar(self, grammar):
@@ -31,21 +53,37 @@ Rules:
 
     @formatter(PhraseGrammarRule)
     def phrase_rule(self, rule):
-        lhs = " ".join(map(str, rule.lhs))
-        rhs = " ".join(map(str, rule.rhs))
-        return f"{lhs} -> {rhs}"
+        return f"{self.export(rule.lhs)} -> {self.export(rule.rhs)}"
+
+    @formatter(DerivationSequence)
+    def derivation_sequence(self, sequence):
+        if isinstance(sequence[0], PhraseConfiguration):
+            columns = ["Used Rule", "Sential Form"]
+            rows = [(c.used_production, c.sential_form) for c in sequence]
+        elif isinstance(sequence[0], PCConfiguration):
+            columns, rows = [], []
+            for i in range(sequence[0].order):
+                columns.extend([f"Used Rule {i}", f"Sential Form {i}"])
+            for c in sequence:
+                row = []
+                for i in range(c.order):
+                    row.extend(
+                        [c[i].used_production or "", c[i].sential_form]
+                    )
+                rows.append(row)
+        else:
+            raise NotImplementedError
+        return create_table(columns, rows)
 
     @formatter(PhraseConfiguration)
     def phrase_configuration(self, configuration):
-        columns = ["Used Rule", "Sential Form"]
-        rows = [(c.used_production, c.sential_form) for c in configuration.derivation_sequence()]
-        return create_table(columns, rows)
+        return self.export(configuration.sential_form)
 
     # Scattered context grammars
     @formatter(ScatteredContextRule)
     def scattered_rule(self, rule):
-        lhs = ",".join(map(str, rule.lhs))
-        rhs = ",".join(map(str, rule.rhs))
+        lhs = ",".join(map(self.export, rule.lhs))
+        rhs = ",".join(map(self.export, rule.rhs))
         return f"({lhs}) -> ({rhs})"
 
     # Parallel communicating grammar systems
@@ -60,17 +98,3 @@ Communication symbols: {str(grammar.communication_symbols)}
 {components}
 """
         return grammar_template
-
-    @formatter(PCConfiguration)
-    def pc_configuration(self, configuration):
-        columns, rows = [], []
-        for i in range(configuration.order):
-            columns.extend([f"Used Rule {i}", f"Sential Form {i}"])
-        for c in configuration.derivation_sequence():
-            row = []
-            for i in range(configuration.order):
-                row.extend(
-                    [c[i].used_production or "", c[i].sential_form]
-                )
-            rows.append(row)
-        return create_table(columns, rows)

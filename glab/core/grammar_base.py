@@ -10,6 +10,10 @@ from glab.core.representation import Representable
 log = logging.getLogger("glab.GrammarBase")
 
 
+class DerivationSequence(list):
+    pass
+
+
 class Strategy(Enum):
     """Derivation strategy
 
@@ -61,7 +65,7 @@ class ConfigurationBase(Representable):
         """
         return self.data
 
-    def derivation_sequence(self) -> List["ConfigurationBase"]:
+    def derivation_sequence(self) -> DerivationSequence:
         """Return sequence of configuration.
 
         Sequence starts with axiom and results in self.
@@ -69,7 +73,7 @@ class ConfigurationBase(Representable):
         """
         if not self.parent:
             return [self]
-        return self.parent.derivation_sequence() + [self]
+        return DerivationSequence(self.parent.derivation_sequence() + [self])
 
     def ast_root(self) -> Tree:
         raise NotImplementedError
