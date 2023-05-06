@@ -45,7 +45,7 @@ class PhraseConfiguration(ConfigurationBase):
         return cls(sential_form)
 
     def __repr__(self):
-        return str(self.data)
+        return self.data
 
     def create_ast_root(self, depth) -> Tree:
         # create root node

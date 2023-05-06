@@ -43,7 +43,7 @@ def construct_grammar(G, apply_filters=True):
 
     S_H = N("S_H")
     Q_1, Q_2, Q_3, Q_4, Q_5, Q_6, Q_7 = N("Q_1"), N("Q_2"), N("Q_3"), N("Q_4"), N("Q_5"), N("Q_6"), N("Q_7")
-    Q = {Q_1, Q_2, Q_3, Q_4, Q_5, Q_6}
+    Q = {Q_1, Q_2, Q_3, Q_4, Q_5, Q_6, Q_7}
     PL, PR, NL, NR = N("["), N("]"), N("<"), N(">")
     K = {PL, PR, NL, NR}
     N_H = Alphabet(
@@ -86,10 +86,8 @@ def construct_grammar(G, apply_filters=True):
         elif len(lhs) == 1 and len(rhs) == 1:
             A = lhs[0]
             B = rhs[0]
-            print(B)
             lhs = [Q_1, PL, A.non_terminal, PR]
             rhs = [Q_4, PL, B.non_terminal, PR]
-            print(rhs)
             P_Q1.append(Rule(lhs, rhs))
         elif len(rule.lhs) == 1 and len(rule.rhs) == 0:
             A = rule.lhs[0]

@@ -18,8 +18,7 @@ class PCSymbol(ExtendedSymbol):
     variants = {
         "communication": (SymbolType.NON_TERMINAL, "C"),
         "end": (SymbolType.NON_TERMINAL, "E"),
-        "pointer": (SymbolType.NON_TERMINAL, "C"),
-        "terminal": (SymbolType.TERMINAL, "T"),
+        "pointer": (SymbolType.NON_TERMINAL, "P"),
         "non_terminal": (SymbolType.NON_TERMINAL, "N"),
     }
 
@@ -28,6 +27,9 @@ class PCSymbol(ExtendedSymbol):
         if self.type == SymbolType.TERMINAL:
             return PCSymbol(self.base_symbol, "terminal", *self.base)
         return PCSymbol(self.base_symbol, "terminal", SymbolType.TERMINAL, "T")
+
+
+ignore = [T("*")]
 
 
 def construct_grammar(G, separator, apply_filters=True):
@@ -60,6 +62,8 @@ def construct_grammar(G, separator, apply_filters=True):
         Rule([S_C], [W])
     ]
     for symbol in T_extended:
+        if symbol.base_symbol in ignore:
+            continue
         P_C.extend([
             Rule([S_C], [symbol.communication]),
             Rule([symbol.communication], [symbol.communication]),
@@ -81,7 +85,7 @@ def construct_grammar(G, separator, apply_filters=True):
             Rule([symbol.non_terminal], [symbol.terminal]),
         ])
 
-    A = Grammar(Alphabet(N_communication | N_end | {S_A, W} | N_original), Alphabet(T_original), P_A, S_A)
+    A = Grammar(Alphabet(N_communication | N_end | set(K) | {S_A, W} | N_original), Alphabet(T_original), P_A, S_A)
 
     S_B = N("S_B")
     R_0, R_1, R_2, R_3 = N("R_0"), N("R_1"), N("R_2"), N("R_3")
@@ -92,7 +96,6 @@ def construct_grammar(G, separator, apply_filters=True):
         Rule([R_1, separator.non_terminal], [R_2, separator.non_terminal]),
         Rule([R_2], [R_3 + Q_A])
     ]
-    ignore = [T("*")]
     for rule in P_G:
         P_B.append(
             Rule(
@@ -178,9 +181,9 @@ def finish_from_left_to_right(configuration):
     if B[0] == N("R_2"):
         non_terminal = False
         for symbol in B[1:]:
-            if symbol.type == SymbolType.NON_TERMINAL:
+            if symbol.variant == "non_terminal":
                 non_terminal = True
-            if symbol.variant == SymbolType.TERMINAL:
+            elif symbol.variant == "terminal" and symbol.base_symbol not in ignore:
                 if non_terminal:
                     return False
     return True
@@ -193,6 +196,15 @@ def finish_part_before_separator(configuration):
         for symbol in B[2:]:
             if str(symbol.base_symbol) == "#":
                 return True
+            if symbol.variant == "non_terminal":
+                return False
+    return True
+
+@grammar_filter
+def select_leftmost(configuration):
+    B = configuration[1].sential_form
+    if B[0] == N("R_3"):
+        for symbol in B[1:]:
             if symbol.variant == "non_terminal":
                 return False
     return True

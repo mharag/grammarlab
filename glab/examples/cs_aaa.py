@@ -1,7 +1,6 @@
 # Context-Sensitive grammar that generates language L = {a^n_a^n_a^n | n>= 1}
 
 from glab.core.cli import App
-from glab.export.code import CodeExport
 from glab.grammars.grammars import CS
 
 N = {"S", "-", "A", "L", "R", "F"}
@@ -19,7 +18,6 @@ P = [
 S = "S"
 
 grammar = CS(N, T, P, S)
-print(CodeExport().export(grammar))
 
 if __name__ == "__main__":
     App(grammar).run()

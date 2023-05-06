@@ -1,6 +1,6 @@
 from glab.core.cli import App
 from glab.core.config import STRING_DELIMITER
-from glab.languages.cs_aaa import grammar
+from glab.examples.cs_aaa import grammar
 
 
 def test_a_a_a(capsys):

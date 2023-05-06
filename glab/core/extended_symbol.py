@@ -2,7 +2,7 @@ from typing import Dict, Tuple
 
 from glab.core.alphabet import Symbol as SymbolBase
 from glab.core.alphabet import SymbolType
-from glab.core.config import RESET
+from glab.core.config import RESET, enabled
 
 
 class ExtendedSymbol(SymbolBase):
@@ -58,16 +58,11 @@ class ExtendedSymbol(SymbolBase):
     def __repr__(self):
         if self.variant_id is None:
             return str(self.base_symbol)
-        return f"{self.base_symbol}_{self.variant_id}"
-
-    def cli_output(self):
-        if self.variant_id is None:
-            return str(self.base_symbol)
-        if self.color:
-            variant_id = f"{self.color}_{self.variant_id}{RESET}"
+        if self.color and enabled:
+            variant_id = f"{self.color}{self.variant_id}{RESET}"
         else:
             variant_id = self.variant_id
-        return self.base_symbol.cli_output() + variant_id
+        return self.base_symbol.cli_output() + "_" + variant_id
 
 
 class Terminal(SymbolBase):

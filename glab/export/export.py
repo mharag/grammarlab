@@ -17,17 +17,20 @@ def formatter(event_type):
 
 
 class Export:
-    exporters = {}
     @classmethod
     def register_formatter(cls, object_type, function):
+        if not hasattr(cls, "exporters"):
+            cls.exporters = {}
         if object_type in cls.exporters:
             log.error(
                 "Formatter for object %s already registered.", object_type
             )
         cls.exporters[object_type] = function
 
-    def export(self, obj):
+    def export(self, obj, *args, **kwargs):
         for cls in getmro(obj.__class__):
             if cls in self.exporters:
-                return self.exporters[cls](self, obj)
+                return self.exporters[cls](self, obj, *args, **kwargs)
+            if cls.__name__ in self.exporters:
+                return self.exporters[cls.__name__](self, obj, *args, **kwargs)
         raise ValueError(f"Cannot export object {obj} of type {obj.__class__}")

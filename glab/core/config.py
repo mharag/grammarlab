@@ -1,5 +1,6 @@
 STRING_DELIMITER = " "
 COMPACT_REPR = True
+enabled = True
 
 RED = "\033[91m"
 GREEN = "\033[92m"
