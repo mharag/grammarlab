@@ -26,13 +26,17 @@ class Symbol:
         self.type = symbol_type
 
     def __eq__(self, other):
-        return self is other
+        #return self is other
+        return self.id == other.id and self.type == other.type
 
     def __hash__(self):
         return hash(self.id)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(id={self.id}, type={self.type})"
+
+    def __str__(self):
+        return self.id
 
     def __add__(self, other):
         self_string = String([self])
@@ -101,6 +105,9 @@ class String(Representable):
 
         return f"{self.__class__.__name__}({symbols})"
 
+    def __str__(self):
+        return " ".join(map(str, self.symbols))
+
     def __eq__(self, other):
         return isinstance(other, String) and self.symbols == other.symbols
 
@@ -140,8 +147,4 @@ class String(Representable):
         self.create_index()
 
 
-A = Alphabet
-N = NonTerminal
-T = Terminal
-S = String
-epsilon = T(None)
+epsilon = Terminal(None)

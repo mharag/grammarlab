@@ -29,11 +29,11 @@ class CliExport(Export):
     def extended_symbol(self, symbol):
         if symbol.color:
             base_len = len(symbol.base_symbol.id)
-            base_part = symbol.id[:base_len]
+            base_part = self.export(symbol.base_symbol)
             extended_part = symbol.id[base_len:]
             if extended_part:
                 return f"{base_part}{symbol.color}{extended_part}{RESET}"
-        return symbol.base_symbol.id
+        return self.export(symbol.base_symbol)
 
     @formatter(String)
     def string(self, string):
@@ -98,3 +98,7 @@ Communication symbols: {str(grammar.communication_symbols)}
 {components}
 """
         return grammar_template
+
+    @formatter(PCConfiguration)
+    def pc_configuration(self, configuration):
+        return "  ".join(map(self.export, configuration.data))

@@ -37,7 +37,7 @@ class ScatteredContextRule(PhraseGrammarRule):
     """Scattered context rule."""
     index = 0
 
-    def __init__(self, lhs: List[NonTerminal], rhs: List[Symbol]):
+    def __init__(self, lhs: List[NonTerminal], rhs: List[String]):
         if len(lhs) != len(rhs):
             raise ValueError("Different order of right and left side!")
         if not all(symbol.type == SymbolType.NON_TERMINAL for symbol in lhs):

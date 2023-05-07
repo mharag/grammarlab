@@ -1,6 +1,9 @@
 import pytest
 
-from glab.core.alphabet import A, NonTerminal, S, T
+from glab.core.alphabet import Alphabet as A
+from glab.core.alphabet import NonTerminal
+from glab.core.alphabet import String as S
+from glab.core.alphabet import Terminal as T
 from glab.grammars.phrase_grammar import PhraseConfiguration as C
 from glab.grammars.phrase_grammar import PhraseGrammar as Grammar
 from glab.grammars.phrase_grammar import PhraseGrammarRule as Rule

@@ -1,6 +1,8 @@
 import pytest
 
-from glab.core.alphabet import NonTerminal, S, T
+from glab.core.alphabet import NonTerminal
+from glab.core.alphabet import String as S
+from glab.core.alphabet import Terminal as T
 from glab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
 from glab.grammars.scattered_context_grammar import (ScatteredContextGrammar,
                                                      ScatteredContextRule)

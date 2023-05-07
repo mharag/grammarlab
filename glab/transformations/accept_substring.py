@@ -2,9 +2,7 @@ import itertools
 
 from glab.core.alphabet import Alphabet, String, SymbolType
 from glab.core.config import RED
-from glab.core.extended_symbol import ExtendedSymbol
-from glab.core.extended_symbol import NonTerminal as N
-from glab.core.extended_symbol import Terminal as T
+from glab.core.extended_symbol import ExtendedSymbol, get_symbol_factories
 from glab.core.filter import grammar_filter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.scattered_context_grammar import \
@@ -20,15 +18,20 @@ class PCSymbol(ExtendedSymbol):
         "end": (SymbolType.NON_TERMINAL, "E"),
         "pointer": (SymbolType.NON_TERMINAL, "P"),
         "non_terminal": (SymbolType.NON_TERMINAL, "N"),
+        "_terminal": (SymbolType.TERMINAL, "T"),
     }
 
     @property
     def terminal(self):
         if self.type == SymbolType.TERMINAL:
-            return PCSymbol(self.base_symbol, "terminal", *self.base)
-        return PCSymbol(self.base_symbol, "terminal", SymbolType.TERMINAL, "T")
+            symbol = self.base
+        else:
+            symbol = self._terminal
+        symbol.variant = "terminal"
+        return symbol
 
 
+N, T = get_symbol_factories(PCSymbol)
 ignore = [T("*")]
 
 
@@ -148,6 +151,7 @@ def construct_grammar(G, separator, apply_filters=True):
         grammar.set_filter(copy_after_finish)
         grammar.set_filter(finish_part_before_separator)
         grammar.set_filter(finish_from_left_to_right)
+        grammar.set_filter(communication_left_to_right)
         for origin_filter in G.filters:
             grammar.set_filter(translate_to_origin(origin_filter))
 
@@ -170,7 +174,7 @@ def copy_after_finish(configuration):
     B = configuration[1].sential_form
     if B[0] == N("R_2"):
         for symbol in B[1:]:
-            if symbol.variant is not None and symbol.base_symbol.variant == "non_terminal":
+            if symbol.base_symbol.type == SymbolType.NON_TERMINAL:
                 return False
     return True
 
@@ -183,7 +187,7 @@ def finish_from_left_to_right(configuration):
         for symbol in B[1:]:
             if symbol.variant == "non_terminal":
                 non_terminal = True
-            elif symbol.variant == "terminal" and symbol.base_symbol not in ignore:
+            elif symbol.variant == "terminal" and symbol not in ignore:
                 if non_terminal:
                     return False
     return True
@@ -194,17 +198,25 @@ def finish_part_before_separator(configuration):
     B = configuration[1].sential_form
     if B[0] == N("R_3") and B[1] == N("Q_A"):
         for symbol in B[2:]:
-            if str(symbol.base_symbol) == "#":
+            if symbol.base_symbol.id == "#":
                 return True
             if symbol.variant == "non_terminal":
                 return False
     return True
 
 @grammar_filter
-def select_leftmost(configuration):
+def communication_left_to_right(configuration):
     B = configuration[1].sential_form
     if B[0] == N("R_3"):
+        delimiter = False
+        non_terminal = False
         for symbol in B[1:]:
-            if symbol.variant == "non_terminal":
-                return False
+            if symbol.base_symbol.id == "#":
+                delimiter = True
+            elif delimiter:
+                if symbol.variant == "non_terminal":
+                    non_terminal = True
+                elif symbol.variant in ["terminal", "pointer"] and symbol not in ignore:
+                    if non_terminal:
+                        return False
     return True
