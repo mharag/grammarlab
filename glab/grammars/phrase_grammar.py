@@ -24,36 +24,6 @@ class PhraseConfiguration(ConfigurationBase):
         tree.add_root(root_node)
         return tree
 
-    def create_ast_pc_grammar(self, depth: int = 0) -> Tree:
-        if not self.parent:
-            parent_ast = self.create_ast_root(depth)
-            return parent_ast
-        # recursively create AST from parent
-        parent_ast = self.parent.create_ast_pc_grammar(depth=depth+1)
-
-        if self.used_production is None:
-            # return grammar to start symbol - used by PC grammar systems
-            new_node = parent_ast.create_node(self.data[0], depth)
-            parent_ast.frontier[0].add_children([new_node])
-            for parent in parent_ast.frontier[1:]:
-                new_node.add_parent(parent)
-                parent.remove_from_frontier()
-            return parent_ast
-
-        if isinstance(self.used_production, CommunicationRule):
-            # replace communication symbols
-            parents = [parent_ast.frontier[x] for x in self.affected]
-            for parent in parents:
-                symbol = parent.data
-                rhs = self.used_production[symbol]
-                children = [parent_ast.create_node(x, depth) for x in rhs]
-                parent.add_children(children)
-            return parent_ast
-
-        # apply rule to parent AST
-        self.apply_rule_to_ast(parent_ast, depth)
-        return parent_ast
-
     def create_ast(self, depth: int = 0) -> Tree:
         """Create AST from configuration.
         """

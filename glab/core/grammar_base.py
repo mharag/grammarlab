@@ -149,9 +149,9 @@ class GrammarBase:
                 return False
         return True
 
-    def dfs_derive(self, start: ConfigurationBase, depth: int):
+    def dfs_derive(self, axiom: ConfigurationBase, depth: int):
         log.info("DFS search. (depth=%s)", depth)
-        stack = [self.direct_derive(start)]
+        stack = [self.direct_derive(axiom)]
         while stack:
             next_configuration = next(stack[-1], None)
             if next_configuration is None:
@@ -169,9 +169,9 @@ class GrammarBase:
             if len(stack) < depth:
                 stack.append(self.direct_derive(next_configuration))
 
-    def bfs_derive(self, start: ConfigurationBase, depth: int):
+    def bfs_derive(self, axiom: ConfigurationBase, depth: int):
         log.info("BFS search. (depth=%s)", depth)
-        queue = [self.direct_derive(start)]
+        queue = [self.direct_derive(axiom)]
         while queue:
             configuration = queue.pop(0)
             for next_configuration in list(configuration):
@@ -186,10 +186,10 @@ class GrammarBase:
                     continue
                 queue.append(self.direct_derive(next_configuration))
 
-    def ids_derive(self, start: ConfigurationBase, depth: int = None):
+    def ids_derive(self, axiom: ConfigurationBase, depth: int = None):
         current_depth = 0
         while depth is None or current_depth < depth:
-            for configuration in self.dfs_derive(start, current_depth):
+            for configuration in self.dfs_derive(axiom, current_depth):
                 if configuration.depth == current_depth:
                     yield configuration
             current_depth += 1
@@ -200,7 +200,7 @@ class GrammarBase:
         exact_depth: bool = False,
         only_sentences: bool = True,
         strategy: Strategy = Strategy.DFS,
-        start: ConfigurationBase = None,
+        axiom: ConfigurationBase = None,
     ) -> Generator[ConfigurationBase, None, None]:
         """Derive from axiom
 
@@ -230,7 +230,7 @@ class GrammarBase:
             Strategy.IDS: self.ids_derive,
         }
 
-        for configuration in algorithms[strategy](start=start or self.axiom, depth=depth):
+        for configuration in algorithms[strategy](axiom=axiom or self.axiom, depth=depth):
             if exact_depth and depth and configuration.depth != depth:
                 continue
             if only_sentences and not configuration.sential_form.is_sentence:

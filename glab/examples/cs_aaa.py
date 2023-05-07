@@ -1,6 +1,6 @@
 # Context-Sensitive grammar that generates language L = {a^n_a^n_a^n | n>= 1}
 
-from glab.core.app import App
+from glab.core.apsp import App
 from glab.grammars.grammars import CS
 
 N = {"S", "-", "A", "L", "R", "F"}

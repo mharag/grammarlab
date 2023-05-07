@@ -65,10 +65,12 @@ class Alphabet:
         return item in self.symbols
 
     def __len__(self):
-        return len(self.symbols)
+        # Epsilon is always in the alphabet but should not be counted
+        return len(self.symbols) - 1
 
     def __iter__(self):
-        return iter(self.symbols)
+        # do not yield implicit epsilon
+        return iter(self.symbols - {epsilon})
 
     def union(self, other):
         return Alphabet(self.symbols | other.symbols)

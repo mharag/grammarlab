@@ -46,6 +46,6 @@ def test_generate_sential_form(capsys):
 def test_generate_start(capsys):
     expected = format_expected_result(["a_a_a"])
 
-    App(grammar).generate(1, start="a_a-F")
+    App(grammar).generate(1, axiom="a_a-F")
     captured = capsys.readouterr()
     assert captured.out == expected

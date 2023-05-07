@@ -53,7 +53,7 @@ class ExtendedSymbol(Symbol):
         if name not in self.variants:
             raise AttributeError(f"Variant {name} not found")
         symbol_type, suffix = self.variants[name]
-        symbol_id = self.base_symbol.id + "_" + suffix if suffix else None
+        symbol_id = (self.base_symbol.id + "_" + suffix) if suffix else None
         return self.__class__(
             symbol_id=symbol_id,
             symbol_type=symbol_type,

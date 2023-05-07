@@ -25,15 +25,15 @@ class App:
             prog="Grammar Simulator",
             description="Simulator for various types of grammars",
         )
-        parser.add_argument("-v", "--verbose", action="store_true")
         subparsers = parser.add_subparsers(dest="command")
         generate_parser = subparsers.add_parser("generate")
         generate_parser.add_argument("-d", "--depth", type=int)
         generate_parser.add_argument("-e", "--exact-depth", action="store_true")
-        generate_parser.add_argument("-v", "--show-sential-forms", action="store_true")
+        generate_parser.add_argument("-s", "--show-sential-forms", action="store_true")
         generate_parser.add_argument("--enumerate", action="store_true")
-        generate_parser.add_argument("-s", "--start", type=str)
+        generate_parser.add_argument("-a", "--axiom", type=str)
         generate_parser.add_argument("-x", "--delimiter", type=str, default="")
+        generate_parser.add_argument("-v", "--verbose", action="store_true")
 
         derivation_sequence = subparsers.add_parser("derivation_sequence")
         derivation_sequence.add_argument("-s", "--sentence", type=str)
@@ -59,15 +59,14 @@ class App:
         args = self.parse_arguments()
         log.info("G-Lab started with args: %s", args)
 
-        self.verbose = args.verbose
-
         if args.command == "generate":
             self.generate(
                 args.depth,
                 exact_depth=args.exact_depth,
                 only_sentences=not args.show_sential_forms,
-                start=args.start,
+                axiom=args.axiom,
                 delimiter=args.delimiter,
+                verbose=args.verbose,
             )
         elif args.command == "derivation_sequence":
             self.derivation_sequence(args.sentence, args.delimiter, args.matches)
@@ -76,13 +75,21 @@ class App:
         elif args.command == "export":
             self.export(args.code, args.latex, args.cli)
 
-    def generate(self, max_steps=None, exact_depth=False, only_sentences=True, start=None, delimiter=""):
-        if start:
-            start = self.text_load.get_loader(self.grammar.configuration_class)(
-                start, self.grammar, delimiter=delimiter
+    def generate(
+        self,
+        max_steps=None,
+        exact_depth=False,
+        only_sentences=True,
+        axiom=None,
+        delimiter="",
+        verbose=False
+    ):
+        if axiom:
+            axiom = self.text_load.get_loader(self.grammar.configuration_class)(
+                axiom, self.grammar, delimiter=delimiter
             )
-        for configuration in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences, start=start):
-            print(self.cli_export.export(configuration))
+        for configuration in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences, axiom=axiom):
+            print(self.cli_export.export(configuration if verbose else configuration.sential_form))
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
         configuration = self.text_load.get_loader(self.grammar.configuration_class)(
