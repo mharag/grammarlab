@@ -76,10 +76,7 @@ class Alphabet:
         return Alphabet(self.symbols | other.symbols)
 
     def __repr__(self):
-        return f"Alphabet({{{str(self)}}})"
-
-    def __str__(self):
-        return ", ".join(str(symbol) for symbol in self.symbols)
+        return f"Alphabet({self.symbols})"
 
     def lookup(self, symbol):
         if symbol not in self._symbol_lookup:

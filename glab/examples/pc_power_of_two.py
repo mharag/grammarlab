@@ -1,5 +1,19 @@
-# Returning PCGS for the language of powers of two
-# Inspired by: https://cs.uwaterloo.ca/~lila/pdfs/Parallel%20communicating%20systems.pdf
+#!/usr/bin/python3
+"""PC grammar system for the language L = {a^(2^n) | n > 0}
+
+Inspired by: https://cs.uwaterloo.ca/~lila/pdfs/Parallel%20communicating%20systems.pdf
+
+Usage:
+    You can run this file directly:
+        $ python3 pc_power_of_two.py generate
+        aa
+        aaaa
+        aaaaaaaa
+    Or you can import it as a module and use grammar in your code:
+        from glab.examples.pc_power_of_two.py import grammar
+        ...
+
+"""
 
 from glab.core.app import App
 from glab.grammars.grammars import CF, PC
@@ -29,7 +43,7 @@ P_3 = [
 ]
 G_3 = CF({"S_3", "Q_1", "B", "B_1"}, {"a"}, P_3, "S_3")
 
-G = PC(K, G_1, G_2, G_3)
+grammar = PC(K, G_1, G_2, G_3)
 
 if __name__ == "__main__":
-    App(G).run()
+    App(grammar).run()
