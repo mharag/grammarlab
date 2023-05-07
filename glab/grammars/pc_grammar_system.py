@@ -2,7 +2,6 @@ import functools
 from typing import Generator, List
 
 from glab.core.alphabet import String, Symbol
-from glab.core.compact_definition import compact_communication_symbols
 from glab.core.grammar_base import ConfigurationBase, GrammarBase
 
 
@@ -33,26 +32,6 @@ class PCConfiguration(ConfigurationBase):
 
     def __str__(self):
         return "  ".join([str(component) for component in self.data])
-
-    @classmethod
-    def deserialize(cls, grammar: "PCGrammarSystem", representation: str, delimiter: str):
-        """Deserialize configuration from string.
-
-        Configurations of components are separated by two delimiters.
-
-        Example of string representation:
-            A B C D  A B C D  A B C D
-
-        """
-
-        # split configurations of components
-        representations = representation.split(delimiter * 2)
-        configurations = []
-        for i, configuration in enumerate(representations):
-            component = grammar.components[i]
-            # deserialize component configurations
-            configurations.append(component.configuration_class.deserialize(component, configuration, delimiter))
-        return PCConfiguration(configurations)
 
     @property
     def sential_form(self) -> String:
@@ -99,26 +78,6 @@ class PCGrammarSystem(GrammarBase):
         self.components = components
         self.returning = returning
         self.communication_symbols = comumunication_symbols
-
-    @classmethod
-    def deserialize(cls, communication_symbols: List[Symbol], *components: List[GrammarBase],  returning: bool = True):
-        """Deserialize PC grammar system.
-
-        Args:
-            communication_symbols: List of communication symbols.
-            components: List of components.
-            returning: If True, component is returned to its initial state after communication.
-
-        Returns:
-            PCGrammarSystem
-
-        """
-        communication_symbols = compact_communication_symbols(communication_symbols)
-        return cls(
-            comumunication_symbols=communication_symbols,
-            components=components,
-            returning=returning,
-        )
 
     def __str__(self):
         components = "\n".join(f"Component {i+1}:\n{component}" for i, component in enumerate(self.components))

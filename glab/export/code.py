@@ -1,7 +1,7 @@
 from glab.core.alphabet import Alphabet
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
-from glab.grammars.phrase_grammar import PhraseGrammar, PhraseGrammarRule
+from glab.grammars.phrase_grammar import PhraseGrammar, PhraseRule
 from glab.grammars.scattered_context_grammar import (ScatteredContextGrammar,
                                                      ScatteredContextRule)
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # Phrase grammars
     @formatter(PhraseGrammar)
-    def phrase_grammar(self, grammar, grammar_type="RE", grammar_name="G", app=True):
+    def phrase_grammar(self, grammar, grammar_type="RE", grammar_name="G"):
         rules = "\n".join([f"    {self.export(rule)}," for rule in grammar.rules])
         representation = CodeRepresentation(f"""\
 N = {self.export(grammar.non_terminals)}
@@ -68,7 +68,7 @@ P = [
         }
         return representation
 
-    @formatter(PhraseGrammarRule)
+    @formatter(PhraseRule)
     def phrase_rule(self, rule):
         if any(len(symbol.id) > 1 for symbol in rule.lhs):
             lhs = list_to_str(rule.lhs)
@@ -108,13 +108,13 @@ P = [
             imports = imports | component.imports
         components = "\n\n".join(components)
         component_names = ", ".join([f"C{i}" for i in range(len(grammar.components))])
-        type = "NPC" if not grammar.returning else "PC"
+        grammar_type = "NPC" if not grammar.returning else "PC"
         representation = CodeRepresentation(f"""\
 {components}
 
-{grammar_name} = {type}({list_to_str(grammar.communication_symbols)}, {component_names})
+{grammar_name} = {grammar_type}({list_to_str(grammar.communication_symbols)}, {component_names})
 """)
         representation.imports = imports | {
-            f"from glab.grammars.grammars import {type}"
+            f"from glab.grammars.grammars import {grammar_type}"
         }
         return representation

@@ -1,7 +1,7 @@
 from tabulate import tabulate
 
 from glab.grammars.pc_grammar_system import PCConfiguration
-from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseGrammarRule
+from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseRule
 
 definitions = {
     PCConfiguration: lambda obj: [
@@ -13,7 +13,7 @@ definitions = {
         (lambda x: x.sential_form.cli_output(), "Sential Form"),
     ],
 
-    PhraseGrammarRule: [
+    PhraseRule: [
         (lambda x: x.label, "Label"),
         (lambda x: x.cli_out(), "Rule"),
     ]

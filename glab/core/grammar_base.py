@@ -5,7 +5,6 @@ from typing import Any, Callable, Generator, List, Optional
 
 from glab.core.alphabet import String
 from glab.core.ast import Tree
-from glab.core.representation import Representable
 
 log = logging.getLogger("glab.GrammarBase")
 
@@ -27,7 +26,7 @@ class Strategy(Enum):
     BFS = "BFS"
 
 
-class ConfigurationBase(Representable):
+class ConfigurationBase:
     def __init__(
         self,
         data: Any,
@@ -97,7 +96,7 @@ class ConfigurationBase(Representable):
         )
 
 
-class ProductionBase(Representable):
+class ProductionBase:
     """Production of grammar
 
     This class represent one production of grammar.
@@ -109,7 +108,7 @@ class ProductionBase(Representable):
         pass
 
 
-class GrammarBase(Representable):
+class GrammarBase:
     """Formal grammar
 
     This class represents formal grammar. Grammar takes configuration and by using production generates

@@ -1,6 +1,6 @@
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
-from glab.grammars.phrase_grammar import PhraseGrammar, PhraseGrammarRule
+from glab.grammars.phrase_grammar import PhraseGrammar, PhraseRule
 from glab.grammars.scattered_context_grammar import ScatteredContextRule
 
 
@@ -28,7 +28,7 @@ class LatexExport(Export):
 \end{{figure}}"""
         return grammar_template
 
-    @formatter(PhraseGrammarRule)
+    @formatter(PhraseRule)
     def phrase_rule(self, rule):
         lhs = r"\,".join(map(str, rule.lhs))
         rhs = r"\,".join(map(str, rule.rhs))

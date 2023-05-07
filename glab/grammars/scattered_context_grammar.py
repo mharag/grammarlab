@@ -1,12 +1,9 @@
-from typing import Dict, Iterable, List, Set, Tuple
+from typing import Dict, List
 
 from glab.core.alphabet import NonTerminal, String, Symbol, SymbolType
 from glab.core.ast import Tree
-from glab.core.compact_definition import (compact_nonterminal_alphabet,
-                                          compact_string,
-                                          compact_terminal_alphabet)
 from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
-                                          PhraseGrammarRule)
+                                          PhraseRule)
 
 
 class SCGConfiguration(PhraseConfiguration):
@@ -33,7 +30,7 @@ class SCGConfiguration(PhraseConfiguration):
         return str(self.data)
 
 
-class ScatteredContextRule(PhraseGrammarRule):
+class ScatteredContextRule(PhraseRule):
     """Scattered context rule."""
     index = 0
 
@@ -54,23 +51,6 @@ class ScatteredContextRule(PhraseGrammarRule):
 
         ScatteredContextRule.index += 1
         self.label = f"p{self.index}"
-
-    @classmethod
-    def deserialize(cls, alphabet, rule: Tuple[Iterable, Iterable]):
-        """Deserialize rule.
-
-        Serialized rule is tuple containing left and right side.
-        Left side is represented as list of symbols.
-        Right side is represented as list of strings.
-
-        Examples of serialized rules:
-            (["A", "B"], ["CD", "EF"]), ("AB", ["C", "DEF"])
-
-        """
-        lhs, rhs = rule
-        lhs = [alphabet.lookup(symbol) for symbol in lhs]
-        rhs = [compact_string(alphabet, string) for string in rhs]
-        return cls(lhs, rhs)
 
     def __repr__(self):
         lhs = ", ".join(str(symbol) for symbol in self.lhs)
@@ -172,26 +152,6 @@ class ScatteredContextGrammar(PhraseGrammar):
     """Scattered context grammar."""
     configuration_class = SCGConfiguration
     production_class = ScatteredContextRule
-
-    @classmethod
-    def deserialize(cls, non_terminals: Set, terminals: Set, rules: List, start_symbol: str):
-        """Deserialize grammar.
-
-        Args:
-            non_terminals: Set of non-terminal symbols represented by str.
-            terminals: Set of non-terminal symbols represented by str.
-            rules: List of rules. Each rule is tuple containing left and right side.
-            start_symbol: Start symbol represented by str.
-        Returns:
-            Scattered context grammar.
-
-        """
-        non_terminals = compact_nonterminal_alphabet(non_terminals)
-        terminals = compact_terminal_alphabet(terminals)
-        alphabet = non_terminals.union(terminals)
-        rules = [ScatteredContextRule.deserialize(alphabet, rule) for rule in rules]
-        start_symbol = NonTerminal(start_symbol)
-        return cls(non_terminals, terminals, rules, start_symbol)
 
     @property
     def axiom(self):

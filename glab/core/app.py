@@ -4,6 +4,7 @@ import logging
 
 from glab.core.visualize_ast import visualize_ast
 from glab.export import CliExport, CodeExport, LatexExport
+from glab.load import TextLoad
 
 log = logging.getLogger("glab.cli")
 
@@ -16,6 +17,8 @@ class App:
         self.latex_export = LatexExport()
         self.cli_export = CliExport()
         self.code_export = CodeExport()
+
+        self.text_load = TextLoad()
 
     def parse_arguments(self):
         parser = argparse.ArgumentParser(
@@ -78,17 +81,23 @@ class App:
 
     def generate(self, max_steps=None, exact_depth=False, only_sentences=True, start=None, delimiter=""):
         if start:
-            start = self.grammar.configuration_class.deserialize(self.grammar, start, delimiter=delimiter)
+            start = self.text_load.get_loader(self.grammar.configuration_class)(
+                start, self.grammar, delimiter=delimiter
+            )
         for configuration in self.grammar.derive(max_steps, exact_depth, only_sentences=only_sentences, start=start):
-            print(self.cli_export.export(configuration.sential_form if only_sentences else configuration))
+            print(self.cli_export.export(configuration))
 
     def derivation_sequence(self, sentence=None, delimiter="", matches=1):
-        configuration = self.grammar.configuration_class.deserialize(self.grammar, sentence, delimiter=delimiter)
+        configuration = self.text_load.get_loader(self.grammar.configuration_class)(
+            sentence, self.grammar, delimiter=delimiter
+        )
         for derived_configuration in self.grammar.parse(configuration, matches=matches):
-            print(self.cli_export.export(derived_configuration))
+            print(self.cli_export.export(derived_configuration.derivation_sequence()))
 
     def ast(self, filename, sentence=None, delimiter="", matches=1):
-        configuration = self.grammar.configuration_class.deserialize(self.grammar, sentence, delimiter=delimiter)
+        configuration = self.text_load.get_loader(self.grammar.configuration_class)(
+            sentence, self.grammar, delimiter=delimiter
+        )
         for derived_configuration in self.grammar.parse(configuration, matches=matches):
             ast = derived_configuration.create_ast()
             visualize_ast(ast, filename)

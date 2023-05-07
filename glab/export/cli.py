@@ -5,9 +5,10 @@ from glab.core.config import RESET, STRING_DELIMITER
 from glab.core.extended_symbol import ExtendedSymbol
 from glab.core.grammar_base import DerivationSequence
 from glab.export.export import Export, formatter
-from glab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
+from glab.grammars.pc_grammar_system import (CommunicationRule,
+                                             PCConfiguration, PCGrammarSystem)
 from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
-                                          PhraseGrammarRule)
+                                          PhraseRule)
 from glab.grammars.scattered_context_grammar import ScatteredContextRule
 
 
@@ -51,7 +52,7 @@ Rules:
 {rules}"""
         return grammar_template
 
-    @formatter(PhraseGrammarRule)
+    @formatter(PhraseRule)
     def phrase_rule(self, rule):
         return f"{self.export(rule.lhs)} -> {self.export(rule.rhs)}"
 
@@ -59,7 +60,7 @@ Rules:
     def derivation_sequence(self, sequence):
         if isinstance(sequence[0], PhraseConfiguration):
             columns = ["Used Rule", "Sential Form"]
-            rows = [(c.used_production, c.sential_form) for c in sequence]
+            rows = [(self.export(c.used_production), self.export(c.sential_form)) for c in sequence]
         elif isinstance(sequence[0], PCConfiguration):
             columns, rows = [], []
             for i in range(sequence[0].order):
@@ -68,7 +69,7 @@ Rules:
                 row = []
                 for i in range(c.order):
                     row.extend(
-                        [c[i].used_production or "", c[i].sential_form]
+                        [self.export(c[i].used_production), self.export(c[i].sential_form)]
                     )
                 rows.append(row)
         else:
@@ -102,3 +103,7 @@ Communication symbols: {str(grammar.communication_symbols)}
     @formatter(PCConfiguration)
     def pc_configuration(self, configuration):
         return "  ".join(map(self.export, configuration.data))
+
+    @formatter(CommunicationRule)
+    def communication_rule(self, rule):  # pylint: disable=unused-argument
+        return "Communication Step"

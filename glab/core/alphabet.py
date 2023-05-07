@@ -2,8 +2,6 @@ import logging
 from collections import defaultdict
 from enum import Enum
 
-from glab.core.representation import Representable
-
 log = logging.getLogger("glab.Alphabet")
 
 
@@ -85,7 +83,7 @@ class Alphabet:
         return self._symbol_lookup[symbol]
 
 
-class String(Representable):
+class String:
     def __init__(self, symbols: list[Symbol]):
         self.symbols = symbols
         self.index = None

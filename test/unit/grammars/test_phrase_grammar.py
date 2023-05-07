@@ -6,7 +6,7 @@ from glab.core.alphabet import String as S
 from glab.core.alphabet import Terminal as T
 from glab.grammars.phrase_grammar import PhraseConfiguration as C
 from glab.grammars.phrase_grammar import PhraseGrammar as Grammar
-from glab.grammars.phrase_grammar import PhraseGrammarRule as Rule
+from glab.grammars.phrase_grammar import PhraseRule as Rule
 
 
 @pytest.mark.parametrize(

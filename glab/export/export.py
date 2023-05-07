@@ -28,6 +28,8 @@ class Export:
         cls.exporters[object_type] = function
 
     def export(self, obj, *args, **kwargs):
+        if obj is None:
+            return ""
         for cls in getmro(obj.__class__):
             if cls in self.exporters:
                 return self.exporters[cls](self, obj, *args, **kwargs)

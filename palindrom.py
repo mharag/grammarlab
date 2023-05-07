@@ -1,9 +1,9 @@
 from glab.core.alphabet import Alphabet, NonTerminal
 from glab.core.alphabet import String as Str
 from glab.core.alphabet import Terminal
-from glab.core.cli import App
+from glab.core.app import App
 from glab.grammars.phrase_grammar import PhraseGrammar
-from glab.grammars.phrase_grammar import PhraseGrammarRule as Rule
+from glab.grammars.phrase_grammar import PhraseRule as Rule
 
 alphabet = {"a", "b", "c", "d", "e"}
 terminals = Alphabet({Terminal(x) for x in alphabet})

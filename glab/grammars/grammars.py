@@ -1,21 +1,19 @@
 from functools import partial
 
 from glab.core.grammar_base import restrictions
-from glab.grammars.pc_grammar_system import PCGrammarSystem, centralized_pc
-from glab.grammars.phrase_grammar import (PhraseGrammar, context_free,
-                                          length_preserving)
-from glab.grammars.scattered_context_grammar import ScatteredContextGrammar
+from glab.grammars.pc_grammar_system import centralized_pc
+from glab.load.code import CodeLoad
 
 # Phrase grammars
-RE = PhraseGrammar.deserialize
-CS = restrictions(PhraseGrammar.deserialize, length_preserving)
-CF = restrictions(PhraseGrammar.deserialize, context_free)
+RE = CodeLoad.phrase_grammar
+CS = CodeLoad.phrase_grammar
+CF = CodeLoad.context_free_grammar
 
 # Scattered grammars
-SCG = ScatteredContextGrammar.deserialize
+SCG = CodeLoad.scattered_context_grammar
 
 # Parallel comunicating grammar systems
-PC = PCGrammarSystem.deserialize
-CPC = restrictions(PCGrammarSystem.deserialize, centralized_pc)
-NPC = partial(PCGrammarSystem.deserialize, returning=False)
-NCPC = restrictions(partial(PCGrammarSystem.deserialize, returning=False), centralized_pc)
+PC = CodeLoad.pc_grammar_system
+CPC = restrictions(CodeLoad.pc_grammar_system, centralized_pc)
+NPC = partial(CodeLoad.pc_grammar_system, returning=False)
+NCPC = restrictions(NPC, centralized_pc)

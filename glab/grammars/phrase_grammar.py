@@ -1,11 +1,7 @@
-from typing import Generator, Iterable, List, Set, Tuple
+from typing import Generator, List
 
-from glab.core.alphabet import (Alphabet, NonTerminal, String, Symbol,
-                                SymbolType)
+from glab.core.alphabet import Alphabet, String, Symbol, SymbolType
 from glab.core.ast import Tree
-from glab.core.compact_definition import (compact_nonterminal_alphabet,
-                                          compact_string,
-                                          compact_terminal_alphabet)
 from glab.core.grammar_base import (ConfigurationBase, GrammarBase,
                                     ProductionBase)
 from glab.grammars.pc_grammar_system import CommunicationRule
@@ -17,32 +13,6 @@ class PhraseConfiguration(ConfigurationBase):
     @property
     def sential_form(self):
         return self.data
-
-    @classmethod
-    def deserialize(cls, grammar: "PhraseGrammar", representation: str, delimiter: str):
-        """Deserialize configuration from string.
-
-        Example of string representation:
-            ABCD
-            aaaAAAA
-            S_G,B_G,C_G,D_G (delimeter is ',')
-
-        Args:
-            grammar: Grammar that this configuration belongs to.
-            representation: String representation of configuration.
-            delimiter: Delimiter used to separate symbols of sential form.
-
-        Returns:
-            PhraseConfiguration instance.
-
-        """
-
-        sential_form = compact_string(
-            grammar.non_terminals.union(grammar.terminals),
-            representation,
-            delimiter=delimiter
-        )
-        return cls(sential_form)
 
     def __repr__(self):
         return self.data
@@ -114,7 +84,7 @@ class PhraseConfiguration(ConfigurationBase):
         return str(self.data)
 
 
-class PhraseGrammarRule(ProductionBase):
+class PhraseRule(ProductionBase):
     index = 0
 
     def __init__(self, lhs: String, rhs: String):
@@ -124,23 +94,8 @@ class PhraseGrammarRule(ProductionBase):
 
         self.lhs = lhs
         self.rhs = rhs
-        PhraseGrammarRule.index += 1
+        PhraseRule.index += 1
         self.label = f"p{self.index}"
-
-    @classmethod
-    def deserialize(cls, alphabet: Alphabet, representation: Tuple[Iterable, Iterable]):
-        """Deserialize rule.
-
-        Serialized rule is tuple containing left and right side.
-        Each side is represented as list or string of symbols.
-        Examples of serialized rules:
-            (["A", "B"], ["C", "D"]), (["A", "B"], "CD")
-
-        """
-        lhs, rhs = representation
-        lhs = compact_string(alphabet, lhs)
-        rhs = compact_string(alphabet, rhs)
-        return cls(lhs, rhs)
 
     def __repr__(self):
         return f"{self.lhs} -> {self.rhs}"
@@ -196,7 +151,7 @@ class PhraseGrammar(GrammarBase):
         self,
         non_terminals: Alphabet,
         terminals: Alphabet,
-        rules: List[PhraseGrammarRule],
+        rules: List[PhraseRule],
         start_symbol: Symbol,
     ):
         super().__init__()
@@ -214,53 +169,6 @@ Start symbol: {self.start_symbol}
 Rules:
 {rules}
         """
-
-    def deserialize_configuration(self, representation, delimiter):
-        """Deserialize configuration.
-
-        Args:
-            representation: Representation of configuration.
-            delimiter: delimiter used to separate symbols in representation.
-
-        Returns:
-            Configuration.
-
-        """
-        return PhraseConfiguration(
-            compact_string(self.terminals.union(self.non_terminals), representation, delimiter=delimiter)
-        )
-
-    @classmethod
-    def deserialize(
-        cls,
-        non_terminals: Set,
-        terminals: Set,
-        rules: List[Tuple[Iterable, Iterable]],
-        start_symbol: str
-    ):
-        """Deserialize grammar.
-
-        Examples of serialized grammar:
-            non_terminals = {"A", "B", "C", "D"}
-            terminals = {"a", "b", "c", "d"}
-            rules = [("AB", "CD"), ("A", "BC")]
-            start_symbol = "A"
-
-        Args:
-            non_terminals: Non-terminal symbols.
-            terminals: Terminal symbols.
-            rules: List of rules.
-            start_symbol: Start symbol.
-        Returns:
-            PhraseGrammar.
-
-        """
-        non_terminals = compact_nonterminal_alphabet(non_terminals)
-        terminals = compact_terminal_alphabet(terminals)
-        alphabet = non_terminals.union(terminals)
-        rules = [PhraseGrammarRule.deserialize(alphabet, rule) for rule in rules]
-        start_symbol = NonTerminal(start_symbol)
-        return cls(non_terminals, terminals, rules, start_symbol)
 
     @property
     def axiom(self):
@@ -281,6 +189,27 @@ Rules:
         # Apply all rules to configuration
         for rule in self.rules:
             yield from rule.apply(configuration)
+
+
+class ContextFreeRule(PhraseRule):
+    """Context free grammar.
+
+    """
+
+    def __init__(self, lhs: String, rhs: String):
+        # check if rule is context free
+        if len(lhs) > 1:
+            raise ValueError("Context free grammar can only have single non-terminal in left side of rule!")
+        super().__init__(lhs, rhs)
+
+    def match(self, sential_form: String) -> Generator[int, None, None]:
+        """All sentences can be generated by leftmost derivation.
+
+        """
+        left_most = next(super().match(sential_form), None)
+        if left_most is not None:
+            yield left_most
+
 
 
 def length_preserving(grammar: PhraseGrammar):

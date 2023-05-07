@@ -1,4 +1,4 @@
-from glab.core.cli import App
+from glab.core.app import App
 from glab.core.config import STRING_DELIMITER
 from glab.examples.cs_aaa import grammar
 
