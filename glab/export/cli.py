@@ -22,6 +22,10 @@ class CliExport(Export):
     """Export object to command line
     """
 
+    @formatter(str)
+    def _string(self, string):
+        return string
+
     @formatter(Symbol)
     def symbol(self, symbol):
         return symbol.id

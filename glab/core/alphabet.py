@@ -51,10 +51,12 @@ class NonTerminal(Symbol):
         return Symbol(symbol_id, SymbolType.NON_TERMINAL)
 
 
+epsilon = Terminal(None)
+
 
 class Alphabet:
     def __init__(self, symbols: set[Symbol]):
-        self.symbols = symbols
+        self.symbols = symbols | {epsilon}
         self._symbol_lookup = {
             symbol.id: symbol for symbol in self.symbols
         }
@@ -85,7 +87,8 @@ class Alphabet:
 
 class String:
     def __init__(self, symbols: list[Symbol]):
-        self.symbols = symbols
+        # Remove epsilon from string
+        self.symbols = list(filter(lambda symbol: symbol != epsilon, symbols))
         self.index = None
         self.create_index()
 
@@ -143,6 +146,3 @@ class String:
     def expand(self, index, string, expand_symbols=1):
         self.symbols[index:index+expand_symbols] = string.symbols
         self.create_index()
-
-
-epsilon = Terminal(None)

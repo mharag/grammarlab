@@ -3,6 +3,7 @@ from typing import Generator, List
 
 from glab.core.alphabet import String, Symbol
 from glab.core.grammar_base import ConfigurationBase, GrammarBase
+from glab.core.ast import Tree
 
 
 class CommunicationRule(dict):
@@ -46,10 +47,45 @@ class PCConfiguration(ConfigurationBase):
         """Order of configuration is number of components."""
         return len(self.data)
 
-    def create_ast(self):
+    def create_ast_root(self, depth) -> Tree:
+        # create root nodes
+        trees = [
+            c.create_ast(depth=depth) for c in self.data
+        ]
+        return trees
+
+    def apply_rule_to_ast(self, parent_trees: List[Tree], depth: int):
+        for i, tree in enumerate(parent_trees):
+            configuration = self.data[i]
+            if isinstance(self.used_production, CommunicationRule):
+                if configuration.used_production == "return":
+                    new_node = tree.create_node(configuration.data[0], depth)
+                    tree.frontier[0].add_children([new_node])
+                    for parent in tree.frontier[1:]:
+                        new_node.add_parent(parent)
+                        parent.remove_from_frontier()
+                elif configuration.used_production == "communication":
+                    parents = [tree.frontier[x] for x in configuration.affected]
+                    for parent in parents:
+                        symbol = parent.data
+                        rhs = self.used_production[symbol]
+                        children = [tree.create_node(x, depth) for x in rhs]
+                        parent.add_children(children)
+            else:
+                configuration.apply_rule_to_ast(tree, depth)
+
+    def create_ast(self, depth: int = 0):
         """Create AST from configuration."""
-        components_ast = [x.create_ast_pc_grammar() for x in self.data]
-        return functools.reduce(lambda a, b: a.merge(b), components_ast)
+        if not self.parent:
+            parent_trees = self.create_ast_root(depth)
+        else:
+            parent_trees = self.parent.create_ast(depth=depth+1)
+            self.apply_rule_to_ast(parent_trees, depth)
+
+        if depth == 0:
+            return functools.reduce(lambda a, b: a.merge(b), parent_trees)
+
+        return parent_trees
 
 
 class PCGrammarSystem(GrammarBase):
@@ -175,8 +211,8 @@ Comunication symbols: {self.communication_symbols}
         new_configuration = [
             self.components[i].configuration_class(component.data.copy()) for i, component in enumerate(configuration)
         ]
+        communication_rule = CommunicationRule()
         for i in range(configuration.order):
-            communication_rule = CommunicationRule()
             affected = []
             sential_form = new_configuration[i].sential_form
             index = sential_form.index
@@ -197,9 +233,9 @@ Comunication symbols: {self.communication_symbols}
                     sential_form.expand(position+offset, configuration[referenced_component].sential_form)
                     offset += len(configuration[referenced_component].sential_form) - 1
 
-            new_configuration[i].used_production = communication_rule
             new_configuration[i].affected = affected
-            new_configuration[i].parent = configuration[i]
+            if affected:
+                new_configuration[i].used_production = "communication"
 
         if True not in copied:
             # no component was copied, communication is not possible
@@ -211,10 +247,15 @@ Comunication symbols: {self.communication_symbols}
                 if copied[i]:
                     new_configuration[i] = self.components[i].configuration_class(
                         String([self.components[i].start_symbol]),
-                        parent=configuration[i]
+                        used_production="return"
                     )
 
-        yield PCConfiguration(new_configuration, parent=configuration, depth=configuration.depth+1)
+        yield PCConfiguration(
+            new_configuration,
+            parent=configuration,
+            depth=configuration.depth+1,
+            used_production=communication_rule
+        )
 
     def direct_derive(self, configuration):
         """Perform direct derivation on configuration."""
@@ -228,7 +269,7 @@ Comunication symbols: {self.communication_symbols}
 
 
 def centralized_pc(grammar):
-    for component in grammar[1:]:
+    for component in grammar.components[1:]:
         for non_terminal in component.non_terminals:
             if non_terminal in grammar.communication_symbols:
                 raise ValueError("In centralized grammar can only main component contain comunication symbols!")
