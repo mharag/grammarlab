@@ -38,9 +38,6 @@ class PCConfiguration(ConfigurationBase):
         """Sential form of configuration is sential form of first component."""
         return self.data[0].sential_form
 
-    def cli_output(self):
-        return "  ".join([component.cli_output() for component in self.data])
-
     def __eq__(self, other: "PCConfiguration"):
         return isinstance(other, PCConfiguration) and self.data == other.data
 
@@ -160,12 +157,24 @@ Comunication symbols: {self.communication_symbols}
                 else:
                     break
 
-            yield PCConfiguration([x.copy() for x in next_configuration], parent=configuration, depth=configuration.depth+1)
+            configurations = [
+                self.components[i].configuration_class(
+                    c.data.copy(),
+                    c.parent,
+                    c.used_production,
+                    c.affected,
+                    c.depth,
+                )
+                for i, c in enumerate(next_configuration)
+            ]
+            yield PCConfiguration(configurations, parent=configuration, depth=configuration.depth+1)
 
     def c_step(self, configuration):
         """Perform communication step."""
         copied = [False] * configuration.order
-        new_configuration = [sential_form.copy() for sential_form in configuration]
+        new_configuration = [
+            self.components[i].configuration_class(component.data.copy()) for i, component in enumerate(configuration)
+        ]
         for i in range(configuration.order):
             communication_rule = CommunicationRule()
             affected = []

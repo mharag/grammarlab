@@ -6,7 +6,7 @@ from glab.core.extended_symbol import ExtendedSymbol, get_symbol_factories
 from glab.core.filter import grammar_filter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.scattered_context_grammar import \
-    ScatteredContextGrammar as Grammar
+    ScatteredContextGrammar as Grammar, SCGConfiguration
 from glab.grammars.scattered_context_grammar import \
     ScatteredContextRule as Rule
 
@@ -163,8 +163,9 @@ def translate_to_origin(origin_filter):
         sential_form = configuration[1]
         if sential_form.sential_form[0] != N("R_1"):
             return True
-        new_configuration = sential_form.copy()
-        new_configuration.data = [symbol.base_symbol for symbol in sential_form.sential_form[1:]]
+        new_configuration = SCGConfiguration(String(
+            [symbol.base_symbol for symbol in sential_form.sential_form[1:]]
+        ))
         return origin_filter(new_configuration)
     return wrapper
 

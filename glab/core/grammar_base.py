@@ -86,15 +86,6 @@ class ConfigurationBase:
         tree = self.parent.abstract_syntax_tree()
         return self.ast_update(tree)
 
-    def copy(self):
-        """This is shit"""
-        return self.__class__(
-            self.data,
-            self.parent,
-            self.used_production,
-            self.affected,
-        )
-
 
 class ProductionBase:
     """Production of grammar

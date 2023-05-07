@@ -102,7 +102,7 @@ Communication symbols: {str(grammar.communication_symbols)}
 
     @formatter(PCConfiguration)
     def pc_configuration(self, configuration):
-        return "  ".join(map(self.export, configuration.data))
+        return "\t\t".join(map(self.export, configuration.data))
 
     @formatter(CommunicationRule)
     def communication_rule(self, rule):  # pylint: disable=unused-argument

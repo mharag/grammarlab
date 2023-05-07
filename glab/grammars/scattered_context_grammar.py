@@ -8,9 +8,6 @@ from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
 
 class SCGConfiguration(PhraseConfiguration):
     """Configuration for the scattered context grammar."""
-    def cli_output(self):
-        return self.sential_form.cli_output()
-
     def apply_rule_to_ast(self, parent_ast: Tree, depth=0):
         """Apply the rule to the AST and return the new AST.
 

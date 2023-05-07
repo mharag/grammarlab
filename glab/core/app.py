@@ -61,9 +61,6 @@ class App:
 
         self.verbose = args.verbose
 
-        if self.verbose:
-            log.info("Grammar: %s", self.grammar.cli_output())
-
         if args.command == "generate":
             self.generate(
                 args.depth,

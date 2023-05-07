@@ -37,6 +37,7 @@ def test_g_step():
         PCConfiguration([C(S([NonTerminal("A"), T("a")])), C(S([NonTerminal("B"), T("b")]))]),
     ]
     print(result)
+    print(expected)
     assert result == expected
 
     configuration = PCConfiguration([C(S([NonTerminal("A"), NonTerminal("A")])), C(S([NonTerminal("C")]))])

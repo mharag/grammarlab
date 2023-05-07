@@ -15,7 +15,7 @@ class PhraseConfiguration(ConfigurationBase):
         return self.data
 
     def __repr__(self):
-        return self.data
+        return f"{self.__class__.__name__}(data={self.data})"
 
     def create_ast_root(self, depth) -> Tree:
         # create root node
@@ -79,9 +79,6 @@ class PhraseConfiguration(ConfigurationBase):
             for child in children:
                 child.add_parent(parent)
         return parent_ast
-
-    def __str__(self):
-        return str(self.data)
 
 
 class PhraseRule(ProductionBase):
