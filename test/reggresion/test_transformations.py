@@ -7,5 +7,5 @@ def test_transformation():
     new_grammar = construct_grammar(grammar)
     result = new_grammar.derive(50)
     result = set(map(lambda x: str(x.sential_form), result))
-    expected = {"a", f"a{STRING_DELIMITER}a"}
+    expected = {"a", f"a{STRING_DELIMITER}a", f"a{STRING_DELIMITER}a{STRING_DELIMITER}a"}
     assert result == expected

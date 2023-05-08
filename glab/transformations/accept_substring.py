@@ -1,7 +1,7 @@
 import itertools
 
 from glab.core.alphabet import Alphabet, String, SymbolType
-from glab.core.config import RED
+from glab.core.config import Color
 from glab.core.extended_symbol import ExtendedSymbol, get_symbol_factories
 from glab.core.filter import grammar_filter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
@@ -12,7 +12,7 @@ from glab.grammars.scattered_context_grammar import \
 
 
 class PCSymbol(ExtendedSymbol):
-    color = RED
+    color = Color.RED
     variants = {
         "communication": (SymbolType.NON_TERMINAL, "C"),
         "end": (SymbolType.NON_TERMINAL, "E"),

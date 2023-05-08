@@ -1,6 +1,9 @@
-# Context-Sensitive grammar that generates language L = {a^n_a^n_a^n | n>= 1}
+#!/usr/bin/python3
+"""Context-Sensitive grammar for the language :math:`L = \\{a^n\\_a^n\\_a^n | n > 0\\}`.
 
-from glab.core.apsp import App
+"""
+
+from glab.core.app import App
 from glab.grammars.grammars import CS
 
 N = {"S", "-", "A", "L", "R", "F"}

@@ -1,4 +1,7 @@
-# Scattered Context Grammar that generates language L = {a^nb^n | n>= 0}
+#!/usr/bin/python3
+"""Scattered Context Grammar for the language :math:`L = \\{a^nb^n | n > 0\\}`.
+
+"""
 
 from glab.core.app import App
 from glab.grammars.grammars import SCG

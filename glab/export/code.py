@@ -14,11 +14,9 @@ class CodeRepresentation:
     def __str__(self):
         imports_str = "\n".join(self.imports)
 
-        return f"""\
-{imports_str}
+        return f"""{imports_str}
 
-{self.content}
-"""
+{self.content}"""
 
 
 def list_to_str(l):
@@ -42,11 +40,12 @@ class CodeExport(Export):
     @formatter("App")
     def app(self, app):
         grammar = self.export(app.grammar, grammar_name="G")
-        representation = CodeRepresentation(f"""{grammar}
+        representation = CodeRepresentation(f"""{grammar.content}
 if __name__ == "__main__":
     App(G).run()
 """)
         representation.imports.add("from glab.core.cli import App")
+        representation.imports.update(grammar.imports)
         return representation
 
     # Phrase grammars

@@ -1,4 +1,7 @@
-# Context-free grammar that generates the language of Dyck words
+#!/usr/bin/python3
+"""Context-Sensitive grammar for the Dyck language.
+
+"""
 
 from glab.core.app import App
 from glab.grammars.grammars import CF

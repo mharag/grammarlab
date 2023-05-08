@@ -48,6 +48,7 @@ class CodeLoad:
             raw_terminals: Terminal symbols.
             raw_rules: List of rules.
             raw_start_symbol: Start symbol.
+
         Returns:
             PhraseGrammar.
 
@@ -74,8 +75,7 @@ class CodeLoad:
 
         Serialized rule is tuple containing left and right side.
         Each side is represented as list or string of symbols.
-        Examples of serialized rules:
-            (["A", "B"], ["C", "D"]), (["A", "B"], "CD")
+        Examples of serialized rules: (["A", "B"], ["C", "D"]), (["A", "B"], "CD")
 
         """
         lhs = CodeLoad.string(raw_lhs, alphabet)

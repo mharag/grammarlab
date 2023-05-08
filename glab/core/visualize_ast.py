@@ -2,7 +2,8 @@ import graphviz
 
 
 def visualize_ast(ast, filename):
-    graph = graphviz.Digraph('AST', filename=filename or "ast")
+    filename = filename or "ast"
+    graph = graphviz.Digraph('AST', filename=filename)
 
     # ast can have multiple roots (for example PC grammar system)
     for i, root in enumerate(ast.roots):
@@ -35,4 +36,5 @@ def visualize_ast(ast, filename):
                 queue.append(child)
 
     # open graph
+    print("Abstract syntax tree visualization saved to file ./{filename}.pdf")
     graph.view()

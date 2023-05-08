@@ -1,4 +1,10 @@
-# Standard definition of the phrase grammar
+#!/usr/bin/python3
+"""Example of verbose definition of grammar.
+
+Grammar produces Dyck language. https://en.wikipedia.org/wiki/Dyck_language
+Equivalent grammar defined in compact style can be found in :mod:`glab.examples.cf_dyck`.
+
+"""
 
 from glab.core.alphabet import Alphabet, NonTerminal, String, Terminal
 from glab.core.app import App

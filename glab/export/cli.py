@@ -1,7 +1,7 @@
 from tabulate import tabulate
 
 from glab.core.alphabet import String, Symbol
-from glab.core.config import RESET, STRING_DELIMITER
+from glab.core.config import Color, STRING_DELIMITER, COLOR_CLI_OUTPUT
 from glab.core.extended_symbol import ExtendedSymbol
 from glab.core.grammar_base import DerivationSequence
 from glab.export.export import Export, formatter
@@ -32,12 +32,12 @@ class CliExport(Export):
 
     @formatter(ExtendedSymbol)
     def extended_symbol(self, symbol):
-        if symbol.color:
+        if symbol.color and COLOR_CLI_OUTPUT:
             base_len = len(symbol.base_symbol.id)
             base_part = self.export(symbol.base_symbol)
             extended_part = symbol.id[base_len:]
             if extended_part:
-                return f"{base_part}{symbol.color}{extended_part}{RESET}"
+                return f"{base_part}{symbol.color}{extended_part}{Color.RESET}"
         return self.export(symbol.base_symbol)
 
     @formatter(String)

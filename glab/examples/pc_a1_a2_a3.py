@@ -1,4 +1,7 @@
-# Parallel Comunicating Grammar System that generates language L = {_a^1_a^2 .... a^n_ | n >= 0}
+#!/usr/bin/python3
+"""Non-returning PC grammar system for the language :math:`L = \\{\\_a^1\\_a^2\\_ \dots \\_a^n\\_ | n \geq 0\\}`.
+
+"""
 
 from glab.core.app import App
 from glab.grammars.grammars import CF, NPC

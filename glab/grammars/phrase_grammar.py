@@ -3,7 +3,7 @@ from typing import Generator, List
 from glab.core.alphabet import Alphabet, String, Symbol, SymbolType
 from glab.core.ast import Tree
 from glab.core.grammar_base import (ConfigurationBase, GrammarBase,
-                                    ProductionBase)
+                                    Rule)
 from glab.grammars.pc_grammar_system import CommunicationRule
 
 
@@ -51,7 +51,7 @@ class PhraseConfiguration(ConfigurationBase):
         return parent_ast
 
 
-class PhraseRule(ProductionBase):
+class PhraseRule(Rule):
     index = 0
 
     def __init__(self, lhs: String, rhs: String):

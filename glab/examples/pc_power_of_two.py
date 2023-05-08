@@ -1,17 +1,7 @@
 #!/usr/bin/python3
-"""PC grammar system for the language L = {a^(2^n) | n > 0}
+"""PC grammar system for the language :math:`L = \\{a^{2^n} | n > 0\\}`.
 
 Inspired by: https://cs.uwaterloo.ca/~lila/pdfs/Parallel%20communicating%20systems.pdf
-
-Usage:
-    You can run this file directly:
-        $ python3 pc_power_of_two.py generate
-        aa
-        aaaa
-        aaaaaaaa
-    Or you can import it as a module and use grammar in your code:
-        from glab.examples.pc_power_of_two.py import grammar
-        ...
 
 """
 

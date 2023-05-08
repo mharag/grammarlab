@@ -1,39 +1,22 @@
-# Example of context-sensitive grammar in Kuruda normal form:
+#!/usr/bin/python3
+"""Example of Context-Sensitive grammar in Kuruda normal form.
 
-from glab.core.alphabet import NonTerminal
+Grammar produces language :math:`L = \\{a^n | n > 0\\}`.
+
+"""
+
 from glab.core.app import App
-from glab.grammars.grammars import CS
-
-N = {"A", "B", "C", "D"}
-T = {"a"}
-P = [
-    ("A", "CD"),
-    ("A", "BC"),
-    ("A", "a"),
-    ("A", "")
-]
-S = "A"
-
-#grammar = CS(N, T, P, S)
+from glab.grammars.grammars import CF
 
 N = {"A", "B"}
 T = {"a"}
 P = [
     ("A", "a"),
-    ("A", "AB"),
-    ("B", "a"),
+    ("A", "Aa"),
 ]
 S = "A"
 
-grammar = CS(N, T, P, S)
-def max_one_B(sential_form):
-    count = 0
-    for symbol in sential_form:
-        if symbol == NonTerminal("B"):
-            count += 1
-    return count <= 1
-
-grammar.set_filter(max_one_B)
+grammar = CF(N, T, P, S)
 
 if __name__ == "__main__":
     App(grammar).run()

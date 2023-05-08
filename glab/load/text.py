@@ -18,11 +18,6 @@ class TextLoad(Load):
     def phrase_configuration(self, cls, raw_configuration, grammar: PhraseGrammar, delimiter=""):
         """Deserialize configuration from string.
 
-        Example of string representation:
-            ABCD
-            aaaAAAA
-            S_G,B_G,C_G,D_G (delimeter is ',')
-
         Args:
             raw_configuration: String representation of configuration.
             grammar: Grammar that this configuration belongs to.
