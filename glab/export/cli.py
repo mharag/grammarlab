@@ -1,9 +1,9 @@
 from tabulate import tabulate
 
 from glab.core.alphabet import String, Symbol
-from glab.core.config import Color, STRING_DELIMITER, COLOR_CLI_OUTPUT
+from glab.core.config import COLOR_CLI_OUTPUT, STRING_DELIMITER, Color
 from glab.core.extended_symbol import ExtendedSymbol
-from glab.core.grammar_base import DerivationSequence
+from glab.core.grammar import DerivationSequence
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import (CommunicationRule,
                                              PCConfiguration, PCGrammarSystem)
@@ -64,7 +64,7 @@ Rules:
     def derivation_sequence(self, sequence):
         if isinstance(sequence[0], PhraseConfiguration):
             columns = ["Used Rule", "Sential Form"]
-            rows = [(self.export(c.used_production), self.export(c.sential_form)) for c in sequence]
+            rows = [(self.export(c.used_rule), self.export(c.sential_form)) for c in sequence]
         elif isinstance(sequence[0], PCConfiguration):
             columns, rows = [], []
             for i in range(sequence[0].order):
@@ -73,7 +73,7 @@ Rules:
                 row = []
                 for i in range(c.order):
                     row.extend(
-                        [self.export(c[i].used_production), self.export(c[i].sential_form)]
+                        [self.export(c[i].used_rule), self.export(c[i].sential_form)]
                     )
                 rows.append(row)
         else:

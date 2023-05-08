@@ -4,7 +4,7 @@
 """
 
 from glab.core.app import App
-from glab.grammars.grammars import CF, NPC
+from glab.grammars.compact_definition import CF, NPC
 
 K = ["1", "2"]
 N_1 = {"A", "2"}

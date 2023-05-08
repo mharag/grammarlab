@@ -6,11 +6,12 @@ import logging
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Generator, List, Optional
+from abc import ABC, abstractmethod
 
 from glab.core.alphabet import String
 from glab.core.ast import Tree
 
-log = logging.getLogger("glab.GrammarBase")
+log = logging.getLogger("glab.Grammar")
 
 
 class DerivationSequence(list):
@@ -34,7 +35,7 @@ class Strategy(Enum):
     """Breadth-First search"""
 
 
-class ConfigurationBase:
+class Configuration(ABC):
     """Class representing configuration of grammar.
 
     Configuration holds all information about state of derivation.
@@ -45,31 +46,31 @@ class ConfigurationBase:
         self,
         data: Any,
         parent=None,
-        used_production: Any = None,
+        used_rule: Any = None,
         affected: Any = None,
         depth: int = 0
     ):
         self.data: Any = data
-        """Arbitrary data that defines configuration. 
-        
+        """Arbitrary data that defines configuration.
+
         Examples:
             - phrase grammar - sential form
             - state grammar - sential form, state
             - pc_grammar_system - configuration for every component
-            
+
         """
-        self.parent: ConfigurationBase = parent
+        self.parent: Configuration = parent
         """Reference to parent configuration.
-        
+
         Parent configuration is configuration from which was this configuration derived.
         Only axiom doesn't have parent.
-        
+
         """
-        self.used_production: Any = used_production
+        self.used_rule: Any = used_rule
         """Justification of derivation step from parent configuration.
-        
-        used_production can be arbitrary data, but for rewriting system it is production that was used.
-        
+
+        used_rule can be arbitrary data, but for rewriting system it is production that was used.
+
         """
         self.affected: Any = affected
         """Identifier of affected parts of sential form."""
@@ -77,9 +78,10 @@ class ConfigurationBase:
         """Distance from axiom."""
 
     def __eq__(self, other):
-        return isinstance(other, ConfigurationBase) and self.data == other.data
+        return isinstance(other, Configuration) and self.data == other.data
 
     @property
+    @abstractmethod
     def sential_form(self) -> String:
         """Sential form that this configuration represents.
 
@@ -88,7 +90,6 @@ class ConfigurationBase:
         Returns:
             String
         """
-        return self.data
 
     def derivation_sequence(self) -> DerivationSequence:
         """Return sequence of configuration.
@@ -100,64 +101,63 @@ class ConfigurationBase:
             return [self]
         return DerivationSequence(self.parent.derivation_sequence() + [self])
 
-    def ast_root(self) -> Tree:
-        raise NotImplementedError
-
-    def ast_update(self, tree: Tree) -> Tree:
-        raise NotImplementedError
-
-    def abstract_syntax_tree(self) -> Tree:
-        if not self.parent:
-            return self.ast_root()
-        tree = self.parent.abstract_syntax_tree()
-        return self.ast_update(tree)
+    def __repr__(self):
+        return f"{self.__class__.__name__}(data={self.data})"
 
 
 class Rule:
     """Production of grammar
 
     This class represent one rule of rewriting system.
-    Every production is tried to be matched against current configuration and then applied.
+    Every rule is tried to be matched against current configuration and then applied.
 
     """
 
-    def apply(self, configuration: ConfigurationBase) -> List[ConfigurationBase]:
+    def apply(self, configuration: Configuration) -> List[Configuration]:
         """Apply production on configuration."""
-        pass
 
 
-class GrammarBase:
+class Grammar(ABC):
     """Formal grammar
 
-    This class represents formal grammar. Grammar takes configuration and by using production generates
-    new configurations
+    This class represents formal grammar. Grammar takes configuration and by using rules generates
+    new configurations.
 
     """
-
-    configuration_class = ConfigurationBase
-    """Class representing one configuration"""
-    production_class = Rule
-    """Class representing one production"""
 
     def __init__(self):
         self.filters = []
 
-    def set_filter(self, func: Callable[[ConfigurationBase], bool]):
+    def set_filter(self, func: Callable[[Configuration], bool]):
         log.info("Setting filter: %s.", func.__name__)
         self.filters.append(func)
 
     @property
-    def axiom(self) -> ConfigurationBase:
+    @abstractmethod
+    def configuration_class(self) -> Configuration:
+        """Class representing one configuration.
+
+        Returns:
+            Configuration class
+
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def axiom(self) -> Configuration:
         """Starting configuration.
 
         Derivation starts from this configuration
 
         Returns:
             starting configuration
-        """
-        raise NotImplementedError
 
-    def direct_derive(self, configuration: ConfigurationBase) -> Generator[ConfigurationBase, None, None]:
+        """
+        pass
+
+    @abstractmethod
+    def direct_derive(self, configuration: Configuration) -> Generator[Configuration, None, None]:
         """One derivation step.
 
         Args:
@@ -166,16 +166,20 @@ class GrammarBase:
         Returns:
             generator
 
-        """
-        raise NotImplementedError
+        Raises:
+            NotImplementedError: This method should be implemented in subclass
 
-    def _filter(self, configuration: ConfigurationBase):
+        """
+        pass
+
+    def _filter(self, configuration: Configuration):
         for func in self.filters:
             if not func(configuration):
                 return False
         return True
 
-    def dfs_derive(self, axiom: ConfigurationBase, depth: int):
+    def _dfs_derive(self, axiom: Configuration, depth: int):
+        """Depth-First search derivation."""
         log.info("DFS search. (depth=%s)", depth)
         stack = [self.direct_derive(axiom)]
         while stack:
@@ -195,7 +199,8 @@ class GrammarBase:
             if len(stack) < depth:
                 stack.append(self.direct_derive(next_configuration))
 
-    def bfs_derive(self, axiom: ConfigurationBase, depth: int):
+    def _bfs_derive(self, axiom: Configuration, depth: int):
+        """Breadth-First search derivation."""
         log.info("BFS search. (depth=%s)", depth)
         queue = [self.direct_derive(axiom)]
         while queue:
@@ -212,10 +217,11 @@ class GrammarBase:
                     continue
                 queue.append(self.direct_derive(next_configuration))
 
-    def ids_derive(self, axiom: ConfigurationBase, depth: int = None):
+    def _ids_derive(self, axiom: Configuration, depth: int = None):
+        """Iterative deepening search derivation."""
         current_depth = 0
         while depth is None or current_depth < depth:
-            for configuration in self.dfs_derive(axiom, current_depth):
+            for configuration in self._dfs_derive(axiom, current_depth):
                 if configuration.depth == current_depth:
                     yield configuration
             current_depth += 1
@@ -226,8 +232,8 @@ class GrammarBase:
         exact_depth: bool = False,
         only_sentences: bool = True,
         strategy: Strategy = Strategy.DFS,
-        axiom: ConfigurationBase = None,
-    ) -> Generator[ConfigurationBase, None, None]:
+        axiom: Configuration = None,
+    ) -> Generator[Configuration, None, None]:
         """Derive from axiom
 
         Args:
@@ -251,9 +257,9 @@ class GrammarBase:
             exact_depth = False
 
         algorithms = {
-            Strategy.DFS: self.dfs_derive,
-            Strategy.BFS: self.bfs_derive,
-            Strategy.IDS: self.ids_derive,
+            Strategy.DFS: self._dfs_derive,
+            Strategy.BFS: self._bfs_derive,
+            Strategy.IDS: self._ids_derive,
         }
 
         for configuration in algorithms[strategy](axiom=axiom or self.axiom, depth=depth):
@@ -263,7 +269,22 @@ class GrammarBase:
                 continue
             yield configuration
 
-    def parse(self, configuration: ConfigurationBase, matches: int = 1) -> ConfigurationBase:
+    def parse(self, configuration: Configuration, matches: int = 1) -> Generator[Configuration, None, None]:
+        """Return configuration with given sential form derived from axiom.
+
+        IDS is used to find configuration with given sential form.
+        So this method can take considerable amount of time. This method can be overriden in subclass
+        to provide more efficient implementation.
+        If grammar doesn't generate configuration with given sential form, method runs indefinitely.
+
+        Args:
+            configuration: Configuration with sential form to be parsed.
+            matches: Number of matches to be returned.
+
+        Returns:
+            Generator of configurations with given sential form.
+
+        """
         for derived_configuration in self.derive(strategy=Strategy.IDS):
             if derived_configuration.sential_form == configuration.sential_form:
                 yield derived_configuration
@@ -272,7 +293,7 @@ class GrammarBase:
                     break
 
 
-grammar_restriction = Callable[[GrammarBase], None]
+grammar_restriction = Callable[[Grammar], None]
 
 
 def restrictions(factory, *conditions: List[grammar_restriction]):

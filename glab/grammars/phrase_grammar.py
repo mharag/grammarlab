@@ -1,54 +1,18 @@
+"""Phrase grammar.
+
+"""
 from typing import Generator, List
 
 from glab.core.alphabet import Alphabet, String, Symbol, SymbolType
-from glab.core.ast import Tree
-from glab.core.grammar_base import (ConfigurationBase, GrammarBase,
-                                    Rule)
-from glab.grammars.pc_grammar_system import CommunicationRule
+from glab.core.grammar import Configuration, Grammar, Rule
 
 
-class PhraseConfiguration(ConfigurationBase):
+class PhraseConfiguration(Configuration):
     """Configuration for phrase grammars is simple sential form."""
 
     @property
     def sential_form(self):
         return self.data
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(data={self.data})"
-
-    def create_ast_root(self, depth) -> Tree:
-        # create root node
-        tree = Tree()
-        root_node = tree.create_node(self.data[0], depth=depth)
-        tree.add_root(root_node)
-        return tree
-
-    def create_ast(self, depth: int = 0) -> Tree:
-        """Create AST from configuration.
-        """
-
-        if not self.parent:
-            parent_ast = self.create_ast_root(depth)
-            return parent_ast
-        # recursively create AST from parent
-        parent_ast = self.parent.create_ast(depth=depth+1)
-
-        # apply rule to parent AST
-        self.apply_rule_to_ast(parent_ast, depth)
-        return parent_ast
-
-    def apply_rule_to_ast(self, parent_ast: Tree, depth: int) -> Tree:
-        """ Incrementally apply rule to parent AST."""
-        # multiple parents can be affected by context rule
-        parents = parent_ast.frontier[self.affected:self.affected + len(self.used_production.lhs)]
-        children = [parent_ast.create_node(x, depth) for x in self.used_production.rhs]
-        parents[0].add_children(children)
-        for parent in parents[1:]:
-            parent.remove_from_frontier()
-            for child in children:
-                child.add_parent(parent)
-        return parent_ast
 
 
 class PhraseRule(Rule):
@@ -104,11 +68,11 @@ class PhraseRule(Rule):
             new_sential_form = sential_form.copy()
             # replace lhs with rhs
             new_sential_form.expand(match, self.rhs, expand_symbols=len(self.lhs))
-            new_configuration = PhraseConfiguration(new_sential_form, parent=configuration, used_production=self, affected=match, depth=configuration.depth+1)
+            new_configuration = PhraseConfiguration(new_sential_form, parent=configuration, used_rule=self, affected=match, depth=configuration.depth+1)
             yield new_configuration
 
 
-class PhraseGrammar(GrammarBase):
+class PhraseGrammar(Grammar):
     """Phrase grammar.
 
     """

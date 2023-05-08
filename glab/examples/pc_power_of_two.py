@@ -6,7 +6,7 @@ Inspired by: https://cs.uwaterloo.ca/~lila/pdfs/Parallel%20communicating%20syste
 """
 
 from glab.core.app import App
-from glab.grammars.grammars import CF, PC
+from glab.grammars.compact_definition import CF, PC
 
 K = ["Q_1", "Q_2", "Q_3"]
 

@@ -4,7 +4,7 @@
 """
 
 from glab.core.app import App
-from glab.grammars.grammars import CS
+from glab.grammars.compact_definition import CS
 
 N = {"S", "-", "A", "L", "R", "F"}
 T = {"a", "_"}

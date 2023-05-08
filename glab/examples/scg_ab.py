@@ -4,7 +4,7 @@
 """
 
 from glab.core.app import App
-from glab.grammars.grammars import SCG
+from glab.grammars.compact_definition import SCG
 
 N = {"S", "A", "B", "X"}
 T = {"a", "b"}

@@ -22,7 +22,7 @@ You can run them from the command line:
 
 Full documentation of command line interface can be found in :class:`glab.core.app.App` section.
 
-If you want to use grammar in your code, you can use :class:`glab.core.grammar_base.GrammarBase` class directly:
+If you want to use grammar in your code, you can use :class:`glab.core.grammar.Grammar` class directly:
 
 .. code-block:: python
 

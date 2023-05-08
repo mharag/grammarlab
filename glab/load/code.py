@@ -2,7 +2,7 @@ from typing import Iterable, List, Set
 
 from glab.core.alphabet import (Alphabet, NonTerminal, String, SymbolType,
                                 Terminal)
-from glab.core.grammar_base import GrammarBase
+from glab.core.grammar import Grammar
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.phrase_grammar import (ContextFreeRule, PhraseGrammar,
                                           PhraseRule)
@@ -127,7 +127,7 @@ class CodeLoad:
     @staticmethod
     def pc_grammar_system(
         raw_communication_symbols: List[str],
-        *components: List[GrammarBase],
+        *components: List[Grammar],
         returning: bool = True,
     ):
         """Deserialize PC grammar system.

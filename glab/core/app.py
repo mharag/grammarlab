@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 
 from glab.core.visualize_ast import visualize_ast
-from glab.export import CliExport, CodeExport, LatexExport
+from glab.export import CliExport, CodeExport, LatexExport, GraphExport
 from glab.load import TextLoad
 
 log = logging.getLogger("glab.cli")
@@ -73,6 +73,7 @@ class App:
         self.latex_export = LatexExport()
         self.cli_export = CliExport()
         self.code_export = CodeExport()
+        self.graph_export = GraphExport()
 
         self.text_load = TextLoad()
 
@@ -199,12 +200,15 @@ class App:
             saves ast visualization to file ./<filename>.pdf
 
         """
+        filename = filename or "ast"
         configuration = self.text_load.get_loader(self.grammar.configuration_class)(
             sentence, self.grammar, delimiter=delimiter
         )
         for index, derived_configuration in enumerate(self.grammar.parse(configuration, matches=matches)):
-            ast = derived_configuration.create_ast()
-            visualize_ast(ast, filename if matches == 1 else f"{filename}_{index}")
+            self.graph_export.export(
+                derived_configuration,
+                filename=filename if matches == 1 else f"{filename}_{index}"
+            )
 
     def export(self, code, latex, cli):
         """Export grammar to the given format.

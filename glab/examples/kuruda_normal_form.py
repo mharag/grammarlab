@@ -6,7 +6,7 @@ Grammar produces language :math:`L = \\{a^n | n > 0\\}`.
 """
 
 from glab.core.app import App
-from glab.grammars.grammars import CF
+from glab.grammars.compact_definition import CF
 
 N = {"A", "B"}
 T = {"a"}

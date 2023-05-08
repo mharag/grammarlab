@@ -2,7 +2,7 @@ import logging
 from functools import partial
 from inspect import getmro
 
-log = logging.getLogger("glab.GrammarBase")
+log = logging.getLogger("glab.Grammar")
 
 
 def loader(event_type):

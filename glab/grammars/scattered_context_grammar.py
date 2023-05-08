@@ -8,23 +8,6 @@ from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
 
 class SCGConfiguration(PhraseConfiguration):
     """Configuration for the scattered context grammar."""
-    def apply_rule_to_ast(self, parent_ast: Tree, depth=0):
-        """Apply the rule to the AST and return the new AST.
-
-        Tree root is same as for PhraseConfiguration.
-
-        """
-        lhs_nodes = []
-        for position in self.affected:
-            lhs_nodes.append(parent_ast.frontier[position])
-
-        for i, string in enumerate(self.used_production.rhs):
-            children = [parent_ast.create_node(x, depth) for x in string]
-            lhs_nodes[i].add_children(children)
-        return parent_ast
-
-    def __str__(self):
-        return str(self.data)
 
 
 class ScatteredContextRule(PhraseRule):
@@ -138,7 +121,7 @@ class ScatteredContextRule(PhraseRule):
             new_configuration = SCGConfiguration(
                 derived,
                 parent=configuration,
-                used_production=self,
+                used_rule=self,
                 affected=match,
                 depth=configuration.depth + 1
             )
@@ -148,7 +131,6 @@ class ScatteredContextRule(PhraseRule):
 class ScatteredContextGrammar(PhraseGrammar):
     """Scattered context grammar."""
     configuration_class = SCGConfiguration
-    production_class = ScatteredContextRule
 
     @property
     def axiom(self):

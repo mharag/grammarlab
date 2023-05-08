@@ -1,7 +1,7 @@
 import logging
 from inspect import getmro
 
-log = logging.getLogger("glab.GrammarBase")
+log = logging.getLogger("glab.Grammar")
 
 
 def formatter(event_type):

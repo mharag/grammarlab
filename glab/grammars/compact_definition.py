@@ -1,6 +1,6 @@
 from functools import partial
 
-from glab.core.grammar_base import restrictions
+from glab.core.grammar import restrictions
 from glab.grammars.pc_grammar_system import centralized_pc
 from glab.load.code import CodeLoad
 
