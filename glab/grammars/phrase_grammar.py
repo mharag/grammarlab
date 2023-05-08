@@ -9,6 +9,9 @@ from glab.core.grammar import Configuration, Grammar, Rule
 
 class PhraseConfiguration(Configuration):
     """Configuration for phrase grammars is simple sential form."""
+    #data: String
+    #used_rule: "PhraseRule"
+    #affected: List[int]
 
     @property
     def sential_form(self):

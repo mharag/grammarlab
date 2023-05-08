@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 from glab.core.alphabet import NonTerminal, String, Symbol, SymbolType
-from glab.core.ast import Tree
 from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
                                           PhraseRule)
 

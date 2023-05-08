@@ -74,4 +74,6 @@ def test_derive():
     ]
     grammar = Grammar(non_terminals, terminals, rules, NonTerminal("S"))
     result = list(grammar.derive(100))
+    print(result)
+    print([C(S([T("b"), T("b"), T("x")])), C(S([T("b"), T("b"), T("x")]))])
     assert result == [C(S([T("b"), T("b"), T("x")])), C(S([T("b"), T("b"), T("x")]))]

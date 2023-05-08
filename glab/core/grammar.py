@@ -3,10 +3,11 @@
 """
 
 import logging
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Generator, List, Optional
-from abc import ABC, abstractmethod
 
 from glab.core.alphabet import String
 from glab.core.ast import Tree
@@ -35,47 +36,40 @@ class Strategy(Enum):
     """Breadth-First search"""
 
 
-class Configuration(ABC):
+@dataclass()
+class Configuration:
     """Class representing configuration of grammar.
 
     Configuration holds all information about state of derivation.
     Grammar should be able to continue derivation only based on data stored in configuration.
 
     """
-    def __init__(
-        self,
-        data: Any,
-        parent=None,
-        used_rule: Any = None,
-        affected: Any = None,
-        depth: int = 0
-    ):
-        self.data: Any = data
-        """Arbitrary data that defines configuration.
+    data: Any
+    """Arbitrary data that defines configuration.
 
-        Examples:
-            - phrase grammar - sential form
-            - state grammar - sential form, state
-            - pc_grammar_system - configuration for every component
+    Examples:
+        - phrase grammar - sential form
+        - state grammar - sential form, state
+        - pc_grammar_system - configuration for every component
 
-        """
-        self.parent: Configuration = parent
-        """Reference to parent configuration.
+    """
+    parent: "Configuration" = None
+    """Reference to parent configuration.
 
-        Parent configuration is configuration from which was this configuration derived.
-        Only axiom doesn't have parent.
+    Parent configuration is configuration from which was this configuration derived.
+    Only axiom doesn't have parent.
 
-        """
-        self.used_rule: Any = used_rule
-        """Justification of derivation step from parent configuration.
+    """
+    used_rule: Any = None
+    """Justification of derivation step from parent configuration.
 
-        used_rule can be arbitrary data, but for rewriting system it is production that was used.
+    used_rule can be arbitrary data, but for rewriting system it is production that was used.
 
-        """
-        self.affected: Any = affected
-        """Identifier of affected parts of sential form."""
-        self.depth: int = depth
-        """Distance from axiom."""
+    """
+    affected: Any = None
+    """Identifier of affected parts of sential form."""
+    depth: int = 0
+    """Distance from axiom."""
 
     def __eq__(self, other):
         return isinstance(other, Configuration) and self.data == other.data
