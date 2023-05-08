@@ -1,7 +1,7 @@
 from typing import Iterable, List, Set
 
 from glab.core.alphabet import (Alphabet, NonTerminal, String, SymbolType,
-                                Terminal)
+                                Terminal, Symbol)
 from glab.core.grammar import Grammar
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.phrase_grammar import (ContextFreeRule, PhraseGrammar,
@@ -11,8 +11,24 @@ from glab.grammars.scattered_context_grammar import (ScatteredContextGrammar,
 
 
 class CodeLoad:
+    """Collection of static methods for working with compact definitions.
+
+    CodeLoad is not Importer! CodeLoad is working with python code which is well-structured.
+    Using Importer wouldn't make sense for python code.
+
+    """
     @staticmethod
-    def symbol(raw_symbol: str, symbol_type: SymbolType):
+    def symbol(raw_symbol: str, symbol_type: SymbolType) -> Symbol:
+        """Get symbol from compact definition.
+
+        Args:
+            raw_symbol: id of symbol
+            symbol_type: type of symbol
+
+        Returns:
+            Symbol
+
+        """
         type_to_factory = {
             SymbolType.TERMINAL: Terminal,
             SymbolType.NON_TERMINAL: NonTerminal,
@@ -20,12 +36,33 @@ class CodeLoad:
         return type_to_factory[symbol_type](raw_symbol)
 
     @staticmethod
-    def alphabet(raw_alphabet: List[str], symbol_type: SymbolType):
+    def alphabet(raw_alphabet: Set[str], symbol_type: SymbolType) -> Alphabet:
+        """Get alphabet from compact definition.
+
+        Args:
+            raw_alphabet: set of symbols
+            symbol_type: type of symbols
+
+        Returns:
+            Alphabet
+
+        """
         symbols = {CodeLoad.symbol(raw_symbol, symbol_type) for raw_symbol in raw_alphabet}
         return Alphabet(symbols)
 
     @staticmethod
-    def string(raw_string: str, alphabet: Alphabet, delimiter=""):
+    def string(raw_string: str, alphabet: Alphabet, delimiter="") -> String:
+        """Get string from compact definition.
+
+        Args:
+            raw_string: str
+            alphabet: Alphabet containing all symbols from raw_string
+            delimiter: delimiter that separates symbols in raw_string
+
+        Returns:
+            String
+
+        """
         result = []
         if delimiter:
             raw_string = raw_string.split(delimiter)
@@ -35,13 +72,7 @@ class CodeLoad:
 
     @staticmethod
     def phrase_grammar(raw_non_terminals: Set, raw_terminals: Set, raw_rules: List, raw_start_symbol: str):
-        """Deserialize grammar.
-
-        Examples of serialized grammar:
-            non_terminals = {"A", "B", "C", "D"}
-            terminals = {"a", "b", "c", "d"}
-            rules = [("AB", "CD"), ("A", "BC")]
-            start_symbol = "A"
+        """Get phrase grammar from compact definition
 
         Args:
             raw_non_terminals: Non-terminal symbols.
@@ -51,6 +82,15 @@ class CodeLoad:
 
         Returns:
             PhraseGrammar.
+
+        Example:
+
+            >>> non_terminals = {"A", "B", "C", "D"}
+            >>> terminals = {"a", "b", "c", "d"}
+            >>> rules = [("AB", "CD"), ("A", "BC")]
+            >>> start_symbol = "A"
+            >>> CodeLoad.phrase_grammar(non_terminals, terminals, rules, start_symbol)
+            PhraseGrammar(...)
 
         """
         non_terminals = CodeLoad.alphabet(raw_non_terminals, SymbolType.NON_TERMINAL)
@@ -62,6 +102,18 @@ class CodeLoad:
 
     @staticmethod
     def context_free_grammar(raw_non_terminals: Set, raw_terminals: Set, raw_rules: List, raw_start_symbol: str):
+        """Get context free grammar from compact definition
+
+        Args:
+            raw_non_terminals: Non-terminal symbols
+            raw_terminals: Terminal symbols
+            raw_rules: List of rules
+            raw_start_symbol: Start symbol
+
+        Returns:
+            PhraseGrammar with context free rules
+
+        """
         non_terminals = CodeLoad.alphabet(raw_non_terminals, SymbolType.NON_TERMINAL)
         terminals = CodeLoad.alphabet(raw_terminals, SymbolType.TERMINAL)
         alphabet = non_terminals.union(terminals)
@@ -71,11 +123,15 @@ class CodeLoad:
 
     @staticmethod
     def phrase_rule(raw_lhs: Iterable, raw_rhs: Iterable, alphabet: Alphabet):
-        """Deserialize rule.
+        """Get phrase rule from compact definition.
 
-        Serialized rule is tuple containing left and right side.
-        Each side is represented as list or string of symbols.
-        Examples of serialized rules: (["A", "B"], ["C", "D"]), (["A", "B"], "CD")
+        Args:
+            raw_lhs: Left side of rule.
+            raw_rhs: Right side of rule.
+            alphabet: Alphabet containing all symbols from raw_lhs and raw_rhs.
+
+        Returns:
+            PhraseRule.
 
         """
         lhs = CodeLoad.string(raw_lhs, alphabet)
@@ -84,19 +140,31 @@ class CodeLoad:
 
     @staticmethod
     def context_free_rule(raw_lhs: Iterable, raw_rhs: Iterable, alphabet: Alphabet):
+        """Get context free rule from compact definition.
+
+        Args:
+            raw_lhs: Left side of rule.
+            raw_rhs: Right side of rule.
+            alphabet: Alphabet containing all symbols from raw_lhs and raw_rhs.
+
+        Returns:
+            ContextFreeRule.
+
+        """
         lhs = CodeLoad.string(raw_lhs, alphabet)
         rhs = CodeLoad.string(raw_rhs, alphabet)
         return ContextFreeRule(lhs, rhs)
 
     @staticmethod
     def scattered_context_grammar(raw_non_terminals: Set, raw_terminals: Set, raw_rules: List, raw_start_symbol: str):
-        """Deserialize grammar.
+        """Get scattered context grammar from compact definition.
 
         Args:
-            non_terminals: Set of non-terminal symbols represented by str.
-            terminals: Set of non-terminal symbols represented by str.
-            rules: List of rules. Each rule is tuple containing left and right side.
-            start_symbol: Start symbol represented by str.
+            raw_non_terminals: Set of non-terminal symbols represented by str.
+            raw_terminals: Set of non-terminal symbols represented by str.
+            raw_rules: List of rules. Each rule is tuple containing left and right side.
+            raw_start_symbol: Start symbol represented by str.
+
         Returns:
             Scattered context grammar.
 
@@ -110,14 +178,15 @@ class CodeLoad:
 
     @staticmethod
     def scattered_context_rule(raw_lhs: Iterable, raw_rhs: Iterable, alphabet: Alphabet):
-        """Deserialize rule.
+        """Get scattered context rule from compact definition.
 
-        Serialized rule is tuple containing left and right side.
-        Left side is represented as list of symbols.
-        Right side is represented as list of strings.
+        Args:
+            raw_lhs: Left side of rule.
+            raw_rhs: Right side of rule.
+            alphabet: Alphabet containing all symbols from raw_lhs and raw_rhs.
 
-        Examples of serialized rules:
-            (["A", "B"], ["CD", "EF"]), ("AB", ["C", "DEF"])
+        Returns:
+            ScatteredContextRule.
 
         """
         lhs = [alphabet.lookup(symbol) for symbol in raw_lhs]
@@ -130,7 +199,7 @@ class CodeLoad:
         *components: List[Grammar],
         returning: bool = True,
     ):
-        """Deserialize PC grammar system.
+        """Get PC grammar system from compact definition.
 
         Args:
             raw_communication_symbols: List of communication symbols.
@@ -138,7 +207,7 @@ class CodeLoad:
             returning: If True, component is returned to its initial state after communication.
 
         Returns:
-            PCGrammarSystem
+            PCGrammarSystem.
 
         """
         communication_symbols = [

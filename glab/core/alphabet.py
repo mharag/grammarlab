@@ -119,6 +119,9 @@ class Alphabet:
             symbol.id: symbol for symbol in self.symbols
         }
 
+    def __eq__(self, other):
+        return isinstance(other, Alphabet) and self.symbols == other.symbols
+
     def __contains__(self, item):
         return item in self.symbols
 

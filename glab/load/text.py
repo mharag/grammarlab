@@ -5,8 +5,25 @@ from glab.load.load import Load, loader
 
 
 class TextLoad(Load):
+    """Text deserializer.
+
+    TextLoad is used to deserialize objects from text representation.
+
+    """
+
     @loader(String)
-    def string(self, cls, string: str, alphabet: Alphabet, delimiter=""):
+    def String(self, cls, string: str, alphabet: Alphabet, delimiter="") -> String:
+        """Deserialize string from string.
+
+        Args:
+            string: String representation of string.
+            alphabet: Alphabet that this string belongs to.
+            delimiter: Delimiter used to separate symbols of string.
+
+        Returns:
+            String instance.
+
+        """
         result = []
         if delimiter:
             string = string.split(delimiter)
@@ -15,8 +32,8 @@ class TextLoad(Load):
         return cls(result)
 
     @loader(PhraseConfiguration)
-    def phrase_configuration(self, cls, raw_configuration, grammar: PhraseGrammar, delimiter=""):
-        """Deserialize configuration from string.
+    def PhraseConfiguration(self, cls, raw_configuration, grammar: PhraseGrammar, delimiter="") -> PhraseConfiguration:
+        """Deserialize phrase configuration from string.
 
         Args:
             raw_configuration: String representation of configuration.
@@ -31,13 +48,18 @@ class TextLoad(Load):
         return cls(self.load(String, raw_configuration, alphabet, delimiter))
 
     @loader(PCConfiguration)
-    def pc_configuration(self, cls, raw_configuration, grammar: PCGrammarSystem, delimiter):
+    def PCConfiguration(self, cls, raw_configuration, grammar: PCGrammarSystem, delimiter) -> PCConfiguration:
         """Deserialize configuration from string.
 
         Configurations of components are separated by two delimiters.
 
-        Example of string representation:
-            A B C D  A B C D  A B C D
+        Args:
+            raw_configuration: String representation of configuration.
+            grammar: Grammar that this configuration belongs to.
+            delimiter: Delimiter used to separate symbols and configurations of components.
+
+        Returns:
+            PCConfiguration.
 
         """
         if not delimiter:

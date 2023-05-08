@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from glab.core.alphabet import String, Symbol
+from glab.core.alphabet import String, Symbol, Alphabet
 from glab.core.config import COLOR_CLI_OUTPUT, STRING_DELIMITER, Color
 from glab.core.extended_symbol import ExtendedSymbol
 from glab.core.grammar import DerivationSequence
@@ -12,7 +12,7 @@ from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
 from glab.grammars.scattered_context_grammar import ScatteredContextRule
 
 
-def create_table(colums, rows):
+def _create_table(colums, rows):
     if not rows:
         return ""
     return tabulate(rows, colums, tablefmt="orgtbl")
@@ -23,15 +23,38 @@ class CliExport(Export):
     """
 
     @formatter(str)
-    def _string(self, string):
+    def _str(self, string):
+        """helper function to export string"""
         return string
 
     @formatter(Symbol)
-    def symbol(self, symbol):
+    def Symbol(self, symbol):
+        """
+        .. code-block:: text
+
+            S
+
+        """
         return symbol.id
 
+    @formatter(Alphabet)
+    def Alphabet(self, alphabet):
+        """
+        .. code-block:: text
+
+            {S, A, B, C, a, b, c}
+
+        """
+        return "{" + str(", ".join(self.export(symbol) for symbol in alphabet)) + "}"
+
     @formatter(ExtendedSymbol)
-    def extended_symbol(self, symbol):
+    def ExtendedSymbol(self, symbol):
+        """
+        .. code-block:: text
+
+            S_flag
+
+        """
         if symbol.color and COLOR_CLI_OUTPUT:
             base_len = len(symbol.base_symbol.id)
             base_part = self.export(symbol.base_symbol)
@@ -41,27 +64,66 @@ class CliExport(Export):
         return self.export(symbol.base_symbol)
 
     @formatter(String)
-    def string(self, string):
+    def String(self, string):
+        """
+        .. code-block:: text
+
+            A A A A a a a a
+
+        :const:`glab.core.config.STRING_DELIMITER` is used to separate symbols
+
+        """
         return STRING_DELIMITER.join(self.export(symbol) for symbol in string)
 
     # Phrase grammars
     @formatter(PhraseGrammar)
-    def phrase_grammar(self, grammar):
+    def PhraseGrammar(self, grammar):
+        """
+        .. code-block:: text
+
+            PhraseGrammar
+            Non-terminals: {S, A, B, C}
+            Terminals: {a, b, c}
+            Start symbol: S
+            Rules:
+                  S -> A
+                  A -> a A
+
+        """
         rules = "\n".join([f"   {self.export(rule)}" for rule in grammar.rules])
         grammar_template = f"""{grammar.__class__.__name__}
-Non-terminals: {str(grammar.non_terminals)}
-Terminals: {str(grammar.terminals)}
-Start symbol: {str(grammar.start_symbol)}
+Non-terminals: {self.export(grammar.non_terminals)}
+Terminals: {self.export(grammar.terminals)}
+Start symbol: {self.export(grammar.start_symbol)}
 Rules:
 {rules}"""
         return grammar_template
 
     @formatter(PhraseRule)
-    def phrase_rule(self, rule):
+    def PhraseRule(self, rule):
+        """
+        .. code-block:: text
+
+            S -> A
+
+        """
         return f"{self.export(rule.lhs)} -> {self.export(rule.rhs)}"
 
     @formatter(DerivationSequence)
-    def derivation_sequence(self, sequence):
+    def DerivationSequence(self, sequence):
+        """
+        .. code-block:: text
+
+            | Used Rule   | Sential Form   |
+            |-------------|----------------|
+            |             | S              |
+            | S -> S S    | S S            |
+            | S -> ( S )  | ( S ) S        |
+            | S -> ( )    | ( ( ) ) S      |
+            | S -> ( )    | ( ( ) ) ( )    |
+
+
+        """
         if isinstance(sequence[0], PhraseConfiguration):
             columns = ["Used Rule", "Sential Form"]
             rows = [(self.export(c.used_rule), self.export(c.sential_form)) for c in sequence]
@@ -78,36 +140,79 @@ Rules:
                 rows.append(row)
         else:
             raise NotImplementedError
-        return create_table(columns, rows)
+        return _create_table(columns, rows)
 
     @formatter(PhraseConfiguration)
-    def phrase_configuration(self, configuration):
+    def PhraseConfiguration(self, configuration):
+        """
+        .. code-block:: text
+
+            ( S ) S
+
+        :const:`glab.core.config.STRING_DELIMITER` is used to separate symbols
+
+        """
         return self.export(configuration.sential_form)
 
     # Scattered context grammars
     @formatter(ScatteredContextRule)
-    def scattered_rule(self, rule):
+    def ScatteredContextRule(self, rule):
+        """
+        .. code-block:: text
+
+            (S, A) -> (A, S)
+
+        """
         lhs = ",".join(map(self.export, rule.lhs))
         rhs = ",".join(map(self.export, rule.rhs))
         return f"({lhs}) -> ({rhs})"
 
     # Parallel communicating grammar systems
     @formatter(PCGrammarSystem)
-    def pc_grammar_system(self, grammar):
+    def PCGrammarSystem(self, grammar):
+        """
+        .. code-block:: text
+
+            PCGrammarSystem
+            Communication symbols: [1, 2]
+
+            Component 1: PhraseGrammar
+            ...
+
+            Component 2: PhraseGrammar
+            ...
+
+        """
         components = "\n\n".join([
             f"Component {i}: {self.export(component)}" for i, component in enumerate(grammar.components)
         ])
+        communication_symbols = ", ".join(map(self.export, grammar.communication_symbols))
         grammar_template = f"""{grammar.__class__.__name__}
-Communication symbols: {str(grammar.communication_symbols)}
+Communication symbols: [{communication_symbols}]
 
 {components}
 """
         return grammar_template
 
     @formatter(PCConfiguration)
-    def pc_configuration(self, configuration):
+    def PCConfiguration(self, configuration):
+        """
+        .. code-block:: text
+
+            a a  b b  c c
+
+        :const:`glab.core.config.STRING_DELIMITER` is used to separate symbols.
+        Components are separated by two STRING_DELIMITERs.
+
+        """
         return "\t\t".join(map(self.export, configuration.data))
 
     @formatter(CommunicationRule)
-    def communication_rule(self, rule):  # pylint: disable=unused-argument
+    def CommunicationRule(self, rule):  # pylint: disable=unused-argument
+        """
+        .. code-block:: text
+
+            Communication Step
+
+        """
         return "Communication Step"

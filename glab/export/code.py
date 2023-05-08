@@ -1,4 +1,4 @@
-from glab.core.alphabet import Alphabet
+from glab.core.alphabet import Alphabet, String, Symbol
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.phrase_grammar import PhraseGrammar, PhraseRule
@@ -19,26 +19,56 @@ class CodeRepresentation:
 {self.content}"""
 
 
-def list_to_str(l):
-    return "[" + ", ".join([f'"{t}"' for t in l]) + "]"
-
-
-def set_to_str(l):
-    return "{" + ", ".join([f'"{t}"' for t in l]) + "}"
-
-
-def string_to_str(string, delimiter=""):
-    return '"'+(delimiter.join(map(str, string)))+'"'
-
-
 class CodeExport(Export):
     # Base objects
+    @formatter(String)
+    def String(self, string, force_list=False):
+        """
+        .. code-block:: python
+
+            "abc"
+            ["a_1", "b_2", "c_3"]
+
+        """
+        if force_list or any(len(symbol.id) > 1 for symbol in string):
+            return "[" + ", ".join([f'"{t}"' for t in string]) + "]"
+        else:
+            return '"'+("".join(map(str, string)))+'"'
+
     @formatter(Alphabet)
-    def alphabet(self, alphabet):
-        return set_to_str(alphabet)
+    def Alphabet(self, alphabet):
+        """
+        .. code-block:: python
+
+            {"S", "A", "B", "C", "a", "b", "c"}
+
+        """
+        return "{" + ", ".join([f'"{t}"' for t in alphabet]) + "}"
+
+    @formatter(Symbol)
+    def Symbol(self, symbol):
+        """
+        .. code-block:: python
+
+            "S"
+
+        """
+        return '"'+symbol.id+'"'
 
     @formatter("App")
-    def app(self, app):
+    def App(self, app):
+        """
+        .. code-block:: python
+
+            from glab.core.app import App
+            from glab.grammars import CF
+
+            G = CF(...)
+
+            if __name__ == "__main__":
+                App(G).run()
+
+        """
         grammar = self.export(app.grammar, grammar_name="G")
         representation = CodeRepresentation(f"""{grammar.content}
 if __name__ == "__main__":
@@ -50,7 +80,23 @@ if __name__ == "__main__":
 
     # Phrase grammars
     @formatter(PhraseGrammar)
-    def phrase_grammar(self, grammar, grammar_type="RE", grammar_name="G"):
+    def PhraseGrammar(self, grammar, grammar_type="RE", grammar_name="G"):
+        """
+        .. code-block:: python
+
+            from glab.grammars.grammars import RE
+
+            N = {"S", "A", "B"}
+            T = {"a"}
+            S = "S"
+            P = [
+                ("S", "a"),
+                ("S", "AB"),
+            ]
+
+            G = RE(N, T, P, S)
+
+        """
         rules = "\n".join([f"    {self.export(rule)}," for rule in grammar.rules])
         representation = CodeRepresentation(f"""\
 N = {self.export(grammar.non_terminals)}
@@ -63,42 +109,71 @@ P = [
 {grammar_name} = {grammar_type}(N, T, P, S)
 """)
         representation.imports = {
-            f"from glab.grammars.grammars import {grammar_type}"
+            f"from glab.grammars import {grammar_type}"
         }
         return representation
 
     @formatter(PhraseRule)
-    def phrase_rule(self, rule):
-        if any(len(symbol.id) > 1 for symbol in rule.lhs):
-            lhs = list_to_str(rule.lhs)
-        else:
-            lhs = string_to_str(rule.lhs)
-        if any(len(symbol.id) > 1 for symbol in rule.rhs):
-            rhs = list_to_str(rule.rhs)
-        else:
-            rhs = string_to_str(rule.rhs)
-        return f"({lhs}, {rhs})"
+    def PhraseRule(self, rule):
+        """
+        .. code-block:: python
+
+            ("S", "abc")
+
+        """
+        return f"({self.export(rule.lhs)}, {self.export(rule.rhs)})"
 
     # Scattered context grammars
     @formatter(ScatteredContextGrammar)
-    def scattered_context_grammar(self, grammar, grammar_name="G"):
+    def ScatteredContextGrammar(self, grammar, grammar_name="G"):
+        """
+        .. code-block:: python
+
+            from glab.grammars import SCG
+
+            N = {"S", "A", "B"}
+            T = {"a"}
+            S = "S"
+            P = [
+                (["S", "A"], ["B", "A"]),
+            ]
+
+            G = SCG(N, T, P, S)
+
+        """
         return self.phrase_grammar(grammar, grammar_type="SCG", grammar_name=grammar_name)
 
     @formatter(ScatteredContextRule)
-    def scattered_rule(self, rule):
-        lhs = list_to_str(rule.lhs)
+    def ScatteredContextRule(self, rule):
+        """
+        .. code-block:: python
+
+            (["S", "A"], ["B", "A"])
+
+        """
+        lhs = "[" + ", ".join(map(self.export, rule.lhs)) + "]"
         rhs = []
         for string in rule.rhs:
-            if any(len(symbol.id) > 1 for symbol in string):
-                rhs.append(list_to_str(string))
-            else:
-                rhs.append(string_to_str(string))
+            rhs.append(self.export(string))
         rhs = "[" + (", ".join(rhs)) + "]"
         return f"({lhs}, {rhs})"
 
     # Parallel communicating grammar systems
     @formatter(PCGrammarSystem)
-    def pc_grammar_system(self, grammar, grammar_name="G"):
+    def PCGrammarSystem(self, grammar, grammar_name="G"):
+        """
+        .. code-block:: python
+
+            from glab.grammars import PC
+            from glab.grammars import CF
+
+            C_1 = CF(...)
+            C_2 = CF(...)
+            C_3 = CF(...)
+
+            G = PC(["a", "b", "c"], C_1, C_2, C_3)
+
+        """
         components = []
         imports = set()
         for i, component in enumerate(grammar.components):
@@ -108,10 +183,12 @@ P = [
         components = "\n\n".join(components)
         component_names = ", ".join([f"C{i}" for i in range(len(grammar.components))])
         grammar_type = "NPC" if not grammar.returning else "PC"
+        communication_symbols = "[" + ", ".join([f'"{t}"' for t in grammar.communication_symbols]) + "]"
+
         representation = CodeRepresentation(f"""\
 {components}
 
-{grammar_name} = {grammar_type}({list_to_str(grammar.communication_symbols)}, {component_names})
+{grammar_name} = {grammar_type}({communication_symbols}, {component_names})
 """)
         representation.imports = imports | {
             f"from glab.grammars.grammars import {grammar_type}"

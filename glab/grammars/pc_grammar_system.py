@@ -54,10 +54,10 @@ class PCGrammarSystem(Grammar):
     configuration_class = PCConfiguration
 
     def __init__(self,
-                 comumunication_symbols: List[Symbol],
-                 components: List[Grammar],
-                 returning: bool = True
-                 ):
+         comumunication_symbols: List[Symbol],
+         components: List[Grammar],
+         returning: bool = True
+     ):
         """Create PC grammar system.
         Args:
             comumunication_symbols: Symbols that are used for communication between components. i-th points to i-th component.
