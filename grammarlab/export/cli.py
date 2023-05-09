@@ -33,6 +33,21 @@ class CliExport(Export):
         """helper function to export string"""
         return string
 
+    @formatter(set)
+    def _set(self, set_):
+        """helper function to export set"""
+        return "{" + ", ".join(self.export(item) for item in set_) + "}"
+
+    @formatter(tuple)
+    def _tuple(self, tuple_):
+        """helper function to export tuple"""
+        return "(" + ", ".join(self.export(item) for item in tuple_) + ")"
+
+    @formatter(list)
+    def _list(self, list_):
+        """helper function to export list"""
+        return "[" + ", ".join(self.export(item) for item in list_) + "]"
+
     @formatter(Symbol)
     def Symbol(self, symbol):
         """
@@ -79,7 +94,7 @@ class CliExport(Export):
         :const:`grammarlab.core.config.STRING_DELIMITER` is used to separate symbols
 
         """
-        return STRING_DELIMITER.join(self.export(symbol) for symbol in string)
+        return STRING_DELIMITER.join(self.export(symbol) for symbol in string) or "ε"
 
     # Phrase grammars
     @formatter(PhraseGrammar)
