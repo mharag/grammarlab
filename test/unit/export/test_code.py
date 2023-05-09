@@ -1,5 +1,5 @@
+from glab.core.alphabet import Alphabet, NonTerminal, Terminal
 from glab.export.code import CodeExport
-from glab.core.alphabet import Alphabet, Terminal, NonTerminal
 from glab.grammars.phrase_grammar import PhraseRule
 from glab.grammars.scattered_context_grammar import ScatteredContextRule
 

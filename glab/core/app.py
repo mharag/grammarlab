@@ -3,8 +3,7 @@ import argparse
 import logging
 from typing import Optional
 
-from glab.core.visualize_ast import visualize_ast
-from glab.export import CliExport, CodeExport, LatexExport, GraphExport
+from glab.export import CliExport, CodeExport, GraphExport, LatexExport
 from glab.load import TextLoad
 
 log = logging.getLogger("glab.cli")

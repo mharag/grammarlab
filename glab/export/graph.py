@@ -1,10 +1,11 @@
-from glab.export.export import Export, formatter
-from glab.grammars.phrase_grammar import PhraseConfiguration
-from glab.grammars.scattered_context_grammar import SCGConfiguration
+from functools import reduce
+
 from glab.core.ast import Tree
 from glab.core.visualize_ast import visualize_ast
-from glab.grammars.pc_grammar_system import PCConfiguration, CommunicationRule
-from functools import reduce
+from glab.export.export import Export, formatter
+from glab.grammars.pc_grammar_system import CommunicationRule, PCConfiguration
+from glab.grammars.phrase_grammar import PhraseConfiguration
+from glab.grammars.scattered_context_grammar import SCGConfiguration
 
 
 class GraphExport(Export):
@@ -91,5 +92,3 @@ class GraphExport(Export):
             visualize_ast(tree, filename)
 
         return trees
-
-

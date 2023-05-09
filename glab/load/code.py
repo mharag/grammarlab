@@ -1,7 +1,7 @@
 from typing import Iterable, List, Set
 
-from glab.core.alphabet import (Alphabet, NonTerminal, String, SymbolType,
-                                Terminal, Symbol)
+from glab.core.alphabet import (Alphabet, NonTerminal, String, Symbol,
+                                SymbolType, Terminal)
 from glab.core.grammar import Grammar
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.phrase_grammar import (ContextFreeRule, PhraseGrammar,

@@ -192,9 +192,9 @@ class String:
         self.symbols = list(filter(lambda symbol: symbol != epsilon, symbols))
         self.index = None
         """Index of the string.
-        
+
         The index is a dictionary mapping symbols to their positions in the string.
-        
+
         """
         self._create_index()
 

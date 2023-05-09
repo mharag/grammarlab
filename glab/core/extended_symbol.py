@@ -1,8 +1,6 @@
 from typing import Dict, Tuple
 
-from glab.core.alphabet import NonTerminal
-from glab.core.alphabet import Symbol, SymbolType
-from glab.core.alphabet import Terminal
+from glab.core.alphabet import NonTerminal, Symbol, SymbolType, Terminal
 from glab.core.config import Color
 
 
@@ -47,20 +45,20 @@ class ExtendedSymbol(Symbol):
 
     variants: Dict[str, Tuple[SymbolType, str]] = {}
     """ Dictionary of all possible variants.
-    
+
     Key is variant name and value is tuple (Type, Representation),
     Type is either Terminal or NonTerminal
     Representation is unique str that will be displayed in sential form.
-    
+
     """
 
     color: Color = None
     """ You can set color that will be used for exporting symbol to cli.
-    
+
     All additional information added by this class will be highlighted with this color.
     If you want to used color you need to enable it in :mod:`glab.core.config`.
     Color can be set for each subclass separately. If None color is disabled.
-     
+
     """
 
     def __new__(cls, base_symbol, symbol_id=None, symbol_type=None, variant=None):

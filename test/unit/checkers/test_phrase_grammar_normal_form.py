@@ -1,4 +1,5 @@
-from glab.checkers import chomsky_normal_form, kuruda_normal_form_type_0, greibach_normal_form
+from glab.checkers import (chomsky_normal_form, greibach_normal_form,
+                           kuruda_normal_form_type_0)
 from glab.grammars import CF, RE
 
 

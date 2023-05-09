@@ -24,10 +24,7 @@ class SCGSymbol(ExtendedSymbol):
 
     @property
     def terminal(self):
-        if self.type == SymbolType.TERMINAL:
-            symbol = self.base
-        else:
-            symbol = self._terminal
+        symbol = symbol.base if  self.type == SymbolType.TERMINAL else self._terminal
         symbol.variant = "terminal"
         return symbol
 

@@ -1,8 +1,6 @@
-import functools
 from typing import Generator, List
 
 from glab.core.alphabet import String, Symbol
-from glab.core.ast import Tree
 from glab.core.grammar import Configuration, Grammar
 
 

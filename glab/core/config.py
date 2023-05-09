@@ -5,7 +5,7 @@
 from enum import Enum
 
 STRING_DELIMITER = " "
-"""Delimiter used to join symbols in a string. 
+"""Delimiter used to join symbols in a string.
 
 If you have only one character symbol you can set this to an empty string.
 

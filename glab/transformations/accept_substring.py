@@ -6,9 +6,10 @@ from glab.core.extended_symbol import ExtendedSymbol, get_symbol_factories
 from glab.core.filter import grammar_filter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
 from glab.grammars.scattered_context_grammar import \
-    ScatteredContextGrammar as Grammar, SCGConfiguration
+    ScatteredContextGrammar as Grammar
 from glab.grammars.scattered_context_grammar import \
     ScatteredContextRule as Rule
+from glab.grammars.scattered_context_grammar import SCGConfiguration
 
 
 class PCSymbol(ExtendedSymbol):

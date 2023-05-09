@@ -1,8 +1,7 @@
-from glab.core.alphabet import String, Terminal, NonTerminal, Alphabet
-from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseGrammar
+from glab.core.alphabet import Alphabet, NonTerminal, String, Terminal
 from glab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
+from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseGrammar
 from glab.load.text import TextLoad
-
 
 a = Terminal("a")
 A = NonTerminal("A")

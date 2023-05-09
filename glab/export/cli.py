@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from glab.core.alphabet import String, Symbol, Alphabet
+from glab.core.alphabet import Alphabet, String, Symbol
 from glab.core.config import COLOR_CLI_OUTPUT, STRING_DELIMITER, Color
 from glab.core.extended_symbol import ExtendedSymbol
 from glab.core.grammar import DerivationSequence

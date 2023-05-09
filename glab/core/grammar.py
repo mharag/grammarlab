@@ -10,7 +10,6 @@ from functools import wraps
 from typing import Any, Callable, Generator, List, Optional
 
 from glab.core.alphabet import String
-from glab.core.ast import Tree
 
 log = logging.getLogger("glab.Grammar")
 
@@ -135,7 +134,6 @@ class Grammar(ABC):
             Configuration class
 
         """
-        pass
 
     @property
     @abstractmethod
@@ -148,7 +146,6 @@ class Grammar(ABC):
             starting configuration
 
         """
-        pass
 
     @abstractmethod
     def direct_derive(self, configuration: Configuration) -> Generator[Configuration, None, None]:
@@ -164,7 +161,6 @@ class Grammar(ABC):
             NotImplementedError: This method should be implemented in subclass
 
         """
-        pass
 
     def _filter(self, configuration: Configuration):
         for func in self.filters:

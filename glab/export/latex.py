@@ -1,8 +1,9 @@
+from glab.core.alphabet import Alphabet, String, Symbol
 from glab.export.export import Export, formatter
 from glab.grammars.pc_grammar_system import PCGrammarSystem
-from glab.grammars.phrase_grammar import PhraseGrammar, PhraseRule, PhraseConfiguration
+from glab.grammars.phrase_grammar import (PhraseConfiguration, PhraseGrammar,
+                                          PhraseRule)
 from glab.grammars.scattered_context_grammar import ScatteredContextRule
-from glab.core.alphabet import Alphabet, Symbol, String
 
 
 class LatexExport(Export):

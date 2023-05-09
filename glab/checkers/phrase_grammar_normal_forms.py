@@ -103,5 +103,5 @@ greibach_normal_form = partial(match_grammar, _greibach_normal_form)
 
     - :math:`A \\rightarrow aB_1B_2\\dots B_n`
     - :math:`A \\rightarrow a`
-    
+
 """

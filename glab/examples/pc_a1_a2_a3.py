@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Non-returning PC grammar system for the language :math:`L = \\{\\_a^1\\_a^2\\_ \dots \\_a^n\\_ | n \geq 0\\}`.
+r"""Non-returning PC grammar system for the language :math:`L = \{\_a^1\_a^2\_ \dots \_a^n\_ | n \geq 0\}`.
 
 """
 

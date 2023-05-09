@@ -32,8 +32,7 @@ class CodeExport(Export):
         """
         if force_list or any(len(symbol.id) > 1 for symbol in string):
             return "[" + ", ".join([f'"{t}"' for t in string]) + "]"
-        else:
-            return '"'+("".join(map(str, string)))+'"'
+        return '"'+("".join(map(str, string)))+'"'
 
     @formatter(Alphabet)
     def Alphabet(self, alphabet):

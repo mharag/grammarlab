@@ -15,11 +15,11 @@ class C(A):
 
 class ExportTest(Export):
     @formatter(A)
-    def A(self, a):
+    def A(self, a):  # pylint: disable=unused-argument
         return "A"
 
     @formatter(B)
-    def B(self, b):
+    def B(self, b):  # pylint: disable=unused-argument
         return "B"
 
 
