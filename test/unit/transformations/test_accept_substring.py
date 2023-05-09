@@ -1,8 +1,13 @@
-from glab.grammars.pc_grammar_system import PCConfiguration as PCConf
-from glab.grammars.phrase_grammar import PhraseConfiguration as PhraseConf
-from glab.transformations.accept_substring import (
-    N, T, communication_left_to_right, copy_after_finish,
-    finish_from_left_to_right, finish_part_before_separator)
+from grammarlab.grammars.pc_grammar_system import PCConfiguration as PCConf
+from grammarlab.grammars.phrase_grammar import PhraseConfiguration as PhraseConf
+from grammarlab.transformations.accept_substring import (
+    N,
+    T,
+    communication_left_to_right,
+    copy_after_finish,
+    finish_from_left_to_right,
+    finish_part_before_separator,
+)
 
 
 def test_copy_after_finish():

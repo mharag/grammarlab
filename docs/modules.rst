@@ -1,7 +1,7 @@
-glab
-====
+grammarlab
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   glab
+   grammarlab

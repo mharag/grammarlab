@@ -1,6 +1,6 @@
-from glab.core.config import STRING_DELIMITER
-from glab.examples.kuruda_normal_form import grammar
-from glab.transformations.pcgs_pscg_re_equivalence import construct_grammar
+from grammarlab.core.config import STRING_DELIMITER
+from grammarlab.examples.kuruda_normal_form import grammar
+from grammarlab.transformations.pcgs_pscg_re_equivalence import construct_grammar
 
 
 def test_transformation():

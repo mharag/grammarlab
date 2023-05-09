@@ -1,5 +1,5 @@
-from glab.core.alphabet import Alphabet, NonTerminal, SymbolType, Terminal
-from glab.load.code import CodeLoad
+from grammarlab.core.common import Alphabet, NonTerminal, SymbolType, Terminal
+from grammarlab.load.code import CodeLoad
 
 a = Terminal("a")
 A = NonTerminal("A")

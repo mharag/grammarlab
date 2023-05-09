@@ -1,8 +1,8 @@
-from glab.core.alphabet import Alphabet, NonTerminal, Terminal
-from glab.core.config import STRING_DELIMITER
-from glab.export.cli import CliExport
-from glab.grammars.phrase_grammar import PhraseConfiguration, PhraseRule
-from glab.grammars.scattered_context_grammar import ScatteredContextRule
+from grammarlab.core.common import Alphabet, NonTerminal, Terminal
+from grammarlab.core.config import STRING_DELIMITER
+from grammarlab.export.cli import CliExport
+from grammarlab.grammars.phrase_grammar import PhraseConfiguration, PhraseRule
+from grammarlab.grammars.scattered_context_grammar import ScatteredContextRule
 
 a = Terminal("a")
 A = NonTerminal("A")

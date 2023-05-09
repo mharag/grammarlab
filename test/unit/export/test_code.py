@@ -1,7 +1,7 @@
-from glab.core.alphabet import Alphabet, NonTerminal, Terminal
-from glab.export.code import CodeExport
-from glab.grammars.phrase_grammar import PhraseRule
-from glab.grammars.scattered_context_grammar import ScatteredContextRule
+from grammarlab.core.common import Alphabet, NonTerminal, Terminal
+from grammarlab.export.code import CodeExport
+from grammarlab.grammars.phrase_grammar import PhraseRule
+from grammarlab.grammars.scattered_context_grammar import ScatteredContextRule
 
 a = Terminal("a")
 A = NonTerminal("A")

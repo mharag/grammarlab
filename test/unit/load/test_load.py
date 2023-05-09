@@ -1,6 +1,6 @@
 # pylint: disable=duplicate-code
 
-from glab.load.load import Load, loader
+from grammarlab.load.load import Load, loader
 
 
 class A:

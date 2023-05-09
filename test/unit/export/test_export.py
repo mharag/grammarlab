@@ -1,4 +1,4 @@
-from glab.export.export import Export, formatter
+from grammarlab.export.export import Export, formatter
 
 
 class A:

@@ -1,6 +1,9 @@
-from glab.checkers import (chomsky_normal_form, greibach_normal_form,
-                           kuruda_normal_form_type_0)
-from glab.grammars import CF, RE
+from grammarlab.checkers import (
+    chomsky_normal_form,
+    greibach_normal_form,
+    kuruda_normal_form_type_0,
+)
+from grammarlab.grammars import CF, RE
 
 
 def test_chomsky_normal_form():

@@ -1,5 +1,5 @@
-from glab.core.alphabet import SymbolType, Terminal
-from glab.core.extended_symbol import ExtendedSymbol
+from grammarlab.core.common import SymbolType, Terminal
+from grammarlab.core.extended_symbol import ExtendedSymbol
 
 
 class Symbol1(ExtendedSymbol):

@@ -1,7 +1,11 @@
-from glab.grammars.scattered_context_grammar import SCGConfiguration as Conf
-from glab.transformations.derivation_sequence_in_scg import (
-    N, T, finish_left_to_right, non_terminal_before_working_space,
-    symbol_not_copied)
+from grammarlab.grammars.scattered_context_grammar import SCGConfiguration as Conf
+from grammarlab.transformations.derivation_sequence_in_scg import (
+    N,
+    T,
+    finish_left_to_right,
+    non_terminal_before_working_space,
+    symbol_not_copied,
+)
 
 
 def test_non_terminal_before_working_space():

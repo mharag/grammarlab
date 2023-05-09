@@ -1,6 +1,6 @@
-from glab.core.app import App
-from glab.core.config import STRING_DELIMITER
-from glab.examples.cs_aaa import grammar
+from grammarlab.core.app import App
+from grammarlab.core.config import STRING_DELIMITER
+from grammarlab.examples.cs_aaa import grammar
 
 
 def format_expected_result(expected):

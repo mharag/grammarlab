@@ -1,12 +1,14 @@
 import pytest
 
-from glab.core.alphabet import NonTerminal
-from glab.core.alphabet import String as S
-from glab.core.alphabet import Terminal as T
-from glab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
-from glab.grammars.scattered_context_grammar import (ScatteredContextGrammar,
-                                                     ScatteredContextRule)
-from glab.grammars.scattered_context_grammar import SCGConfiguration as C
+from grammarlab.core.common import NonTerminal
+from grammarlab.core.common import String as S
+from grammarlab.core.common import Terminal as T
+from grammarlab.grammars.pc_grammar_system import PCConfiguration, PCGrammarSystem
+from grammarlab.grammars.scattered_context_grammar import (
+    ScatteredContextGrammar,
+    ScatteredContextRule,
+)
+from grammarlab.grammars.scattered_context_grammar import SCGConfiguration as C
 
 
 def test_g_step():

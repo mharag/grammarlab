@@ -1,12 +1,12 @@
 import pytest
 
-from glab.core.alphabet import Alphabet as A
-from glab.core.alphabet import NonTerminal
-from glab.core.alphabet import String as S
-from glab.core.alphabet import Terminal as T
-from glab.grammars.phrase_grammar import PhraseConfiguration as C
-from glab.grammars.phrase_grammar import PhraseGrammar as Grammar
-from glab.grammars.phrase_grammar import PhraseRule as Rule
+from grammarlab.core.common import Alphabet as A
+from grammarlab.core.common import NonTerminal
+from grammarlab.core.common import String as S
+from grammarlab.core.common import Terminal as T
+from grammarlab.grammars.phrase_grammar import PhraseConfiguration as C
+from grammarlab.grammars.phrase_grammar import PhraseGrammar as Grammar
+from grammarlab.grammars.phrase_grammar import PhraseRule as Rule
 
 
 @pytest.mark.parametrize(
