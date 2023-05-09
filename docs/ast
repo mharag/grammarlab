@@ -1,0 +1,36 @@
+digraph AST {
+	subgraph 4 {
+		rank=same
+		"0|0|S" [label=S]
+	}
+	subgraph 3 {
+		rank=same
+		"0|1|(" [label="("]
+		"0|2|S" [label=S]
+		"0|3|)" [label=")"]
+	}
+	subgraph 2 {
+		rank=same
+		"0|4|S" [label=S]
+		"0|5|S" [label=S]
+	}
+	subgraph 1 {
+		rank=same
+		"0|6|(" [label="("]
+		"0|7|)" [label=")"]
+	}
+	subgraph 0 {
+		rank=same
+		"0|8|(" [label="("]
+		"0|9|)" [label=")"]
+	}
+	"0|0|S" -> "0|1|("
+	"0|0|S" -> "0|2|S"
+	"0|0|S" -> "0|3|)"
+	"0|2|S" -> "0|4|S"
+	"0|2|S" -> "0|5|S"
+	"0|4|S" -> "0|6|("
+	"0|4|S" -> "0|7|)"
+	"0|5|S" -> "0|8|("
+	"0|5|S" -> "0|9|)"
+}
