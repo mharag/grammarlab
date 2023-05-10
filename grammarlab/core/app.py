@@ -78,34 +78,33 @@ class App:
 
     def _parse_arguments(self):
         parser = argparse.ArgumentParser(
-            prog="Grammar Simulator",
+            prog="./grammarlab_script.py",
             description="Simulator for various types of grammars",
         )
         subparsers = parser.add_subparsers(dest="command")
-        generate_parser = subparsers.add_parser("generate")
-        generate_parser.add_argument("-d", "--depth", type=int)
-        generate_parser.add_argument("-e", "--exact-depth", action="store_true")
-        generate_parser.add_argument("-s", "--show-sential-forms", action="store_true")
-        generate_parser.add_argument("--enumerate", action="store_true")
-        generate_parser.add_argument("-a", "--axiom", type=str)
-        generate_parser.add_argument("-x", "--delimiter", type=str, default="")
-        generate_parser.add_argument("-v", "--verbose", action="store_true")
+        generate_parser = subparsers.add_parser("generate", help="Generate language of the grammar")
+        generate_parser.add_argument("-d", "--depth", type=int, help="Max number of derivation steps")
+        generate_parser.add_argument("-e", "--exact-depth", action="store_true", help="Generate only sentences with exact depth")
+        generate_parser.add_argument("-s", "--show-sential-forms", action="store_true", help="Show sential forms")
+        generate_parser.add_argument("-a", "--axiom", type=str, help="Start derivation from this sential form")
+        generate_parser.add_argument("-x", "--delimiter", type=str, default="", help="Delimiter between symbols")
+        generate_parser.add_argument("-v", "--verbose", action="store_true", help="Show all informations about configurations")
 
-        derivation_sequence = subparsers.add_parser("derivation_sequence")
-        derivation_sequence.add_argument("-s", "--sentence", type=str)
-        derivation_sequence.add_argument("-d", "--delimiter", type=str, default="")
-        derivation_sequence.add_argument("-m", "--matches", type=int, default=1)
+        derivation_sequence = subparsers.add_parser("derivation_sequence", help="Show derivation sequence for sentence")
+        derivation_sequence.add_argument("-s", "--sentence", type=str, help="Sentence to derive")
+        derivation_sequence.add_argument("-d", "--delimiter", type=str, default="", help="Delimiter between symbols")
+        derivation_sequence.add_argument("-m", "--matches", type=int, default=1, help="Number of different derivation sequences (for ambiguous grammars)")
 
-        ast = subparsers.add_parser("ast")
-        ast.add_argument("-s", "--sentence", type=str)
-        ast.add_argument("-d", "--delimiter", type=str, default="")
-        ast.add_argument("-m", "--matches", type=int, default=1)
-        ast.add_argument("-f", "--filename", type=str)
+        ast = subparsers.add_parser("ast", help="Show AST for sentence")
+        ast.add_argument("-s", "--sentence", type=str, help="Sentence to derive")
+        ast.add_argument("-d", "--delimiter", type=str, default="", help="Delimiter between symbols")
+        ast.add_argument("-m", "--matches", type=int, default=1, help="Number of different asts (for ambiguous grammars)")
+        ast.add_argument("-f", "--filename", type=str, help="Filename to save ast to")
 
-        export = subparsers.add_parser("export")
-        export.add_argument("-c", "--code", action="store_true")
-        export.add_argument("-l", "--latex", action="store_true")
-        export.add_argument("-x", "--cli", action="store_true")
+        export = subparsers.add_parser("export", help="Export grammar to various formats")
+        export.add_argument("-c", "--code", action="store_true", help="Export grammar to python code")
+        export.add_argument("-l", "--latex", action="store_true", help="Export grammar to latex")
+        export.add_argument("-x", "--cli", action="store_true", help="Export grammar to cli")
 
         args = parser.parse_args()
 

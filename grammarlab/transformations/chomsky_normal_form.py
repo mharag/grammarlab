@@ -60,7 +60,7 @@ def find_reachable_symbols(grammar: PhraseGrammar) -> Set[Symbol]:
         Set of generating symbols
 
     """
-    console.rule("[bold]Finding generating symbols in grammar", style="grey")
+    console.rule("[bold]Finding reachable symbols in grammar", style="grey")
     reachable_symbols = {grammar.start_symbol}
     console.print("[bold]- Step 0:")
     console.print(f"    Start symbol added to reachable symbols: {cli_export.export(reachable_symbols)}")

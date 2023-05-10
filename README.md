@@ -22,10 +22,54 @@ With GrammarLab you can:
 * More comming...
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Do not forget to add file `grammarlab` to your `PYTHONPATH` environment variable.
+```bash
+export PYTHONPATH=$(PWD):$PYTHONPATH
+```
+Official release are comming soon. Keep an eye on this repository :)
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Documentation
+Full documentation id available at ``docs/_build/html/index.html``
+You can also build the documentation yourself by running:
+```bash
+cd docs
+make html
+```
+
+
+## Getting started
+You can check one of the examples in the examples folder to see how to use GrammarLab.
+```bash
+python3 grammarlab/examples/pc_power_of_two.py ast -s "a a a a a a a a" -d " "
+python3 grammarlab/examples/cf_dyck.py derivation_sequence -s "()()()()(())"
+python3 grammarlab/examples/cs_aaa.py generate -d 100
+```
+You can also try out the transformation to Chomsky normal form.
+Create a file named `script.py` with the following content:
+```python
+from grammarlab.transformations.chomsky_normal_form import transform_to_chomsky
+from grammarlab.examples.cf_dyck import grammar
+from grammarlab.core.app import App
+
+
+new_grammar = transform_to_chomsky(grammar)
+
+if __name__ == "__main__":
+    App(new_grammar).run()
+```
+And then run the script:
+```bash
+python3 script.py
+python3 script.py export --code
+python3 generate -d 20
+```
+
+## Testing
+You can run the tests by running:
+```bash
+pytest
+```
+in the root directory of the project.
 
 ## License
 This package is licensed under the MIT License. See the LICENSE file for more information.
