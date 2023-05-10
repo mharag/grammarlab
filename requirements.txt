@@ -1,2 +1,3 @@
 graphviz
 rich
+tabulate
