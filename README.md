@@ -22,6 +22,11 @@ With GrammarLab you can:
 * More comming...
 
 ## Installation
+Install requirements:
+```bash
+pip3 install -r requirements.txt
+```
+
 Do not forget to add file `grammarlab` to your `PYTHONPATH` environment variable.
 ```bash
 export PYTHONPATH=$(PWD):$PYTHONPATH
